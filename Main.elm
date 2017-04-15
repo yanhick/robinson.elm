@@ -4,6 +4,7 @@ import Html exposing (..)
 import HtmlParser
 import Parser
 import DOM
+import CSSParser
 
 
 main =
