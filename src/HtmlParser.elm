@@ -48,13 +48,14 @@ nextNode =
 
 parseClosingTag : a -> Parser a
 parseClosingTag after =
-    succeed after
-        |. spaces
-        |. symbol "</"
-        |. spaces
-        |. parseName
-        |. spaces
-        |. symbol ">"
+    inContext "parse closing tag" <|
+        delayedCommit spaces <|
+            succeed after
+                |. symbol "</"
+                |. spaces
+                |. parseName
+                |. spaces
+                |. symbol ">"
 
 
 parseOpeningTag : Parser ( TagName, Attributes )
@@ -90,11 +91,12 @@ parseAttributes =
         repeat zeroOrMore <|
             succeed identity
                 |= parseAttribute
+                |. spaces
 
 
 spaces : Parser ()
 spaces =
-    ignore zeroOrMore (\c -> c == ' ')
+    ignore zeroOrMore (\c -> c == ' ' || c == '\n')
 
 
 parseAttribute : Parser ( String, String )
@@ -108,10 +110,11 @@ parseAttribute =
 
 parseAttributeValue : Parser String
 parseAttributeValue =
-    succeed identity
-        |. oneOf [ symbol "'", symbol "\"" ]
-        |= keep zeroOrMore (\c -> c /= '\'' && c /= '"')
-        |. oneOf [ symbol "'", symbol "\"" ]
+    inContext "parse attribute value" <|
+        succeed identity
+            |. oneOf [ symbol "'", symbol "\"" ]
+            |= keep zeroOrMore (\c -> c /= '\'' && c /= '"')
+            |. oneOf [ symbol "'", symbol "\"" ]
 
 
 parseName : Parser String
