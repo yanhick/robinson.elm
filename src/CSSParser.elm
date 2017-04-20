@@ -8,6 +8,11 @@ import Color exposing (..)
 import String
 
 
+parse : Parser CSSStyleSheet
+parse =
+    parseCSSStyleSheet
+
+
 parseCSSStyleSheet : Parser CSSStyleSheet
 parseCSSStyleSheet =
     repeat oneOrMore
@@ -22,6 +27,7 @@ parseRule : Parser CSSRule
 parseRule =
     succeed (\s d -> { selectors = s, declarations = d })
         |= parseSelectors
+        |. spaces
         |= parseDeclarations
 
 
@@ -160,7 +166,7 @@ parseDeclaration =
     succeed (\n v -> { name = n, value = v })
         |= parseIdentifier
         |. spaces
-        |. symbol "="
+        |. symbol ":"
         |. spaces
         |= parseValue
         |. spaces
@@ -191,4 +197,4 @@ parseIdentifier =
 
 spaces : Parser ()
 spaces =
-    ignore zeroOrMore (\c -> c == ' ')
+    ignore zeroOrMore (\c -> c == ' ' || c == '\n')
