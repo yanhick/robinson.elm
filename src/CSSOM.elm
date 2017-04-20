@@ -19,15 +19,16 @@ type alias CSSRule =
     }
 
 
-type CSSSimpleSelector
-    = Id String
-    | Class String
-    | Tag String
-    | Universal
+type alias CSSSimpleSelector =
+    { tag : Maybe String
+    , classes : List String
+    , ids : List String
+    }
 
 
 type CSSSelector
-    = Simple (List CSSSimpleSelector)
+    = Simple CSSSimpleSelector
+    | Universal
 
 
 type alias CSSStyleSheet =
@@ -42,3 +43,16 @@ type CSSValue
     = Keyword String
     | Length Float CSSUnit
     | ColorValue Color
+
+
+specifity : CSSSelector -> Int
+specifity selector =
+    case selector of
+        Simple { tag, classes, ids } ->
+            List.length classes
+                + List.length ids
+                + Maybe.withDefault 0
+                    (Maybe.map (always 1) tag)
+
+        Universal ->
+            0

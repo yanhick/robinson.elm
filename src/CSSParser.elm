@@ -63,34 +63,75 @@ parseKeyword =
         |= parseIdentifier
 
 
+type IdOrClass
+    = Id String
+    | Class String
+
+
 parseSimpleSelector : Parser CSSSelector
 parseSimpleSelector =
     let
         tagSelector =
-            map Tag parseIdentifier
+            parseIdentifier
 
         classSelector =
-            succeed Class
+            succeed identity
                 |. symbol "."
                 |= parseIdentifier
 
         idSelector =
-            succeed Id
+            succeed identity
                 |. symbol "#"
                 |= parseIdentifier
 
         universalSelector =
             map (always Universal) (symbol "*")
-    in
-        succeed Simple
-            |= repeat oneOrMore
+
+        classOrIdSelectors =
+            repeat zeroOrMore
                 (oneOf
-                    [ universalSelector
-                    , idSelector
-                    , classSelector
-                    , tagSelector
+                    [ map Id idSelector
+                    , map Class classSelector
                     ]
                 )
+
+        separate =
+            List.foldl
+                (\selector ( ids, classes ) ->
+                    case selector of
+                        Id s ->
+                            ( s :: ids, classes )
+
+                        Class s ->
+                            ( ids, s :: classes )
+                )
+                ( [], [] )
+    in
+        oneOf
+            [ universalSelector
+            , (oneOf
+                [ succeed
+                    (\tag ( ids, classes ) ->
+                        Simple
+                            { tag = Just tag
+                            , classes = classes
+                            , ids = ids
+                            }
+                    )
+                    |= tagSelector
+                    |= map separate classOrIdSelectors
+                , succeed
+                    (\( ids, classes ) ->
+                        Simple
+                            { tag = Nothing
+                            , classes = classes
+                            , ids = ids
+                            }
+                    )
+                    |= map separate classOrIdSelectors
+                ]
+              )
+            ]
 
 
 parseSelectors : Parser (List CSSSelector)

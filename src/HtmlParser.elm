@@ -1,5 +1,6 @@
 module HtmlParser exposing (..)
 
+import Dict
 import Parser exposing (..)
 import Char
 import DOM exposing (..)
@@ -59,7 +60,7 @@ parseClosingTag after =
 parseOpeningTag : Parser ( TagName, Attributes )
 parseOpeningTag =
     inContext "parse opening tag" <|
-        succeed (\tagName attributes -> ( tagName, attributes ))
+        succeed (\tagName attributes -> ( tagName, Dict.fromList attributes ))
             |. spaces
             |. symbol "<"
             |. spaces
@@ -83,7 +84,7 @@ parseText =
             |= keep oneOrMore (\c -> c /= '<')
 
 
-parseAttributes : Parser (List Attribute)
+parseAttributes : Parser (List ( String, String ))
 parseAttributes =
     inContext "parsing attributes" <|
         repeat zeroOrMore <|
@@ -96,10 +97,10 @@ spaces =
     ignore zeroOrMore (\c -> c == ' ')
 
 
-parseAttribute : Parser Attribute
+parseAttribute : Parser ( String, String )
 parseAttribute =
     inContext "parsing attribute" <|
-        succeed Attribute
+        succeed (\name value -> ( name, value ))
             |= parseName
             |. symbol "="
             |= parseAttributeValue

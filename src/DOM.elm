@@ -7,18 +7,21 @@ type alias TagName =
     String
 
 
-type Attribute
-    = Attribute String String
+type alias Attribute =
+    String
 
 
 type alias Attributes =
-    List Attribute
+    Dict String String
+
+
+type alias ElementNode =
+    { children : List DOMNode
+    , tagName : String
+    , attributes : Attributes
+    }
 
 
 type DOMNode
     = Text String
-    | Element
-        { children : List DOMNode
-        , tagName : String
-        , attributes : Attributes
-        }
+    | Element ElementNode

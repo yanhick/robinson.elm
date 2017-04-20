@@ -5,6 +5,8 @@ import HtmlParser
 import Parser
 import DOM
 import CSSParser
+import Style
+import Layout
 
 
 main =
