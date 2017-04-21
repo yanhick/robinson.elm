@@ -23,11 +23,12 @@ type alias MatchedRule =
 
 
 type StyledNode
-    = StyledNode
+    = StyledElement
         { node : ElementNode
         , styles : Styles
         , children : List StyledNode
         }
+    | StyledText String
 
 
 type alias Styles =
@@ -43,33 +44,25 @@ type alias Styles =
     }
 
 
-styleTree : ElementNode -> CSSStyleSheet -> StyledNode
-styleTree node stylesheet =
-    let
-        styles =
-            specifiedValues node stylesheet
+styleTree : CSSStyleSheet -> DOMNode -> StyledNode
+styleTree stylesheet domNode =
+    case domNode of
+        Text text ->
+            StyledText text
 
-        elementChildren =
-            List.foldl
-                (\c acc ->
-                    case c of
-                        Element e ->
-                            e :: acc
+        Element elementNode ->
+            let
+                styles =
+                    specifiedValues elementNode stylesheet
 
-                        Text _ ->
-                            acc
-                )
-                []
-                node.children
-
-        children =
-            List.map (\c -> styleTree c stylesheet) elementChildren
-    in
-        StyledNode
-            { node = node
-            , styles = styles
-            , children = children
-            }
+                children =
+                    List.map (styleTree stylesheet) elementNode.children
+            in
+                StyledElement
+                    { node = elementNode
+                    , styles = styles
+                    , children = children
+                    }
 
 
 display : CSSValue -> CSSDisplay
