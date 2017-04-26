@@ -213,10 +213,62 @@ calculateBlockWidth { node, styles } blockDimensions containingBlockDimensions =
 
 
 calculateBlockHeight : StyledElementNode -> Float
-calculateBlockHeight node =
-    case node.styles.height of
+calculateBlockHeight { styles } =
+    case styles.height of
         Style.Length l _ ->
             l
 
         _ ->
             0.0
+
+
+calculateBlockPosition : StyledElementNode -> Dimensions -> Dimensions -> Dimensions
+calculateBlockPosition { node, styles } blockDimensions containingBlockDimension =
+    let
+        padding =
+            { left = blockDimensions.padding.left
+            , right = blockDimensions.padding.right
+            , top = toPx styles.paddingTop
+            , bottom = toPx styles.paddingBottom
+            }
+
+        border =
+            { left = blockDimensions.border.left
+            , right = blockDimensions.border.right
+            , top = toPx styles.borderTop
+            , bottom = toPx styles.borderBottom
+            }
+
+        margin =
+            { left = blockDimensions.margin.left
+            , right = blockDimensions.margin.right
+            , top = toPx styles.marginTop
+            , bottom = toPx styles.marginBottom
+            }
+
+        x =
+            containingBlockDimension.content.x
+                + margin.left
+                + border.left
+                + padding.left
+
+        y =
+            containingBlockDimension.content.y
+                + containingBlockDimension.content.height
+                + margin.top
+                + border.top
+                + padding.top
+
+        content =
+            { width = blockDimensions.content.width
+            , height = blockDimensions.content.height
+            , x = x
+            , y = y
+            }
+    in
+        { blockDimensions
+            | padding = padding
+            , border = border
+            , margin = margin
+            , content = content
+        }

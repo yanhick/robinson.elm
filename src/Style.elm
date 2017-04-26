@@ -40,10 +40,16 @@ initialStyles =
     , height = Auto
     , marginLeft = Length 0 Pixel
     , marginRight = Length 0 Pixel
+    , marginTop = Length 0 Pixel
+    , marginBottom = Length 0 Pixel
     , paddingRight = Length 0 Pixel
     , paddingLeft = Length 0 Pixel
+    , paddingTop = Length 0 Pixel
+    , paddingBottom = Length 0 Pixel
     , borderLeft = Length 0 Pixel
     , borderRight = Length 0 Pixel
+    , borderTop = Length 0 Pixel
+    , borderBottom = Length 0 Pixel
     , width = Auto
     }
 
@@ -53,10 +59,16 @@ type alias Styles =
     , height : CSSDimension
     , marginLeft : CSSDimension
     , marginRight : CSSDimension
+    , marginTop : CSSDimension
+    , marginBottom : CSSDimension
     , paddingLeft : CSSDimension
     , paddingRight : CSSDimension
+    , paddingTop : CSSDimension
+    , paddingBottom : CSSDimension
     , borderLeft : CSSDimension
     , borderRight : CSSDimension
+    , borderTop : CSSDimension
+    , borderBottom : CSSDimension
     , width : CSSDimension
     }
 
@@ -82,22 +94,33 @@ styleTree stylesheet domNode =
                     }
 
 
-display : CSSValue -> CSSDisplay
+display : CSSValue -> Maybe CSSDisplay
 display value =
     case value of
-        Keyword word ->
-            case word of
-                "inline" ->
-                    Inline
+        Keyword "block" ->
+            Just Block
 
-                "block" ->
-                    Block
+        Keyword "inline" ->
+            Just Inline
 
-                _ ->
-                    None
+        Keyword "none" ->
+            Just None
 
         _ ->
-            None
+            Nothing
+
+
+margin : CSSValue -> Maybe CSSDimension
+margin value =
+    case value of
+        Keyword "auto" ->
+            Just Auto
+
+        CSSOM.Length l u ->
+            Just <| Length l u
+
+        _ ->
+            Nothing
 
 
 specifiedValues : ElementNode -> CSSStyleSheet -> Styles
@@ -112,21 +135,39 @@ specifiedValues node stylesheet =
             (\{ name, value } styles ->
                 case name of
                     "display" ->
-                        { styles | display = display value }
+                        { styles
+                            | display =
+                                Maybe.withDefault styles.display <| display value
+                        }
+
+                    "margin-left" ->
+                        { styles
+                            | marginLeft =
+                                Maybe.withDefault styles.marginLeft <| margin value
+                        }
+
+                    "margin-right" ->
+                        { styles
+                            | marginRight =
+                                Maybe.withDefault styles.marginRight <| margin value
+                        }
+
+                    "margin-top" ->
+                        { styles
+                            | marginTop =
+                                Maybe.withDefault styles.marginTop <| margin value
+                        }
+
+                    "margin-bottom" ->
+                        { styles
+                            | marginBottom =
+                                Maybe.withDefault styles.marginBottom <| margin value
+                        }
 
                     _ ->
                         styles
             )
-            { display = None
-            , height = Auto
-            , marginLeft = Length 0.0 Pixel
-            , marginRight = Length 0.0 Pixel
-            , paddingLeft = Length 0.0 Pixel
-            , paddingRight = Length 0.0 Pixel
-            , borderLeft = Length 0.0 Pixel
-            , borderRight = Length 0.0 Pixel
-            , width = Auto
-            }
+            initialStyles
 
 
 matchingRules : ElementNode -> CSSStyleSheet -> List MatchedRule
