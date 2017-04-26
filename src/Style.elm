@@ -22,13 +22,30 @@ type alias MatchedRule =
     }
 
 
+type alias StyledElementNode =
+    { node : ElementNode
+    , styles : Styles
+    , children : List StyledNode
+    }
+
+
 type StyledNode
-    = StyledElement
-        { node : ElementNode
-        , styles : Styles
-        , children : List StyledNode
-        }
+    = StyledElement StyledElementNode
     | StyledText String
+
+
+initialStyles : Styles
+initialStyles =
+    { display = Inline
+    , height = Auto
+    , marginLeft = Length 0 Pixel
+    , marginRight = Length 0 Pixel
+    , paddingRight = Length 0 Pixel
+    , paddingLeft = Length 0 Pixel
+    , borderLeft = Length 0 Pixel
+    , borderRight = Length 0 Pixel
+    , width = Auto
+    }
 
 
 type alias Styles =

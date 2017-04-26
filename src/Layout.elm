@@ -2,6 +2,7 @@ module Layout exposing (..)
 
 import Style exposing (..)
 import CSSOM exposing (..)
+import DOM exposing (..)
 
 
 type Box
@@ -39,7 +40,7 @@ type LayoutBox
     = LayoutBox
         { dimensions : Dimensions
         , box : Box
-        , children : LayoutBox
+        , children : List LayoutBox
         }
 
 
@@ -76,17 +77,18 @@ type alias Dimensions =
     }
 
 
-calculateBlockWidth : StyledNode -> Dimensions -> Dimensions
-calculateBlockWidth (StyledNode node) containingBlock =
+toPx dimension =
+    case dimension of
+        Style.Length l _ ->
+            l
+
+        _ ->
+            0.0
+
+
+calculateBlockWidth : StyledElementNode -> Dimensions -> Dimensions -> Dimensions
+calculateBlockWidth { node, styles } blockDimensions containingBlockDimensions =
     let
-        toPx dimension =
-            case dimension of
-                Style.Length l _ ->
-                    l
-
-                _ ->
-                    0.0
-
         isAuto dimension =
             case dimension of
                 Auto ->
@@ -96,45 +98,122 @@ calculateBlockWidth (StyledNode node) containingBlock =
                     False
 
         dimensions =
-            [ node.styles.marginLeft
-            , node.styles.marginRight
-            , node.styles.paddingLeft
-            , node.styles.paddingRight
-            , node.styles.borderLeft
-            , node.styles.borderRight
-            , node.styles.width
+            [ styles.marginLeft
+            , styles.marginRight
+            , styles.paddingLeft
+            , styles.paddingRight
+            , styles.borderLeft
+            , styles.borderRight
+            , styles.width
             ]
 
         total =
-            List.foldl
-                (\dimension acc -> acc + toPx dimension)
-                0
-                dimensions
+            List.sum <| List.map toPx dimensions
 
         ( marginLeft, marginRight ) =
-            if isAuto node.styles.width && total > containingBlock.content.width then
+            if isAuto styles.width && total > containingBlockDimensions.content.width then
                 let
                     marginLeft =
-                        if isAuto node.styles.marginLeft then
+                        if isAuto styles.marginLeft then
                             Style.Length 0.0 Pixel
                         else
-                            node.styles.marginLeft
+                            styles.marginLeft
 
                     marginRight =
-                        if isAuto node.styles.marginRight then
+                        if isAuto styles.marginRight then
                             Style.Length 0.0 Pixel
                         else
-                            node.styles.marginRight
+                            styles.marginRight
                 in
                     ( marginLeft, marginRight )
             else
-                ( node.styles.marginLeft, node.styles.marginRight )
+                ( styles.marginLeft, styles.marginRight )
+
+        underflow =
+            containingBlockDimensions.content.width - total
+
+        width =
+            styles.width
+
+        widthIsAuto =
+            isAuto styles.width
+
+        marginLeftIsAuto =
+            isAuto styles.marginLeft
+
+        marginRightIsAuto =
+            isAuto styles.marginRight
+
+        ( l, r, w ) =
+            if not widthIsAuto && not marginLeftIsAuto && not marginRightIsAuto then
+                ( marginLeft
+                , Style.Length ((toPx marginRight) + underflow) Pixel
+                , width
+                )
+            else if not widthIsAuto && not marginLeftIsAuto && marginRightIsAuto then
+                ( marginLeft
+                , Style.Length underflow Pixel
+                , width
+                )
+            else if not widthIsAuto && marginLeftIsAuto && not marginRightIsAuto then
+                ( Style.Length underflow Pixel
+                , marginRight
+                , width
+                )
+            else if widthIsAuto then
+                if marginLeftIsAuto && not marginRightIsAuto then
+                    if underflow >= 0.0 then
+                        ( Style.Length 0.0 Pixel, marginRight, Style.Length underflow Pixel )
+                    else
+                        ( Style.Length 0.0 Pixel, Style.Length ((toPx marginRight) + underflow) Pixel, Style.Length 0.0 Pixel )
+                else if marginRightIsAuto && not marginLeftIsAuto then
+                    if underflow >= 0.0 then
+                        ( marginLeft, Style.Length 0.0 Pixel, Style.Length underflow Pixel )
+                    else
+                        ( marginLeft, Style.Length (underflow) Pixel, Style.Length 0.0 Pixel )
+                else if marginLeftIsAuto && marginRightIsAuto then
+                    if underflow >= 0.0 then
+                        ( Style.Length 0.0 Pixel, Style.Length 0.0 Pixel, Style.Length underflow Pixel )
+                    else
+                        ( Style.Length 0.0 Pixel, Style.Length (underflow) Pixel, Style.Length 0.0 Pixel )
+                else if not marginLeftIsAuto && not marginRightIsAuto then
+                    if underflow >= 0.0 then
+                        ( marginLeft, marginRight, Style.Length underflow Pixel )
+                    else
+                        ( marginLeft, Style.Length ((toPx marginRight) + underflow) Pixel, Style.Length 0.0 Pixel )
+                else
+                    ( marginLeft
+                    , marginRight
+                    , width
+                    )
+            else if not widthIsAuto && marginLeftIsAuto && marginRightIsAuto then
+                ( Style.Length (underflow / 2.0) Pixel
+                , Style.Length (underflow / 2.0) Pixel
+                , width
+                )
+            else
+                ( marginLeft
+                , marginRight
+                , width
+                )
+
+        oldContent =
+            blockDimensions.content
+
+        newContent =
+            { oldContent | width = toPx w }
+
+        oldMargins =
+            blockDimensions.margin
+
+        newMargins =
+            { oldMargins | left = toPx l, right = toPx r }
     in
-        containingBlock
+        { blockDimensions | content = newContent, margin = newMargins }
 
 
-calculateBlockHeight : StyledNode -> Float
-calculateBlockHeight (StyledNode node) =
+calculateBlockHeight : StyledElementNode -> Float
+calculateBlockHeight node =
     case node.styles.height of
         Style.Length l _ ->
             l
