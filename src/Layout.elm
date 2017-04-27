@@ -9,6 +9,7 @@ type Box
     = Block StyledNode
     | Inline StyledNode
     | Anonymous
+    | None
 
 
 type alias EdgeSize =
@@ -44,8 +45,8 @@ type LayoutBox
         }
 
 
-dimensions : Rect -> EdgeSize -> EdgeSize -> EdgeSize -> Dimensions
-dimensions content padding border margin =
+buildDimensions : Rect -> EdgeSize -> EdgeSize -> EdgeSize -> Dimensions
+buildDimensions content padding border margin =
     let
         paddingBox =
             expandRectBy content padding
@@ -84,6 +85,151 @@ toPx dimension =
 
         _ ->
             0.0
+
+
+startLayout : StyledNode -> Dimensions -> LayoutBox
+startLayout node containingBlockDimensions =
+    layout (layoutTree node) containingBlockDimensions
+
+
+layoutTree : StyledNode -> LayoutBox
+layoutTree node =
+    let
+        childrenBox =
+            List.foldl
+                (\child children ->
+                    case child of
+                        StyledElement { styles } ->
+                            case styles.display of
+                                Style.Block ->
+                                    List.append children <|
+                                        List.singleton <|
+                                            layoutTree child
+
+                                _ ->
+                                    children
+
+                        StyledText _ ->
+                            children
+                )
+                []
+    in
+        LayoutBox <|
+            case node of
+                StyledElement { styles, children } ->
+                    let
+                        box =
+                            case styles.display of
+                                Style.Block ->
+                                    Block node
+
+                                Style.Inline ->
+                                    Inline node
+
+                                Style.None ->
+                                    None
+                    in
+                        { box = box
+                        , dimensions = initialDimensions
+                        , children = childrenBox children
+                        }
+
+                StyledText _ ->
+                    { box = Inline node, dimensions = initialDimensions, children = [] }
+
+
+layout : LayoutBox -> Dimensions -> LayoutBox
+layout layoutBox containingBlockDimensions =
+    let
+        (LayoutBox { box, children, dimensions }) =
+            layoutBox
+    in
+        case box of
+            Block node ->
+                case node of
+                    StyledElement element ->
+                        layoutBlock layoutBox containingBlockDimensions
+
+                    StyledText _ ->
+                        layoutBox
+
+            _ ->
+                LayoutBox
+                    { box = box
+                    , dimensions = dimensions
+                    , children = children
+                    }
+
+
+initialDimensions : Dimensions
+initialDimensions =
+    buildDimensions
+        { x = 0, y = 0, width = 0, height = 0 }
+        { top = 0, right = 0, bottom = 0, left = 0 }
+        { top = 0, right = 0, bottom = 0, left = 0 }
+        { top = 0, right = 0, bottom = 0, left = 0 }
+
+
+layoutBlock : LayoutBox -> Dimensions -> LayoutBox
+layoutBlock (LayoutBox { box, children, dimensions }) containingBlockDimensions =
+    case box of
+        Block (StyledElement node) ->
+            let
+                widthDimensions =
+                    calculateBlockWidth node dimensions containingBlockDimensions
+
+                positionedDimensions =
+                    calculateBlockPosition node widthDimensions containingBlockDimensions
+
+                ( laidoutChildren, laidoutContainingBlock ) =
+                    layoutBlockChildren children positionedDimensions containingBlockDimensions
+
+                content =
+                    { x = positionedDimensions.content.x
+                    , y = positionedDimensions.content.y
+                    , width = widthDimensions.content.width
+                    , height = laidoutContainingBlock.content.height
+                    }
+
+                laidoutDimensions =
+                    calculateBlockHeight node { positionedDimensions | content = content }
+            in
+                LayoutBox
+                    { box = box
+                    , children = laidoutChildren
+                    , dimensions = laidoutDimensions
+                    }
+
+        _ ->
+            LayoutBox { box = box, children = children, dimensions = dimensions }
+
+
+layoutBlockChildren : List LayoutBox -> Dimensions -> Dimensions -> ( List LayoutBox, Dimensions )
+layoutBlockChildren children blockDimensions containingBlockDimensions =
+    List.foldl
+        (\child ( children, containingBlockDimensions ) ->
+            let
+                childLayoutBox =
+                    layout child containingBlockDimensions
+
+                childDimensions (LayoutBox { dimensions }) =
+                    dimensions
+
+                content =
+                    { x = containingBlockDimensions.content.x
+                    , y = containingBlockDimensions.content.y
+                    , width = containingBlockDimensions.content.width
+                    , height = containingBlockDimensions.content.height + (childDimensions childLayoutBox).content.height
+                    }
+            in
+                ( List.append children [ childLayoutBox ]
+                , { containingBlockDimensions
+                    | content = content
+                  }
+                )
+        )
+        ( [], containingBlockDimensions )
+        children
 
 
 calculateBlockWidth : StyledElementNode -> Dimensions -> Dimensions -> Dimensions
@@ -212,14 +358,22 @@ calculateBlockWidth { node, styles } blockDimensions containingBlockDimensions =
         { blockDimensions | content = newContent, margin = newMargins }
 
 
-calculateBlockHeight : StyledElementNode -> Float
-calculateBlockHeight { styles } =
+calculateBlockHeight : StyledElementNode -> Dimensions -> Dimensions
+calculateBlockHeight { styles } dimensions =
     case styles.height of
-        Style.Length l _ ->
-            l
+        Style.Length length _ ->
+            let
+                content =
+                    { x = dimensions.content.x
+                    , y = dimensions.content.y
+                    , width = dimensions.content.width
+                    , height = length
+                    }
+            in
+                { dimensions | content = content }
 
         _ ->
-            0.0
+            dimensions
 
 
 calculateBlockPosition : StyledElementNode -> Dimensions -> Dimensions -> Dimensions

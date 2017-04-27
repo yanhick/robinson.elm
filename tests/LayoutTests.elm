@@ -14,6 +14,7 @@ layout =
         [ calculateBlockWidth
         , calculateBlockHeight
         , calculateBlockPosition
+        , startLayout
         ]
 
 
@@ -27,7 +28,7 @@ calculateBlockWidth =
                         { top = 0, right = 0, bottom = 0, left = 0 }
 
                     dimensions =
-                        Layout.dimensions
+                        Layout.buildDimensions
                             { x = 0, y = 0, width = 0, height = 0 }
                             edgeSize
                             edgeSize
@@ -43,7 +44,7 @@ calculateBlockWidth =
                         Style.initialStyles
 
                     containingDimensions =
-                        Layout.dimensions
+                        Layout.buildDimensions
                             { x = 0, y = 0, width = 100, height = 0 }
                             edgeSize
                             edgeSize
@@ -71,7 +72,7 @@ calculateBlockWidth =
                         { top = 0, right = 0, bottom = 0, left = 0 }
 
                     dimensions =
-                        Layout.dimensions
+                        Layout.buildDimensions
                             { x = 0, y = 0, width = 0, height = 0 }
                             edgeSize
                             edgeSize
@@ -87,7 +88,7 @@ calculateBlockWidth =
                         Style.initialStyles
 
                     containingDimensions =
-                        Layout.dimensions
+                        Layout.buildDimensions
                             { x = 0, y = 0, width = 200, height = 0 }
                             edgeSize
                             edgeSize
@@ -114,7 +115,7 @@ calculateBlockWidth =
                         { top = 0, right = 0, bottom = 0, left = 0 }
 
                     dimensions =
-                        Layout.dimensions
+                        Layout.buildDimensions
                             { x = 0, y = 0, width = 0, height = 0 }
                             edgeSize
                             edgeSize
@@ -130,7 +131,7 @@ calculateBlockWidth =
                         Style.initialStyles
 
                     containingDimensions =
-                        Layout.dimensions
+                        Layout.buildDimensions
                             { x = 0, y = 0, width = 200, height = 0 }
                             edgeSize
                             edgeSize
@@ -167,7 +168,7 @@ calculateBlockWidth =
                         { top = 0, right = 0, bottom = 0, left = 0 }
 
                     dimensions =
-                        Layout.dimensions
+                        Layout.buildDimensions
                             { x = 0, y = 0, width = 0, height = 0 }
                             edgeSize
                             edgeSize
@@ -183,7 +184,7 @@ calculateBlockWidth =
                         Style.initialStyles
 
                     containingDimensions =
-                        Layout.dimensions
+                        Layout.buildDimensions
                             { x = 0, y = 0, width = 200, height = 0 }
                             edgeSize
                             edgeSize
@@ -220,7 +221,7 @@ calculateBlockWidth =
                         { top = 0, right = 0, bottom = 0, left = 0 }
 
                     dimensions =
-                        Layout.dimensions
+                        Layout.buildDimensions
                             { x = 0, y = 0, width = 0, height = 0 }
                             edgeSize
                             edgeSize
@@ -236,7 +237,7 @@ calculateBlockWidth =
                         Style.initialStyles
 
                     containingDimensions =
-                        Layout.dimensions
+                        Layout.buildDimensions
                             { x = 0, y = 0, width = 100, height = 0 }
                             edgeSize
                             edgeSize
@@ -273,7 +274,7 @@ calculateBlockWidth =
                         { top = 0, right = 0, bottom = 0, left = 0 }
 
                     dimensions =
-                        Layout.dimensions
+                        Layout.buildDimensions
                             { x = 0, y = 0, width = 0, height = 0 }
                             edgeSize
                             edgeSize
@@ -289,7 +290,7 @@ calculateBlockWidth =
                         Style.initialStyles
 
                     containingDimensions =
-                        Layout.dimensions
+                        Layout.buildDimensions
                             { x = 0, y = 0, width = 200, height = 0 }
                             edgeSize
                             edgeSize
@@ -326,7 +327,7 @@ calculateBlockWidth =
                         { top = 0, right = 0, bottom = 0, left = 0 }
 
                     dimensions =
-                        Layout.dimensions
+                        Layout.buildDimensions
                             { x = 0, y = 0, width = 0, height = 0 }
                             edgeSize
                             edgeSize
@@ -342,7 +343,7 @@ calculateBlockWidth =
                         Style.initialStyles
 
                     containingDimensions =
-                        Layout.dimensions
+                        Layout.buildDimensions
                             { x = 0, y = 0, width = 200, height = 0 }
                             edgeSize
                             edgeSize
@@ -379,7 +380,7 @@ calculateBlockWidth =
                         { top = 0, right = 0, bottom = 0, left = 0 }
 
                     dimensions =
-                        Layout.dimensions
+                        Layout.buildDimensions
                             { x = 0, y = 0, width = 0, height = 0 }
                             edgeSize
                             edgeSize
@@ -395,7 +396,7 @@ calculateBlockWidth =
                         Style.initialStyles
 
                     containingDimensions =
-                        Layout.dimensions
+                        Layout.buildDimensions
                             { x = 0, y = 0, width = 100, height = 0 }
                             edgeSize
                             edgeSize
@@ -443,7 +444,17 @@ calculateBlockHeight =
                     styles =
                         Style.initialStyles
 
-                    height =
+                    edgeSize =
+                        { top = 0, right = 0, bottom = 0, left = 0 }
+
+                    dimensions =
+                        Layout.buildDimensions
+                            { x = 0, y = 0, width = 0, height = 0 }
+                            edgeSize
+                            edgeSize
+                            edgeSize
+
+                    laidoutDimensions =
                         Layout.calculateBlockHeight
                             ({ node = element
                              , styles =
@@ -454,9 +465,10 @@ calculateBlockHeight =
                              , children = []
                              }
                             )
+                            dimensions
                 in
-                    Expect.equal height 50
-        , test "get 0 if auto height" <|
+                    Expect.equal laidoutDimensions.content.height 50
+        , test "do nothing if auto height" <|
             \() ->
                 let
                     element =
@@ -465,7 +477,17 @@ calculateBlockHeight =
                         , children = []
                         }
 
-                    height =
+                    edgeSize =
+                        { top = 0, right = 0, bottom = 0, left = 0 }
+
+                    dimensions =
+                        Layout.buildDimensions
+                            { x = 0, y = 0, width = 0, height = 0 }
+                            edgeSize
+                            edgeSize
+                            edgeSize
+
+                    laidoutDimensions =
                         Layout.calculateBlockHeight
                             ({ node = element
                              , styles =
@@ -473,8 +495,9 @@ calculateBlockHeight =
                              , children = []
                              }
                             )
+                            dimensions
                 in
-                    Expect.equal height 0
+                    Expect.equal laidoutDimensions.content.height 0
         ]
 
 
@@ -494,14 +517,14 @@ calculateBlockPosition =
                         }
 
                     dimensions =
-                        Layout.dimensions
+                        Layout.buildDimensions
                             { x = 0, y = 0, width = 0, height = 0 }
                             edgeSize
                             edgeSize
                             edgeSize
 
                     containingDimensions =
-                        Layout.dimensions
+                        Layout.buildDimensions
                             { x = 10, y = 20, width = 0, height = 0 }
                             edgeSize
                             edgeSize
@@ -522,5 +545,60 @@ calculateBlockPosition =
                             == 10
                             && laidoutDimensions.content.y
                             == 20
+                        )
+        ]
+
+
+startLayout : Test
+startLayout =
+    describe "start layout"
+        [ test "layout itself" <|
+            \() ->
+                let
+                    edgeSize =
+                        { top = 0, right = 0, bottom = 0, left = 0 }
+
+                    element =
+                        { tagName = "div"
+                        , attributes = Dict.fromList [ ( "foo", "bar" ) ]
+                        , children = []
+                        }
+
+                    styles =
+                        Style.initialStyles
+
+                    getStyledNode children height =
+                        Style.StyledElement
+                            { styles =
+                                { styles
+                                    | display = Style.Block
+                                    , height = height
+                                }
+                            , node = element
+                            , children = children
+                            }
+
+                    styledNode =
+                        getStyledNode
+                            [ getStyledNode [] (Style.Length 50 CSSOM.Pixel)
+                            , getStyledNode [] (Style.Length 50 CSSOM.Pixel)
+                            ]
+                            Style.Auto
+
+                    containingDimensions =
+                        Layout.buildDimensions
+                            { x = 0, y = 0, width = 0, height = 0 }
+                            edgeSize
+                            edgeSize
+                            edgeSize
+
+                    (Layout.LayoutBox { dimensions }) =
+                        Layout.startLayout
+                            styledNode
+                            containingDimensions
+                in
+                    Expect.true ""
+                        (dimensions.content.height
+                            == 100
                         )
         ]
