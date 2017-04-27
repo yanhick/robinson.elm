@@ -35,7 +35,7 @@ parseNodeList domNodes =
     oneOf
         [ parseClosingTag domNodes
         , nextNode
-            |> andThen (\n -> parseNodeList (n :: domNodes))
+            |> andThen (\n -> parseNodeList (domNodes ++ [ n ]))
         ]
 
 

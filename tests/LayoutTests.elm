@@ -3,6 +3,7 @@ module LayoutTests exposing (..)
 import Dict
 import CSSOM
 import Style
+import Painting
 import Layout
 import Test exposing (..)
 import Expect

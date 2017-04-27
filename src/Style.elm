@@ -164,6 +164,18 @@ specifiedValues node stylesheet =
                                 Maybe.withDefault styles.marginBottom <| margin value
                         }
 
+                    "width" ->
+                        { styles
+                            | width =
+                                Maybe.withDefault styles.width <| margin value
+                        }
+
+                    "height" ->
+                        { styles
+                            | height =
+                                Maybe.withDefault styles.height <| margin value
+                        }
+
                     _ ->
                         styles
             )
