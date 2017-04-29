@@ -105,13 +105,13 @@ styleTree stylesheet domNode =
 display : CSSValue -> Maybe CSSDisplay
 display value =
     case value of
-        Keyword "block" ->
+        Keyword CSSOM.Block ->
             Just Block
 
-        Keyword "inline" ->
+        Keyword CSSOM.Inline ->
             Just Inline
 
-        Keyword "none" ->
+        Keyword CSSOM.None ->
             Just None
 
         _ ->
@@ -121,7 +121,7 @@ display value =
 color : CSSValue -> Maybe CSSColor
 color value =
     case value of
-        ColorValue color ->
+        ColorValue (RGBA color) ->
             Just (CSSColor color)
 
         _ ->
@@ -131,7 +131,7 @@ color value =
 margin : CSSValue -> Maybe CSSDimension
 margin value =
     case value of
-        Keyword "auto" ->
+        Keyword CSSOM.Auto ->
             Just Auto
 
         CSSOM.Length l u ->

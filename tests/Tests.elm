@@ -154,7 +154,7 @@ styledTree =
                             Parser.run HtmlParser.parse "<html class=\"my-class\"></html>"
 
                         styleSheet =
-                            Parser.run CSSParser.parse "html {foo:bar;} .my-class {display:block;} .my-other-class {display:inline;} #my-id {display:inline;}"
+                            Parser.run CSSParser.parse "html {foo:auto;} .my-class {display:block;} .my-other-class {display:inline;} #my-id {display:inline;}"
 
                         styledTree =
                             Result.map2 Style.styleTree styleSheet rootElement

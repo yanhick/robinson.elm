@@ -49,11 +49,14 @@ parseColor =
             map (parseIntHex >> Result.withDefault 0)
                 (keep (Exactly 2) Char.isHexDigit)
     in
-        succeed (\r g b -> ColorValue (Color.rgb r g b))
-            |. symbol "#"
-            |= parseHex
-            |= parseHex
-            |= parseHex
+        oneOf
+            [ parseColorKeyword
+            , succeed (\r g b -> ColorValue (RGBA (Color.rgb r g b)))
+                |. symbol "#"
+                |= parseHex
+                |= parseHex
+                |= parseHex
+            ]
 
 
 parseLength : Parser CSSValue
@@ -63,10 +66,24 @@ parseLength =
         |= parseUnit
 
 
+parseColorKeyword : Parser CSSValue
+parseColorKeyword =
+    succeed identity
+        |= oneOf
+            [ map (\_ -> ColorValue (ColorKeyword Red)) (keyword "red")
+            , map (\_ -> ColorValue (ColorKeyword White)) (keyword "white")
+            ]
+
+
 parseKeyword : Parser CSSValue
 parseKeyword =
-    succeed Keyword
-        |= parseIdentifier
+    succeed identity
+        |= oneOf
+            [ map (\k -> Keyword Auto) (keyword "auto")
+            , map (\k -> Keyword Block) (keyword "block")
+            , map (\k -> Keyword Inline) (keyword "inline")
+            , map (\k -> Keyword None) (keyword "none")
+            ]
 
 
 type IdOrClass

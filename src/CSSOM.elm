@@ -36,9 +36,26 @@ type CSSUnit
 
 
 type CSSValue
-    = Keyword String
+    = Keyword CSSKeyword
     | Length Float CSSUnit
-    | ColorValue Color
+    | ColorValue CSSColorValue
+
+
+type CSSColorValue
+    = ColorKeyword CSSColorKeyword
+    | RGBA Color
+
+
+type CSSColorKeyword
+    = Red
+    | White
+
+
+type CSSKeyword
+    = Auto
+    | None
+    | Block
+    | Inline
 
 
 specifity : CSSSelector -> Int

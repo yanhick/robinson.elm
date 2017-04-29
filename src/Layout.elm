@@ -237,7 +237,7 @@ calculateBlockWidth { node, styles } blockDimensions containingBlockDimensions =
     let
         isAuto dimension =
             case dimension of
-                Auto ->
+                Style.Auto ->
                     True
 
                 _ ->
