@@ -3,6 +3,12 @@ module Style exposing (..)
 import Dict
 import CSSOM exposing (..)
 import DOM exposing (..)
+import Color exposing (..)
+
+
+type CSSColor
+    = CSSColor Color
+    | Transparent
 
 
 type CSSDisplay
@@ -51,12 +57,14 @@ initialStyles =
     , borderTop = Length 0 Pixel
     , borderBottom = Length 0 Pixel
     , width = Auto
+    , backgroundColor = Transparent
     }
 
 
 type alias Styles =
     { display : CSSDisplay
     , height : CSSDimension
+    , backgroundColor : CSSColor
     , marginLeft : CSSDimension
     , marginRight : CSSDimension
     , marginTop : CSSDimension
@@ -105,6 +113,16 @@ display value =
 
         Keyword "none" ->
             Just None
+
+        _ ->
+            Nothing
+
+
+color : CSSValue -> Maybe CSSColor
+color value =
+    case value of
+        ColorValue color ->
+            Just (CSSColor color)
 
         _ ->
             Nothing
@@ -174,6 +192,12 @@ specifiedValues node stylesheet =
                         { styles
                             | height =
                                 Maybe.withDefault styles.height <| margin value
+                        }
+
+                    "background-color" ->
+                        { styles
+                            | backgroundColor =
+                                Maybe.withDefault styles.backgroundColor <| color value
                         }
 
                     _ ->

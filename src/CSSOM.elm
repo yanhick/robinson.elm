@@ -3,10 +3,6 @@ module CSSOM exposing (..)
 import Color exposing (..)
 
 
-type alias CSSColor =
-    Color
-
-
 type alias CSSDeclaration =
     { name : String
     , value : CSSValue

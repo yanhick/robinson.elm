@@ -1,6 +1,7 @@
 module Main exposing (..)
 
 import Html exposing (..)
+import Color exposing (..)
 import Html.Events exposing (..)
 import Html.Attributes exposing (style)
 import HtmlParser
@@ -44,7 +45,10 @@ update Start _ =
                 Parser.run HtmlParser.parse "<div class=\"bang\"><div id=\"boum\"></div><div class=\"bam\"></div></div>"
 
         css =
-            Parser.run CSSParser.parse ".bang { width: 200px; height: 200px; display: block; }.bam { width: 100px; height: 100px; display:block; } #boum{ width: 50px; height: 50px; display: block; }"
+            Parser.run CSSParser.parse """
+            .bang { width: 200px; height: 200px; display: block; background-color: #333333; }
+            .bam { width: 100px; height: 100px; display:block; background-color: #ff0000; }
+            #boum{ width: 50px; height: 50px; display: block; background-color: #00ff00; }"""
 
         style =
             Result.map2 Style.styleTree css html
@@ -83,15 +87,26 @@ view model =
 
 
 element : Painting.DisplayCommand -> Html Msg
-element (Painting.SolidColor { x, y, width, height }) =
+element (Painting.SolidColor { x, y, width, height } color) =
     let
+        toRGBAString { red, green, blue, alpha } =
+            "rgba("
+                ++ toString red
+                ++ ", "
+                ++ toString green
+                ++ ", "
+                ++ toString blue
+                ++ ", "
+                ++ toString alpha
+                ++ ")"
+
         s =
             [ ( "width", toString width ++ "px" )
             , ( "height", toString height ++ "px" )
             , ( "position", "absolute" )
             , ( "left", toString x ++ "px" )
             , ( "top", toString y ++ "px" )
-            , ( "background", "black" )
+            , ( "background", toRGBAString (Color.toRgb color) )
             ]
     in
         div [ style s ] []
