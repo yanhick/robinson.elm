@@ -1,4 +1,4 @@
-module CSSParser exposing (..)
+module CSSParser exposing (parse)
 
 import Char
 import ParseInt exposing (..)
@@ -178,7 +178,7 @@ parseDeclarations =
     succeed identity
         |. symbol "{"
         |. spaces
-        |= repeat oneOrMore
+        |= repeat zeroOrMore
             (succeed identity
                 |. spaces
                 |= parseDeclaration
