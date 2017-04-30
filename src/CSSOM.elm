@@ -37,6 +37,13 @@ type CSSBackgroundColor
     | BackgroundColorTransparent
 
 
+type CSSBorderWidth
+    = BorderWidthThin
+    | BorderWidthMedium
+    | BorderWidthThick
+    | BorderWidthLength CSSLength
+
+
 type CSSDeclaration
     = Display CSSDisplay
     | MarginLeft CSSMargin
@@ -50,6 +57,10 @@ type CSSDeclaration
     | Height CSSHeight
     | Width CSSWidth
     | BackgroundColor CSSBackgroundColor
+    | BorderLeftWidth CSSBorderWidth
+    | BorderRightWidth CSSBorderWidth
+    | BorderTopWidth CSSBorderWidth
+    | BorderBottomWidth CSSBorderWidth
 
 
 type alias CSSRule =

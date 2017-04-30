@@ -174,6 +174,10 @@ parseDeclaration =
         , parsePadding "padding-right" PaddingRight
         , parsePadding "padding-top" PaddingTop
         , parsePadding "padding-bottom" PaddingBottom
+        , parseBorderWidth "border-left" BorderLeftWidth
+        , parseBorderWidth "border-right" BorderRightWidth
+        , parseBorderWidth "border-top" BorderTopWidth
+        , parseBorderWidth "border-bottom" BorderBottomWidth
         , parseHeight
         , parseWidth
         , parseBackgroundColor
@@ -248,6 +252,23 @@ parsePadding paddingName paddingConstructor =
         |. symbol ":"
         |. spaces
         |= map PaddingLength parseLength
+        |. spaces
+        |. symbol ";"
+
+
+parseBorderWidth : String -> (CSSBorderWidth -> CSSDeclaration) -> Parser CSSDeclaration
+parseBorderWidth borderWidthName borderWidthConstructor =
+    succeed borderWidthConstructor
+        |. keyword borderWidthName
+        |. spaces
+        |. symbol ":"
+        |. spaces
+        |= oneOf
+            [ map BorderWidthLength parseLength
+            , map (always BorderWidthThin) (keyword "thin")
+            , map (always BorderWidthMedium) (keyword "medium")
+            , map (always BorderWidthThick) (keyword "thick")
+            ]
         |. spaces
         |. symbol ";"
 

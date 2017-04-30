@@ -45,10 +45,10 @@ initialStyles =
     , paddingRight = PaddingLength <| CSSLength 0 Pixel
     , paddingTop = PaddingLength <| CSSLength 0 Pixel
     , paddingBottom = PaddingLength <| CSSLength 0 Pixel
-    , borderLeft = Length 0 Pixel
-    , borderRight = Length 0 Pixel
-    , borderTop = Length 0 Pixel
-    , borderBottom = Length 0 Pixel
+    , borderLeftWidth = BorderWidthMedium
+    , borderRightWidth = BorderWidthMedium
+    , borderTopWidth = BorderWidthMedium
+    , borderBottomWidth = BorderWidthMedium
     , width = WidthAuto
     , height = HeightAuto
     , backgroundColor = BackgroundColorTransparent
@@ -72,10 +72,10 @@ type alias Styles =
     , paddingRight : CSSPadding
     , paddingTop : CSSPadding
     , paddingBottom : CSSPadding
-    , borderLeft : CSSDimension
-    , borderRight : CSSDimension
-    , borderTop : CSSDimension
-    , borderBottom : CSSDimension
+    , borderLeftWidth : CSSBorderWidth
+    , borderRightWidth : CSSBorderWidth
+    , borderTopWidth : CSSBorderWidth
+    , borderBottomWidth : CSSBorderWidth
     , borderTopColor : CSSColor
     , borderBottomColor : CSSColor
     , borderLeftColor : CSSColor
@@ -203,6 +203,26 @@ specifiedValues node stylesheet =
                     BackgroundColor value ->
                         { styles
                             | backgroundColor = value
+                        }
+
+                    BorderLeftWidth value ->
+                        { styles
+                            | borderLeftWidth = value
+                        }
+
+                    BorderRightWidth value ->
+                        { styles
+                            | borderRightWidth = value
+                        }
+
+                    BorderTopWidth value ->
+                        { styles
+                            | borderTopWidth = value
+                        }
+
+                    BorderBottomWidth value ->
+                        { styles
+                            | borderBottomWidth = value
                         }
             )
             initialStyles

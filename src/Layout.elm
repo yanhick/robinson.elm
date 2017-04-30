@@ -36,7 +36,7 @@ paddingToPx (PaddingLength (CSSLength l _)) =
 
 borderToPx dimension =
     case dimension of
-        Style.Length l _ ->
+        BorderWidthLength (CSSLength l _) ->
             l
 
         _ ->
@@ -249,8 +249,8 @@ calculateBlockWidth { node, styles } boxModel containingBoxModel =
             , marginToPx styles.marginRight
             , paddingToPx styles.paddingLeft
             , paddingToPx styles.paddingRight
-            , borderToPx styles.borderLeft
-            , borderToPx styles.borderRight
+            , borderToPx styles.borderLeftWidth
+            , borderToPx styles.borderRightWidth
             , widthToPx styles.width
             ]
 
@@ -417,8 +417,8 @@ calculateBlockPosition { node, styles } boxModel containingBoxModel =
         newBorder =
             { left = boxModelBorder.left
             , right = boxModelBorder.right
-            , top = borderToPx styles.borderTop
-            , bottom = borderToPx styles.borderBottom
+            , top = borderToPx styles.borderTopWidth
+            , bottom = borderToPx styles.borderBottomWidth
             }
 
         boxModelMargin =
