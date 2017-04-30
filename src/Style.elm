@@ -141,6 +141,16 @@ margin value =
             Nothing
 
 
+padding : CSSValue -> Maybe CSSDimension
+padding value =
+    case value of
+        CSSOM.Length l u ->
+            Just <| Length l u
+
+        _ ->
+            Nothing
+
+
 specifiedValues : ElementNode -> CSSStyleSheet -> Styles
 specifiedValues node stylesheet =
     stylesheet
@@ -180,6 +190,30 @@ specifiedValues node stylesheet =
                         { styles
                             | marginBottom =
                                 Maybe.withDefault styles.marginBottom <| margin value
+                        }
+
+                    "padding-top" ->
+                        { styles
+                            | paddingTop =
+                                Maybe.withDefault styles.paddingTop <| padding value
+                        }
+
+                    "padding-bottom" ->
+                        { styles
+                            | paddingBottom =
+                                Maybe.withDefault styles.paddingBottom <| padding value
+                        }
+
+                    "padding-left" ->
+                        { styles
+                            | paddingLeft =
+                                Maybe.withDefault styles.paddingLeft <| padding value
+                        }
+
+                    "padding-right " ->
+                        { styles
+                            | paddingRight =
+                                Maybe.withDefault styles.paddingRight <| padding value
                         }
 
                     "width" ->

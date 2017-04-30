@@ -3,10 +3,11 @@ module Painting exposing (..)
 import Color exposing (..)
 import Layout exposing (..)
 import Style exposing (..)
+import BoxModel
 
 
 type DisplayCommand
-    = SolidColor Rect Color
+    = SolidColor BoxModel.Rect Color
 
 
 buildDisplayList : LayoutBox -> List DisplayCommand
@@ -36,6 +37,6 @@ renderLayoutBox (LayoutBox { dimensions, children, box }) =
         [ renderBackground dimensions backgroundColor ] ++ (List.concatMap renderLayoutBox children)
 
 
-renderBackground : Dimensions -> Color -> DisplayCommand
-renderBackground dimensions color =
-    SolidColor dimensions.content color
+renderBackground : BoxModel.BoxModel -> Color -> DisplayCommand
+renderBackground boxModel color =
+    SolidColor (BoxModel.content boxModel) color

@@ -7,6 +7,7 @@ import Painting
 import Layout
 import Test exposing (..)
 import Expect
+import BoxModel
 
 
 layout : Test
@@ -29,7 +30,7 @@ calculateBlockWidth =
                         { top = 0, right = 0, bottom = 0, left = 0 }
 
                     dimensions =
-                        Layout.buildDimensions
+                        BoxModel.boxModel
                             { x = 0, y = 0, width = 0, height = 0 }
                             edgeSize
                             edgeSize
@@ -45,27 +46,28 @@ calculateBlockWidth =
                         Style.initialStyles
 
                     containingDimensions =
-                        Layout.buildDimensions
+                        BoxModel.boxModel
                             { x = 0, y = 0, width = 100, height = 0 }
                             edgeSize
                             edgeSize
                             edgeSize
 
-                    laidoutDimensions =
-                        Layout.calculateBlockWidth
-                            ({ node = element
-                             , styles =
-                                { styles
-                                    | display = Style.Block
-                                    , width = Style.Length 50 CSSOM.Pixel
-                                }
-                             , children = []
-                             }
-                            )
-                            dimensions
-                            containingDimensions
+                    boxModelContent =
+                        BoxModel.content <|
+                            Layout.calculateBlockWidth
+                                ({ node = element
+                                 , styles =
+                                    { styles
+                                        | display = Style.Block
+                                        , width = Style.Length 50 CSSOM.Pixel
+                                    }
+                                 , children = []
+                                 }
+                                )
+                                dimensions
+                                containingDimensions
                 in
-                    Expect.equal laidoutDimensions.content.width 50
+                    Expect.equal boxModelContent.width 50
         , test "set the block width with an auto width" <|
             \() ->
                 let
@@ -73,7 +75,7 @@ calculateBlockWidth =
                         { top = 0, right = 0, bottom = 0, left = 0 }
 
                     dimensions =
-                        Layout.buildDimensions
+                        BoxModel.boxModel
                             { x = 0, y = 0, width = 0, height = 0 }
                             edgeSize
                             edgeSize
@@ -89,26 +91,27 @@ calculateBlockWidth =
                         Style.initialStyles
 
                     containingDimensions =
-                        Layout.buildDimensions
+                        BoxModel.boxModel
                             { x = 0, y = 0, width = 200, height = 0 }
                             edgeSize
                             edgeSize
                             edgeSize
 
-                    laidoutDimensions =
-                        Layout.calculateBlockWidth
-                            ({ node = element
-                             , styles =
-                                { styles
-                                    | display = Style.Block
-                                }
-                             , children = []
-                             }
-                            )
-                            dimensions
-                            containingDimensions
+                    boxModelContent =
+                        BoxModel.content <|
+                            Layout.calculateBlockWidth
+                                ({ node = element
+                                 , styles =
+                                    { styles
+                                        | display = Style.Block
+                                    }
+                                 , children = []
+                                 }
+                                )
+                                dimensions
+                                containingDimensions
                 in
-                    Expect.equal laidoutDimensions.content.width 200
+                    Expect.equal boxModelContent.width 200
         , test "set the margins width with auto margins and explicit width" <|
             \() ->
                 let
@@ -116,7 +119,7 @@ calculateBlockWidth =
                         { top = 0, right = 0, bottom = 0, left = 0 }
 
                     dimensions =
-                        Layout.buildDimensions
+                        BoxModel.boxModel
                             { x = 0, y = 0, width = 0, height = 0 }
                             edgeSize
                             edgeSize
@@ -132,13 +135,13 @@ calculateBlockWidth =
                         Style.initialStyles
 
                     containingDimensions =
-                        Layout.buildDimensions
+                        BoxModel.boxModel
                             { x = 0, y = 0, width = 200, height = 0 }
                             edgeSize
                             edgeSize
                             edgeSize
 
-                    laidoutDimensions =
+                    boxModel =
                         Layout.calculateBlockWidth
                             ({ node = element
                              , styles =
@@ -153,13 +156,19 @@ calculateBlockWidth =
                             )
                             dimensions
                             containingDimensions
+
+                    boxModelContent =
+                        BoxModel.content boxModel
+
+                    boxModelMargin =
+                        BoxModel.margin boxModel
                 in
                     Expect.true ""
-                        (laidoutDimensions.content.width
+                        (boxModelContent.width
                             == 100
-                            && laidoutDimensions.margin.left
+                            && boxModelMargin.left
                             == 50
-                            && laidoutDimensions.margin.right
+                            && boxModelMargin.right
                             == 50
                         )
         , test "set the margins width with auto margins and explicit width" <|
@@ -169,7 +178,7 @@ calculateBlockWidth =
                         { top = 0, right = 0, bottom = 0, left = 0 }
 
                     dimensions =
-                        Layout.buildDimensions
+                        BoxModel.boxModel
                             { x = 0, y = 0, width = 0, height = 0 }
                             edgeSize
                             edgeSize
@@ -185,13 +194,13 @@ calculateBlockWidth =
                         Style.initialStyles
 
                     containingDimensions =
-                        Layout.buildDimensions
+                        BoxModel.boxModel
                             { x = 0, y = 0, width = 200, height = 0 }
                             edgeSize
                             edgeSize
                             edgeSize
 
-                    laidoutDimensions =
+                    boxModel =
                         Layout.calculateBlockWidth
                             ({ node = element
                              , styles =
@@ -206,13 +215,19 @@ calculateBlockWidth =
                             )
                             dimensions
                             containingDimensions
+
+                    boxModelContent =
+                        BoxModel.content boxModel
+
+                    boxModelMargin =
+                        BoxModel.margin boxModel
                 in
                     Expect.true ""
-                        (laidoutDimensions.content.width
+                        (boxModelContent.width
                             == 100
-                            && laidoutDimensions.margin.left
+                            && boxModelMargin.left
                             == 50
-                            && laidoutDimensions.margin.right
+                            && boxModelMargin.right
                             == 50
                         )
         , test "resize left auto margin when right margin and width length is explicit" <|
@@ -222,7 +237,7 @@ calculateBlockWidth =
                         { top = 0, right = 0, bottom = 0, left = 0 }
 
                     dimensions =
-                        Layout.buildDimensions
+                        BoxModel.boxModel
                             { x = 0, y = 0, width = 0, height = 0 }
                             edgeSize
                             edgeSize
@@ -238,13 +253,13 @@ calculateBlockWidth =
                         Style.initialStyles
 
                     containingDimensions =
-                        Layout.buildDimensions
+                        BoxModel.boxModel
                             { x = 0, y = 0, width = 100, height = 0 }
                             edgeSize
                             edgeSize
                             edgeSize
 
-                    laidoutDimensions =
+                    boxModel =
                         Layout.calculateBlockWidth
                             ({ node = element
                              , styles =
@@ -259,13 +274,19 @@ calculateBlockWidth =
                             )
                             dimensions
                             containingDimensions
+
+                    boxModelContent =
+                        BoxModel.content boxModel
+
+                    boxModelMargin =
+                        BoxModel.margin boxModel
                 in
                     Expect.true ""
-                        (laidoutDimensions.content.width
+                        (boxModelContent.width
                             == 100
-                            && laidoutDimensions.margin.left
+                            && boxModelMargin.left
                             == 50
-                            && laidoutDimensions.margin.right
+                            && boxModelMargin.right
                             == -50
                         )
         , test "resize right auto margin when left margin and width length is explicit" <|
@@ -275,7 +296,7 @@ calculateBlockWidth =
                         { top = 0, right = 0, bottom = 0, left = 0 }
 
                     dimensions =
-                        Layout.buildDimensions
+                        BoxModel.boxModel
                             { x = 0, y = 0, width = 0, height = 0 }
                             edgeSize
                             edgeSize
@@ -291,13 +312,13 @@ calculateBlockWidth =
                         Style.initialStyles
 
                     containingDimensions =
-                        Layout.buildDimensions
+                        BoxModel.boxModel
                             { x = 0, y = 0, width = 200, height = 0 }
                             edgeSize
                             edgeSize
                             edgeSize
 
-                    laidoutDimensions =
+                    boxModel =
                         Layout.calculateBlockWidth
                             ({ node = element
                              , styles =
@@ -312,13 +333,19 @@ calculateBlockWidth =
                             )
                             dimensions
                             containingDimensions
+
+                    boxModelContent =
+                        BoxModel.content boxModel
+
+                    boxModelMargin =
+                        BoxModel.margin boxModel
                 in
                     Expect.true ""
-                        (laidoutDimensions.content.width
+                        (boxModelContent.width
                             == 100
-                            && laidoutDimensions.margin.left
+                            && boxModelMargin.left
                             == 50
-                            && laidoutDimensions.margin.right
+                            && boxModelMargin.right
                             == 50
                         )
         , test "set auto margins to 0 if width is auto" <|
@@ -328,7 +355,7 @@ calculateBlockWidth =
                         { top = 0, right = 0, bottom = 0, left = 0 }
 
                     dimensions =
-                        Layout.buildDimensions
+                        BoxModel.boxModel
                             { x = 0, y = 0, width = 0, height = 0 }
                             edgeSize
                             edgeSize
@@ -344,13 +371,13 @@ calculateBlockWidth =
                         Style.initialStyles
 
                     containingDimensions =
-                        Layout.buildDimensions
+                        BoxModel.boxModel
                             { x = 0, y = 0, width = 200, height = 0 }
                             edgeSize
                             edgeSize
                             edgeSize
 
-                    laidoutDimensions =
+                    boxModel =
                         Layout.calculateBlockWidth
                             ({ node = element
                              , styles =
@@ -365,13 +392,19 @@ calculateBlockWidth =
                             )
                             dimensions
                             containingDimensions
+
+                    boxModelContent =
+                        BoxModel.content boxModel
+
+                    boxModelMargin =
+                        BoxModel.margin boxModel
                 in
                     Expect.true ""
-                        (laidoutDimensions.content.width
+                        (boxModelContent.width
                             == 200
-                            && laidoutDimensions.margin.left
+                            && boxModelMargin.left
                             == 0
-                            && laidoutDimensions.margin.right
+                            && boxModelMargin.right
                             == 0
                         )
         , test "make right margin negative if the width was going to be negative" <|
@@ -381,7 +414,7 @@ calculateBlockWidth =
                         { top = 0, right = 0, bottom = 0, left = 0 }
 
                     dimensions =
-                        Layout.buildDimensions
+                        BoxModel.boxModel
                             { x = 0, y = 0, width = 0, height = 0 }
                             edgeSize
                             edgeSize
@@ -397,13 +430,13 @@ calculateBlockWidth =
                         Style.initialStyles
 
                     containingDimensions =
-                        Layout.buildDimensions
+                        BoxModel.boxModel
                             { x = 0, y = 0, width = 100, height = 0 }
                             edgeSize
                             edgeSize
                             edgeSize
 
-                    laidoutDimensions =
+                    boxModel =
                         Layout.calculateBlockWidth
                             ({ node = element
                              , styles =
@@ -418,13 +451,19 @@ calculateBlockWidth =
                             )
                             dimensions
                             containingDimensions
+
+                    boxModelContent =
+                        BoxModel.content boxModel
+
+                    boxModelMargin =
+                        BoxModel.margin boxModel
                 in
                     Expect.true ""
-                        (laidoutDimensions.content.width
+                        (boxModelContent.width
                             == 0
-                            && laidoutDimensions.margin.left
+                            && boxModelMargin.left
                             == 200
-                            && laidoutDimensions.margin.right
+                            && boxModelMargin.right
                             == -100
                         )
         ]
@@ -449,26 +488,27 @@ calculateBlockHeight =
                         { top = 0, right = 0, bottom = 0, left = 0 }
 
                     dimensions =
-                        Layout.buildDimensions
+                        BoxModel.boxModel
                             { x = 0, y = 0, width = 0, height = 0 }
                             edgeSize
                             edgeSize
                             edgeSize
 
-                    laidoutDimensions =
-                        Layout.calculateBlockHeight
-                            ({ node = element
-                             , styles =
-                                { styles
-                                    | display = Style.Block
-                                    , height = Style.Length 50 CSSOM.Pixel
-                                }
-                             , children = []
-                             }
-                            )
-                            dimensions
+                    boxModel =
+                        BoxModel.content <|
+                            Layout.calculateBlockHeight
+                                ({ node = element
+                                 , styles =
+                                    { styles
+                                        | display = Style.Block
+                                        , height = Style.Length 50 CSSOM.Pixel
+                                    }
+                                 , children = []
+                                 }
+                                )
+                                dimensions
                 in
-                    Expect.equal laidoutDimensions.content.height 50
+                    Expect.equal boxModel.height 50
         , test "do nothing if auto height" <|
             \() ->
                 let
@@ -482,23 +522,24 @@ calculateBlockHeight =
                         { top = 0, right = 0, bottom = 0, left = 0 }
 
                     dimensions =
-                        Layout.buildDimensions
+                        BoxModel.boxModel
                             { x = 0, y = 0, width = 0, height = 0 }
                             edgeSize
                             edgeSize
                             edgeSize
 
-                    laidoutDimensions =
-                        Layout.calculateBlockHeight
-                            ({ node = element
-                             , styles =
-                                Style.initialStyles
-                             , children = []
-                             }
-                            )
-                            dimensions
+                    boxModelContent =
+                        BoxModel.content <|
+                            Layout.calculateBlockHeight
+                                ({ node = element
+                                 , styles =
+                                    Style.initialStyles
+                                 , children = []
+                                 }
+                                )
+                                dimensions
                 in
-                    Expect.equal laidoutDimensions.content.height 0
+                    Expect.equal boxModelContent.height 0
         ]
 
 
@@ -518,33 +559,34 @@ calculateBlockPosition =
                         }
 
                     dimensions =
-                        Layout.buildDimensions
+                        BoxModel.boxModel
                             { x = 0, y = 0, width = 0, height = 0 }
                             edgeSize
                             edgeSize
                             edgeSize
 
                     containingDimensions =
-                        Layout.buildDimensions
+                        BoxModel.boxModel
                             { x = 10, y = 20, width = 0, height = 0 }
                             edgeSize
                             edgeSize
                             edgeSize
 
-                    laidoutDimensions =
-                        Layout.calculateBlockPosition
-                            ({ node = element
-                             , styles = Style.initialStyles
-                             , children = []
-                             }
-                            )
-                            dimensions
-                            containingDimensions
+                    boxModelContent =
+                        BoxModel.content <|
+                            Layout.calculateBlockPosition
+                                ({ node = element
+                                 , styles = Style.initialStyles
+                                 , children = []
+                                 }
+                                )
+                                dimensions
+                                containingDimensions
                 in
                     Expect.true ""
-                        (laidoutDimensions.content.x
+                        (boxModelContent.x
                             == 10
-                            && laidoutDimensions.content.y
+                            && boxModelContent.y
                             == 20
                         )
         ]
@@ -587,7 +629,7 @@ startLayout =
                             Style.Auto
 
                     containingDimensions =
-                        Layout.buildDimensions
+                        BoxModel.boxModel
                             { x = 0, y = 0, width = 0, height = 0 }
                             edgeSize
                             edgeSize
@@ -599,7 +641,60 @@ startLayout =
                             containingDimensions
                 in
                     Expect.true ""
-                        (dimensions.content.height
+                        ((BoxModel.runBoxModel dimensions).content.height
                             == 100
                         )
+        , test "layout itself with padding" <|
+            \() ->
+                let
+                    edgeSize =
+                        { top = 0, right = 0, bottom = 0, left = 0 }
+
+                    element =
+                        { tagName = "div"
+                        , attributes = Dict.fromList [ ( "foo", "bar" ) ]
+                        , children = []
+                        }
+
+                    styles =
+                        Style.initialStyles
+
+                    getStyledNode children height =
+                        Style.StyledElement
+                            { styles =
+                                { styles
+                                    | display = Style.Block
+                                    , height = height
+                                    , paddingTop = Style.Length 20 CSSOM.Pixel
+                                    , paddingBottom = Style.Length 20 CSSOM.Pixel
+                                }
+                            , node = element
+                            , children = children
+                            }
+
+                    styledNode =
+                        getStyledNode
+                            [ getStyledNode [] (Style.Length 50 CSSOM.Pixel)
+                            , getStyledNode [] (Style.Length 50 CSSOM.Pixel)
+                            ]
+                            Style.Auto
+
+                    containingDimensions =
+                        BoxModel.boxModel
+                            { x = 0, y = 0, width = 0, height = 0 }
+                            edgeSize
+                            edgeSize
+                            edgeSize
+
+                    (Layout.LayoutBox { dimensions }) =
+                        Layout.startLayout
+                            styledNode
+                            containingDimensions
+
+                    boxModelPadding =
+                        BoxModel.paddingBox dimensions
+                in
+                    Expect.equal
+                        boxModelPadding.height
+                        220
         ]

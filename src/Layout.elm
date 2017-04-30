@@ -3,6 +3,7 @@ module Layout exposing (..)
 import Style exposing (..)
 import CSSOM exposing (..)
 import DOM exposing (..)
+import BoxModel
 
 
 type Box
@@ -12,70 +13,12 @@ type Box
     | None
 
 
-type alias EdgeSize =
-    { top : Float
-    , right : Float
-    , bottom : Float
-    , left : Float
-    }
-
-
-type alias Rect =
-    { x : Float
-    , y : Float
-    , width : Float
-    , height : Float
-    }
-
-
-expandRectBy : Rect -> EdgeSize -> Rect
-expandRectBy rect edge =
-    { x = rect.x - edge.left
-    , y = rect.y - edge.top
-    , width = rect.width + edge.left + edge.right
-    , height = rect.height + edge.top + edge.bottom
-    }
-
-
 type LayoutBox
     = LayoutBox
-        { dimensions : Dimensions
+        { dimensions : BoxModel.BoxModel
         , box : Box
         , children : List LayoutBox
         }
-
-
-buildDimensions : Rect -> EdgeSize -> EdgeSize -> EdgeSize -> Dimensions
-buildDimensions content padding border margin =
-    let
-        paddingBox =
-            expandRectBy content padding
-
-        borderBox =
-            expandRectBy paddingBox border
-
-        marginBox =
-            expandRectBy borderBox margin
-    in
-        { content = content
-        , padding = padding
-        , border = border
-        , margin = margin
-        , paddingBox = paddingBox
-        , borderBox = borderBox
-        , marginBox = marginBox
-        }
-
-
-type alias Dimensions =
-    { paddingBox : Rect
-    , borderBox : Rect
-    , marginBox : Rect
-    , content : Rect
-    , padding : EdgeSize
-    , border : EdgeSize
-    , margin : EdgeSize
-    }
 
 
 toPx dimension =
@@ -87,9 +30,9 @@ toPx dimension =
             0.0
 
 
-startLayout : StyledNode -> Dimensions -> LayoutBox
-startLayout node containingBlockDimensions =
-    layout (layoutTree node) containingBlockDimensions
+startLayout : StyledNode -> BoxModel.BoxModel -> LayoutBox
+startLayout node containingBoxModel =
+    layout (layoutTree node) containingBoxModel
 
 
 layoutTree : StyledNode -> LayoutBox
@@ -130,15 +73,15 @@ layoutTree node =
                                     None
                     in
                         { box = box
-                        , dimensions = initialDimensions
+                        , dimensions = BoxModel.initBoxModel
                         , children = childrenBox children
                         }
 
                 StyledText _ ->
-                    { box = Inline node, dimensions = initialDimensions, children = [] }
+                    { box = Inline node, dimensions = BoxModel.initBoxModel, children = [] }
 
 
-layout : LayoutBox -> Dimensions -> LayoutBox
+layout : LayoutBox -> BoxModel.BoxModel -> LayoutBox
 layout layoutBox containingBlockDimensions =
     let
         (LayoutBox { box, children, dimensions }) =
@@ -161,79 +104,101 @@ layout layoutBox containingBlockDimensions =
                     }
 
 
-initialDimensions : Dimensions
-initialDimensions =
-    buildDimensions
-        { x = 0, y = 0, width = 0, height = 0 }
-        { top = 0, right = 0, bottom = 0, left = 0 }
-        { top = 0, right = 0, bottom = 0, left = 0 }
-        { top = 0, right = 0, bottom = 0, left = 0 }
-
-
-layoutBlock : LayoutBox -> Dimensions -> LayoutBox
-layoutBlock (LayoutBox { box, children, dimensions }) containingBlockDimensions =
+layoutBlock :
+    LayoutBox
+    -> BoxModel.BoxModel
+    -> LayoutBox
+layoutBlock (LayoutBox { box, children, dimensions }) containingBoxModel =
     case box of
         Block (StyledElement node) ->
             let
-                widthDimensions =
-                    calculateBlockWidth node dimensions containingBlockDimensions
+                boxModelWithCorrectWidth =
+                    calculateBlockWidth node dimensions containingBoxModel
 
-                positionedDimensions =
-                    calculateBlockPosition node widthDimensions containingBlockDimensions
+                boxModelWithCorrectPosition =
+                    calculateBlockPosition node boxModelWithCorrectWidth containingBoxModel
 
-                ( laidoutChildren, laidoutContainingBlock ) =
-                    layoutBlockChildren children positionedDimensions containingBlockDimensions
+                ( laidoutChildren, childrenBoxModel ) =
+                    layoutBlockChildren children boxModelWithCorrectPosition containingBoxModel
 
-                content =
-                    { x = positionedDimensions.content.x
-                    , y = positionedDimensions.content.y
-                    , width = widthDimensions.content.width
-                    , height = laidoutContainingBlock.content.height
+                boxModelContent =
+                    BoxModel.content boxModelWithCorrectPosition
+
+                childrenBoxModelContent =
+                    BoxModel.content childrenBoxModel
+
+                newContent =
+                    { x = boxModelContent.x
+                    , y = boxModelContent.y
+                    , width = boxModelContent.width
+                    , height = childrenBoxModelContent.height
                     }
 
-                laidoutDimensions =
-                    calculateBlockHeight node { positionedDimensions | content = content }
+                horizontalBoxModel =
+                    BoxModel.boxModel
+                        newContent
+                        (BoxModel.padding boxModelWithCorrectPosition)
+                        (BoxModel.border boxModelWithCorrectPosition)
+                        (BoxModel.margin boxModelWithCorrectPosition)
+
+                newBoxModel =
+                    calculateBlockHeight node horizontalBoxModel
             in
                 LayoutBox
                     { box = box
                     , children = laidoutChildren
-                    , dimensions = laidoutDimensions
+                    , dimensions = newBoxModel
                     }
 
         _ ->
             LayoutBox { box = box, children = children, dimensions = dimensions }
 
 
-layoutBlockChildren : List LayoutBox -> Dimensions -> Dimensions -> ( List LayoutBox, Dimensions )
-layoutBlockChildren children blockDimensions containingBlockDimensions =
+layoutBlockChildren :
+    List LayoutBox
+    -> BoxModel.BoxModel
+    -> BoxModel.BoxModel
+    -> ( List LayoutBox, BoxModel.BoxModel )
+layoutBlockChildren children boxModel containingBoxModel =
     List.foldl
-        (\child ( children, containingBlockDimensions ) ->
+        (\child ( children, containingBoxModel ) ->
             let
                 childLayoutBox =
-                    layout child containingBlockDimensions
+                    layout child containingBoxModel
 
-                childDimensions (LayoutBox { dimensions }) =
-                    dimensions
+                childBoxModelContent (LayoutBox { dimensions }) =
+                    BoxModel.marginBox dimensions
 
-                content =
-                    { x = containingBlockDimensions.content.x
-                    , y = containingBlockDimensions.content.y
-                    , width = containingBlockDimensions.content.width
-                    , height = containingBlockDimensions.content.height + (childDimensions childLayoutBox).content.height
+                containingBoxModelContent =
+                    BoxModel.content containingBoxModel
+
+                newContent =
+                    { x = containingBoxModelContent.x
+                    , y = containingBoxModelContent.y
+                    , width = containingBoxModelContent.width
+                    , height =
+                        containingBoxModelContent.height
+                            + (childBoxModelContent childLayoutBox).height
                     }
             in
                 ( List.append children [ childLayoutBox ]
-                , { containingBlockDimensions
-                    | content = content
-                  }
+                , BoxModel.boxModel
+                    newContent
+                    (BoxModel.padding boxModel)
+                    (BoxModel.border boxModel)
+                    (BoxModel.margin boxModel)
                 )
         )
-        ( [], containingBlockDimensions )
+        ( [], containingBoxModel )
         children
 
 
-calculateBlockWidth : StyledElementNode -> Dimensions -> Dimensions -> Dimensions
-calculateBlockWidth { node, styles } blockDimensions containingBlockDimensions =
+calculateBlockWidth :
+    StyledElementNode
+    -> BoxModel.BoxModel
+    -> BoxModel.BoxModel
+    -> BoxModel.BoxModel
+calculateBlockWidth { node, styles } boxModel containingBoxModel =
     let
         isAuto dimension =
             case dimension of
@@ -256,8 +221,11 @@ calculateBlockWidth { node, styles } blockDimensions containingBlockDimensions =
         total =
             List.sum <| List.map toPx dimensions
 
+        containingBoxModelContent =
+            BoxModel.content containingBoxModel
+
         ( marginLeft, marginRight ) =
-            if isAuto styles.width && total > containingBlockDimensions.content.width then
+            if isAuto styles.width && total > containingBoxModelContent.width then
                 let
                     marginLeft =
                         if isAuto styles.marginLeft then
@@ -276,7 +244,7 @@ calculateBlockWidth { node, styles } blockDimensions containingBlockDimensions =
                 ( styles.marginLeft, styles.marginRight )
 
         underflow =
-            containingBlockDimensions.content.width - total
+            containingBoxModelContent.width - total
 
         width =
             styles.width
@@ -344,85 +312,113 @@ calculateBlockWidth { node, styles } blockDimensions containingBlockDimensions =
                 )
 
         oldContent =
-            blockDimensions.content
+            BoxModel.content boxModel
 
         newContent =
             { oldContent | width = toPx w }
 
-        oldMargins =
-            blockDimensions.margin
+        oldMargin =
+            BoxModel.margin boxModel
 
-        newMargins =
-            { oldMargins | left = toPx l, right = toPx r }
+        newMargin =
+            { oldMargin | left = toPx l, right = toPx r }
     in
-        { blockDimensions | content = newContent, margin = newMargins }
+        BoxModel.boxModel
+            newContent
+            (BoxModel.padding boxModel)
+            (BoxModel.border boxModel)
+            newMargin
 
 
-calculateBlockHeight : StyledElementNode -> Dimensions -> Dimensions
-calculateBlockHeight { styles } dimensions =
+calculateBlockHeight :
+    StyledElementNode
+    -> BoxModel.BoxModel
+    -> BoxModel.BoxModel
+calculateBlockHeight { styles } boxModel =
     case styles.height of
         Style.Length length _ ->
             let
-                content =
-                    { x = dimensions.content.x
-                    , y = dimensions.content.y
-                    , width = dimensions.content.width
+                boxModelContent =
+                    BoxModel.content boxModel
+
+                newContent =
+                    { x = boxModelContent.x
+                    , y = boxModelContent.y
+                    , width = boxModelContent.width
                     , height = length
                     }
             in
-                { dimensions | content = content }
+                BoxModel.boxModel
+                    newContent
+                    (BoxModel.padding boxModel)
+                    (BoxModel.border boxModel)
+                    (BoxModel.margin boxModel)
 
         _ ->
-            dimensions
+            boxModel
 
 
-calculateBlockPosition : StyledElementNode -> Dimensions -> Dimensions -> Dimensions
-calculateBlockPosition { node, styles } blockDimensions containingBlockDimension =
+calculateBlockPosition :
+    StyledElementNode
+    -> BoxModel.BoxModel
+    -> BoxModel.BoxModel
+    -> BoxModel.BoxModel
+calculateBlockPosition { node, styles } boxModel containingBoxModel =
     let
-        padding =
-            { left = blockDimensions.padding.left
-            , right = blockDimensions.padding.right
+        boxModelPadding =
+            BoxModel.padding boxModel
+
+        newPadding =
+            { left = boxModelPadding.left
+            , right = boxModelPadding.right
             , top = toPx styles.paddingTop
             , bottom = toPx styles.paddingBottom
             }
 
-        border =
-            { left = blockDimensions.border.left
-            , right = blockDimensions.border.right
+        boxModelBorder =
+            BoxModel.border boxModel
+
+        newBorder =
+            { left = boxModelBorder.left
+            , right = boxModelBorder.right
             , top = toPx styles.borderTop
             , bottom = toPx styles.borderBottom
             }
 
-        margin =
-            { left = blockDimensions.margin.left
-            , right = blockDimensions.margin.right
+        boxModelMargin =
+            BoxModel.margin boxModel
+
+        newMargin =
+            { left = boxModelMargin.left
+            , right = boxModelMargin.right
             , top = toPx styles.marginTop
             , bottom = toPx styles.marginBottom
             }
 
+        containingBoxModelContent =
+            BoxModel.content containingBoxModel
+
         x =
-            containingBlockDimension.content.x
-                + margin.left
-                + border.left
-                + padding.left
+            containingBoxModelContent.x
+                + newMargin.left
+                + newBorder.left
+                + newPadding.left
 
         y =
-            containingBlockDimension.content.y
-                + containingBlockDimension.content.height
-                + margin.top
-                + border.top
-                + padding.top
+            containingBoxModelContent.y
+                + containingBoxModelContent.height
+                + newMargin.top
+                + newBorder.top
+                + newPadding.top
 
-        content =
-            { width = blockDimensions.content.width
-            , height = blockDimensions.content.height
+        boxModelContent =
+            BoxModel.content boxModel
+
+        newContent =
+            { width = boxModelContent.width
+            , height = boxModelContent.height
             , x = x
             , y = y
             }
     in
-        { blockDimensions
-            | padding = padding
-            , border = border
-            , margin = margin
-            , content = content
-        }
+        BoxModel.boxModel newContent newPadding newBorder newMargin
