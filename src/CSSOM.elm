@@ -4,8 +4,7 @@ import Color exposing (..)
 
 
 type CSSPropertyName
-    = MarginLeft
-    | MarginRight
+    = MarginRight
     | MarginBottom
     | MarginTop
     | PaddingLeft
@@ -23,8 +22,18 @@ type CSSDisplay
     | None
 
 
+type CSSMargin
+    = MarginAuto
+    | MarginLength CSSLength
+
+
+type CSSLength
+    = CSSLength Float CSSUnit
+
+
 type CSSDeclaration
     = Display CSSDisplay
+    | MarginLeft CSSMargin
 
 
 type alias CSSRule =
@@ -54,8 +63,7 @@ type CSSUnit
 
 
 type CSSValue
-    = Keyword CSSKeyword
-    | Length Float CSSUnit
+    = Length Float CSSUnit
     | ColorValue CSSColorValue
 
 
@@ -67,10 +75,6 @@ type CSSColorValue
 type CSSColorKeyword
     = Red
     | White
-
-
-type CSSKeyword
-    = Auto
 
 
 specifity : CSSSelector -> Int

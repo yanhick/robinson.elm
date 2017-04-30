@@ -21,7 +21,34 @@ type LayoutBox
         }
 
 
-toPx dimension =
+marginToPx dimension =
+    case dimension of
+        MarginLength (CSSLength l _) ->
+            l
+
+        MarginAuto ->
+            0.0
+
+
+paddingToPx dimension =
+    case dimension of
+        Style.Length l _ ->
+            l
+
+        _ ->
+            0.0
+
+
+borderToPx dimension =
+    case dimension of
+        Style.Length l _ ->
+            l
+
+        _ ->
+            0.0
+
+
+widthToPx dimension =
     case dimension of
         Style.Length l _ ->
             l
@@ -200,7 +227,7 @@ calculateBlockWidth :
     -> BoxModel.BoxModel
 calculateBlockWidth { node, styles } boxModel containingBoxModel =
     let
-        isAuto dimension =
+        isAutoWidth dimension =
             case dimension of
                 Style.Auto ->
                     True
@@ -208,34 +235,45 @@ calculateBlockWidth { node, styles } boxModel containingBoxModel =
                 _ ->
                     False
 
+        isAutoMargin dimension =
+            case dimension of
+                MarginAuto ->
+                    True
+
+                _ ->
+                    False
+
+        marginLength l u =
+            MarginLength <| CSSLength l u
+
         dimensions =
-            [ styles.marginLeft
-            , styles.marginRight
-            , styles.paddingLeft
-            , styles.paddingRight
-            , styles.borderLeft
-            , styles.borderRight
-            , styles.width
+            [ marginToPx styles.marginLeft
+            , marginToPx styles.marginRight
+            , paddingToPx styles.paddingLeft
+            , paddingToPx styles.paddingRight
+            , borderToPx styles.borderLeft
+            , borderToPx styles.borderRight
+            , widthToPx styles.width
             ]
 
         total =
-            List.sum <| List.map toPx dimensions
+            List.sum dimensions
 
         containingBoxModelContent =
             BoxModel.content containingBoxModel
 
         ( marginLeft, marginRight ) =
-            if isAuto styles.width && total > containingBoxModelContent.width then
+            if isAutoWidth styles.width && total > containingBoxModelContent.width then
                 let
                     marginLeft =
-                        if isAuto styles.marginLeft then
-                            Style.Length 0.0 Pixel
+                        if isAutoMargin styles.marginLeft then
+                            MarginLength <| CSSLength 0.0 Pixel
                         else
                             styles.marginLeft
 
                     marginRight =
-                        if isAuto styles.marginRight then
-                            Style.Length 0.0 Pixel
+                        if isAutoMargin styles.marginRight then
+                            MarginLength <| CSSLength 0.0 Pixel
                         else
                             styles.marginRight
                 in
@@ -250,59 +288,59 @@ calculateBlockWidth { node, styles } boxModel containingBoxModel =
             styles.width
 
         widthIsAuto =
-            isAuto styles.width
+            isAutoWidth styles.width
 
         marginLeftIsAuto =
-            isAuto styles.marginLeft
+            isAutoMargin styles.marginLeft
 
         marginRightIsAuto =
-            isAuto styles.marginRight
+            isAutoMargin styles.marginRight
 
         ( l, r, w ) =
             if not widthIsAuto && not marginLeftIsAuto && not marginRightIsAuto then
                 ( marginLeft
-                , Style.Length ((toPx marginRight) + underflow) Pixel
+                , marginLength ((marginToPx marginRight) + underflow) Pixel
                 , width
                 )
             else if not widthIsAuto && not marginLeftIsAuto && marginRightIsAuto then
                 ( marginLeft
-                , Style.Length underflow Pixel
+                , marginLength underflow Pixel
                 , width
                 )
             else if not widthIsAuto && marginLeftIsAuto && not marginRightIsAuto then
-                ( Style.Length underflow Pixel
+                ( marginLength underflow Pixel
                 , marginRight
                 , width
                 )
             else if widthIsAuto then
                 if marginLeftIsAuto && not marginRightIsAuto then
                     if underflow >= 0.0 then
-                        ( Style.Length 0.0 Pixel, marginRight, Style.Length underflow Pixel )
+                        ( marginLength 0.0 Pixel, marginRight, Style.Length underflow Pixel )
                     else
-                        ( Style.Length 0.0 Pixel, Style.Length ((toPx marginRight) + underflow) Pixel, Style.Length 0.0 Pixel )
+                        ( marginLength 0.0 Pixel, marginLength ((marginToPx marginRight) + underflow) Pixel, Style.Length 0.0 Pixel )
                 else if marginRightIsAuto && not marginLeftIsAuto then
                     if underflow >= 0.0 then
-                        ( marginLeft, Style.Length 0.0 Pixel, Style.Length underflow Pixel )
+                        ( marginLeft, marginLength 0.0 Pixel, Style.Length underflow Pixel )
                     else
-                        ( marginLeft, Style.Length (underflow) Pixel, Style.Length 0.0 Pixel )
+                        ( marginLeft, marginLength (underflow) Pixel, Style.Length 0.0 Pixel )
                 else if marginLeftIsAuto && marginRightIsAuto then
                     if underflow >= 0.0 then
-                        ( Style.Length 0.0 Pixel, Style.Length 0.0 Pixel, Style.Length underflow Pixel )
+                        ( marginLength 0.0 Pixel, marginLength 0.0 Pixel, Style.Length underflow Pixel )
                     else
-                        ( Style.Length 0.0 Pixel, Style.Length (underflow) Pixel, Style.Length 0.0 Pixel )
+                        ( marginLength 0.0 Pixel, marginLength (underflow) Pixel, Style.Length 0.0 Pixel )
                 else if not marginLeftIsAuto && not marginRightIsAuto then
                     if underflow >= 0.0 then
                         ( marginLeft, marginRight, Style.Length underflow Pixel )
                     else
-                        ( marginLeft, Style.Length ((toPx marginRight) + underflow) Pixel, Style.Length 0.0 Pixel )
+                        ( marginLeft, marginLength ((marginToPx marginRight) + underflow) Pixel, Style.Length 0.0 Pixel )
                 else
                     ( marginLeft
                     , marginRight
                     , width
                     )
             else if not widthIsAuto && marginLeftIsAuto && marginRightIsAuto then
-                ( Style.Length (underflow / 2.0) Pixel
-                , Style.Length (underflow / 2.0) Pixel
+                ( marginLength (underflow / 2.0) Pixel
+                , marginLength (underflow / 2.0) Pixel
                 , width
                 )
             else
@@ -315,13 +353,13 @@ calculateBlockWidth { node, styles } boxModel containingBoxModel =
             BoxModel.content boxModel
 
         newContent =
-            { oldContent | width = toPx w }
+            { oldContent | width = widthToPx w }
 
         oldMargin =
             BoxModel.margin boxModel
 
         newMargin =
-            { oldMargin | left = toPx l, right = toPx r }
+            { oldMargin | left = marginToPx l, right = marginToPx r }
     in
         BoxModel.boxModel
             newContent
@@ -371,8 +409,8 @@ calculateBlockPosition { node, styles } boxModel containingBoxModel =
         newPadding =
             { left = boxModelPadding.left
             , right = boxModelPadding.right
-            , top = toPx styles.paddingTop
-            , bottom = toPx styles.paddingBottom
+            , top = paddingToPx styles.paddingTop
+            , bottom = paddingToPx styles.paddingBottom
             }
 
         boxModelBorder =
@@ -381,8 +419,8 @@ calculateBlockPosition { node, styles } boxModel containingBoxModel =
         newBorder =
             { left = boxModelBorder.left
             , right = boxModelBorder.right
-            , top = toPx styles.borderTop
-            , bottom = toPx styles.borderBottom
+            , top = borderToPx styles.borderTop
+            , bottom = borderToPx styles.borderBottom
             }
 
         boxModelMargin =
@@ -391,8 +429,8 @@ calculateBlockPosition { node, styles } boxModel containingBoxModel =
         newMargin =
             { left = boxModelMargin.left
             , right = boxModelMargin.right
-            , top = toPx styles.marginTop
-            , bottom = toPx styles.marginBottom
+            , top = marginToPx styles.marginTop
+            , bottom = marginToPx styles.marginBottom
             }
 
         containingBoxModelContent =

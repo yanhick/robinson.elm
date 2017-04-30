@@ -37,11 +37,6 @@ parseUnit =
         |. symbol "px"
 
 
-parseValue : Parser CSSValue
-parseValue =
-    oneOf [ parseLength, parseColor, parseKeyword ]
-
-
 parseColor : Parser CSSValue
 parseColor =
     let
@@ -59,9 +54,9 @@ parseColor =
             ]
 
 
-parseLength : Parser CSSValue
+parseLength : Parser CSSLength
 parseLength =
-    succeed Length
+    succeed CSSLength
         |= float
         |= parseUnit
 
@@ -72,14 +67,6 @@ parseColorKeyword =
         |= oneOf
             [ map (\_ -> ColorValue (ColorKeyword Red)) (keyword "red")
             , map (\_ -> ColorValue (ColorKeyword White)) (keyword "white")
-            ]
-
-
-parseKeyword : Parser CSSValue
-parseKeyword =
-    succeed identity
-        |= oneOf
-            [ map (\k -> Keyword Auto) (keyword "auto")
             ]
 
 
@@ -177,7 +164,22 @@ parseSelectors =
 
 parseDeclaration : Parser CSSDeclaration
 parseDeclaration =
-    oneOf [ parseDisplay ]
+    oneOf [ parseDisplay, parseMarginLeft ]
+
+
+parseMarginLeft : Parser CSSDeclaration
+parseMarginLeft =
+    succeed MarginLeft
+        |. keyword "margin-left"
+        |. spaces
+        |. symbol ":"
+        |. spaces
+        |= oneOf
+            [ map MarginLength parseLength
+            , map (always MarginAuto) (keyword "auto")
+            ]
+        |. spaces
+        |. symbol ";"
 
 
 parseDisplay : Parser CSSDeclaration

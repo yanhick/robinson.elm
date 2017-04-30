@@ -38,10 +38,10 @@ initialStyles : Styles
 initialStyles =
     { display = Inline
     , height = Auto
-    , marginLeft = Length 0 Pixel
-    , marginRight = Length 0 Pixel
-    , marginTop = Length 0 Pixel
-    , marginBottom = Length 0 Pixel
+    , marginLeft = MarginLength <| CSSLength 0 Pixel
+    , marginRight = MarginLength <| CSSLength 0 Pixel
+    , marginTop = MarginLength <| CSSLength 0 Pixel
+    , marginBottom = MarginLength <| CSSLength 0 Pixel
     , paddingRight = Length 0 Pixel
     , paddingLeft = Length 0 Pixel
     , paddingTop = Length 0 Pixel
@@ -63,10 +63,10 @@ type alias Styles =
     { display : CSSDisplay
     , height : CSSDimension
     , backgroundColor : CSSColor
-    , marginLeft : CSSDimension
-    , marginRight : CSSDimension
-    , marginTop : CSSDimension
-    , marginBottom : CSSDimension
+    , marginLeft : CSSMargin
+    , marginRight : CSSMargin
+    , marginTop : CSSMargin
+    , marginBottom : CSSMargin
     , paddingLeft : CSSDimension
     , paddingRight : CSSDimension
     , paddingTop : CSSDimension
@@ -117,9 +117,6 @@ color value =
 margin : CSSValue -> Maybe CSSDimension
 margin value =
     case value of
-        Keyword CSSOM.Auto ->
-            Just Auto
-
         CSSOM.Length l u ->
             Just <| Length l u
 
@@ -151,6 +148,11 @@ specifiedValues node stylesheet =
                     Display value ->
                         { styles
                             | display = value
+                        }
+
+                    MarginLeft value ->
+                        { styles
+                            | marginLeft = value
                         }
             )
             initialStyles
