@@ -5,10 +5,11 @@ import CSSOM
 import Layout exposing (..)
 import Style exposing (..)
 import BoxModel
+import CSSBasicTypes
 
 
 type DisplayCommand
-    = SolidColor BoxModel.Rect Color
+    = SolidColor BoxModel.Rect CSSBasicTypes.RGBAColor
 
 
 buildDisplayList : LayoutBox -> List DisplayCommand
@@ -21,13 +22,13 @@ renderLayoutBox (LayoutBox { dimensions, children, box }) =
     let
         backgroundColor =
             Maybe.withDefault
-                (rgba 0 0 0 0.0)
+                { red = 0, green = 0, blue = 0, alpha = 0 }
             <|
                 case box of
                     Layout.Block (StyledElement { styles }) ->
                         case styles.backgroundColor of
-                            CSSOM.BackgroundColorColor (CSSOM.RGBA color) ->
-                                Just color
+                            CSSOM.BackgroundColorColor color ->
+                                Just <| CSSBasicTypes.computedCSSColor color
 
                             _ ->
                                 Nothing
@@ -38,6 +39,6 @@ renderLayoutBox (LayoutBox { dimensions, children, box }) =
         [ renderBackground dimensions backgroundColor ] ++ (List.concatMap renderLayoutBox children)
 
 
-renderBackground : BoxModel.BoxModel -> Color -> DisplayCommand
+renderBackground : BoxModel.BoxModel -> CSSBasicTypes.RGBAColor -> DisplayCommand
 renderBackground boxModel color =
     SolidColor (BoxModel.content boxModel) color

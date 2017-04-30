@@ -82,21 +82,6 @@ type alias CSSStyleSheet =
     List CSSRule
 
 
-type CSSValue
-    = Length Float CSSUnit
-    | ColorValue CSSColor
-
-
-type CSSColor
-    = ColorKeyword CSSColorKeyword
-    | RGBA Color
-
-
-type CSSColorKeyword
-    = Red
-    | White
-
-
 specifity : CSSSelector -> Int
 specifity selector =
     case selector of

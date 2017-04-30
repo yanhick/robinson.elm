@@ -5,7 +5,6 @@ import ParseInt exposing (..)
 import Parser exposing (..)
 import CSSOM exposing (..)
 import CSSBasicTypes exposing (..)
-import Color exposing (..)
 import String
 
 
@@ -40,19 +39,34 @@ parseUnit =
 
 parseColor : Parser CSSColor
 parseColor =
+    oneOf
+        [ parseColorKeyword
+        , parseRGBAColor
+        ]
+
+
+parseRGBAColor : Parser CSSColor
+parseRGBAColor =
     let
         parseHex =
             map (parseIntHex >> Result.withDefault 0)
                 (keep (Exactly 2) Char.isHexDigit)
     in
-        oneOf
-            [ map ColorKeyword parseColorKeyword
-            , succeed (\r g b -> RGBA (Color.rgb r g b))
+        andThen
+            (\maybeColor ->
+                case maybeColor of
+                    Just color ->
+                        succeed color
+
+                    Nothing ->
+                        fail "bim"
+            )
+            (succeed (\r g b -> cssColorFromRGBA { red = r, green = g, blue = b, alpha = 1.0 })
                 |. symbol "#"
                 |= parseHex
                 |= parseHex
                 |= parseHex
-            ]
+            )
 
 
 parseLength : Parser CSSLength
@@ -72,13 +86,20 @@ parseLength =
         )
 
 
-parseColorKeyword : Parser CSSColorKeyword
+parseColorKeyword : Parser CSSColor
 parseColorKeyword =
-    succeed identity
-        |= oneOf
-            [ map (\_ -> Red) (keyword "red")
-            , map (\_ -> White) (keyword "white")
-            ]
+    andThen
+        (\maybeColor ->
+            case maybeColor of
+                Just color ->
+                    succeed color
+
+                Nothing ->
+                    fail "bim"
+        )
+        (succeed cssColorFromColorName
+            |= parseIdentifier
+        )
 
 
 type IdOrClass

@@ -6,7 +6,6 @@ import CSSBasicTypes
 import CSSParser
 import Parser
 import Expect
-import Color
 
 
 cssExample =
@@ -228,8 +227,8 @@ cssParser =
                     case (Parser.run CSSParser.parse "div {background-color:#CCFF00;}") of
                         Ok [ { selectors, declarations } ] ->
                             case declarations of
-                                [ CSSOM.BackgroundColor (CSSOM.BackgroundColorColor (CSSOM.RGBA color)) ] ->
-                                    Color.toRgb color
+                                [ CSSOM.BackgroundColor (CSSOM.BackgroundColorColor color) ] ->
+                                    CSSBasicTypes.computedCSSColor color
                                         == { red = 204
                                            , green = 255
                                            , blue = 0

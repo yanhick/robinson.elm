@@ -155,7 +155,7 @@ element (Painting.SolidColor { x, y, width, height } color) =
             , ( "position", "absolute" )
             , ( "left", toString x ++ "px" )
             , ( "top", toString y ++ "px" )
-            , ( "background", toRGBAString (Color.toRgb color) )
+            , ( "background", toRGBAString color )
             ]
     in
         div [ style s ] []
