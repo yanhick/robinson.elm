@@ -196,18 +196,11 @@ cssParser =
         , test "parse keyword value" <|
             \() ->
                 Expect.true "keyword value" <|
-                    case (Parser.run CSSParser.parse "div {display:auto;}") of
+                    case (Parser.run CSSParser.parse "div {display:block;}") of
                         Ok [ { selectors, declarations } ] ->
                             case declarations of
-                                [ { name, value } ] ->
-                                    name
-                                        == CSSOM.Display
-                                        && case value of
-                                            CSSOM.Keyword CSSOM.Auto ->
-                                                True
-
-                                            _ ->
-                                                False
+                                [ CSSOM.Display CSSOM.Block ] ->
+                                    True
 
                                 _ ->
                                     False
@@ -220,15 +213,8 @@ cssParser =
                     case (Parser.run CSSParser.parse "div {display:10px;}") of
                         Ok [ { selectors, declarations } ] ->
                             case declarations of
-                                [ { name, value } ] ->
-                                    name
-                                        == CSSOM.Display
-                                        && case value of
-                                            CSSOM.Length 10 CSSOM.Pixel ->
-                                                True
-
-                                            _ ->
-                                                False
+                                [ CSSOM.Display CSSOM.Block ] ->
+                                    True
 
                                 _ ->
                                     False
@@ -241,20 +227,8 @@ cssParser =
                     case (Parser.run CSSParser.parse "div {display:#CCFF00;}") of
                         Ok [ { selectors, declarations } ] ->
                             case declarations of
-                                [ { name, value } ] ->
-                                    name
-                                        == CSSOM.Display
-                                        && case value of
-                                            CSSOM.ColorValue (CSSOM.RGBA color) ->
-                                                Color.toRgb color
-                                                    == { red = 204
-                                                       , green = 255
-                                                       , blue = 0
-                                                       , alpha = 1.0
-                                                       }
-
-                                            _ ->
-                                                False
+                                [ CSSOM.Display CSSOM.Block ] ->
+                                    True
 
                                 _ ->
                                     False

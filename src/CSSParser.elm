@@ -80,9 +80,6 @@ parseKeyword =
     succeed identity
         |= oneOf
             [ map (\k -> Keyword Auto) (keyword "auto")
-            , map (\k -> Keyword Block) (keyword "block")
-            , map (\k -> Keyword Inline) (keyword "inline")
-            , map (\k -> Keyword None) (keyword "none")
             ]
 
 
@@ -180,48 +177,26 @@ parseSelectors =
 
 parseDeclaration : Parser CSSDeclaration
 parseDeclaration =
-    succeed (\n v -> { name = n, value = v })
-        |= oneOf
-            [ map (\_ -> Display)
-                (keyword "display")
-            , map
-                (\_ -> MarginLeft)
-                (keyword "margin-left")
-            , map
-                (\_ -> MarginRight)
-                (keyword "margin-right")
-            , map
-                (\_ -> MarginTop)
-                (keyword "margin-top")
-            , map
-                (\_ -> MarginBottom)
-                (keyword "margin-bottom")
-            , map
-                (\_ -> PaddingTop)
-                (keyword "padding-top")
-            , map
-                (\_ -> PaddingBottom)
-                (keyword "padding-bottom")
-            , map
-                (\_ -> PaddingLeft)
-                (keyword "padding-left")
-            , map
-                (\_ -> PaddingRight)
-                (keyword "padding-right")
-            , map
-                (\_ -> Width)
-                (keyword "width")
-            , map
-                (\_ -> Height)
-                (keyword "height")
-            , map
-                (\_ -> BackgroundColor)
-                (keyword "background-color")
-            ]
+    oneOf [ parseDisplay ]
+
+
+parseDisplay : Parser CSSDeclaration
+parseDisplay =
+    succeed Display
+        |. keyword "display"
         |. spaces
         |. symbol ":"
         |. spaces
-        |= parseValue
+        |= oneOf
+            [ map (always Block)
+                (keyword "block")
+            , map
+                (always Inline)
+                (keyword "inline")
+            , map
+                (always None)
+                (keyword "none")
+            ]
         |. spaces
         |. symbol ";"
 

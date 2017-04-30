@@ -4,8 +4,7 @@ import Color exposing (..)
 
 
 type CSSPropertyName
-    = Display
-    | MarginLeft
+    = MarginLeft
     | MarginRight
     | MarginBottom
     | MarginTop
@@ -18,10 +17,14 @@ type CSSPropertyName
     | BackgroundColor
 
 
-type alias CSSDeclaration =
-    { name : CSSPropertyName
-    , value : CSSValue
-    }
+type CSSDisplay
+    = Block
+    | Inline
+    | None
+
+
+type CSSDeclaration
+    = Display CSSDisplay
 
 
 type alias CSSRule =
@@ -68,9 +71,6 @@ type CSSColorKeyword
 
 type CSSKeyword
     = Auto
-    | None
-    | Block
-    | Inline
 
 
 specifity : CSSSelector -> Int

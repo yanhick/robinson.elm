@@ -44,7 +44,7 @@ layoutTree node =
                     case child of
                         StyledElement { styles } ->
                             case styles.display of
-                                Style.Block ->
+                                CSSOM.Block ->
                                     List.append children <|
                                         List.singleton <|
                                             layoutTree child
@@ -63,13 +63,13 @@ layoutTree node =
                     let
                         box =
                             case styles.display of
-                                Style.Block ->
+                                CSSOM.Block ->
                                     Block node
 
-                                Style.Inline ->
+                                CSSOM.Inline ->
                                     Inline node
 
-                                Style.None ->
+                                CSSOM.None ->
                                     None
                     in
                         { box = box

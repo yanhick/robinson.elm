@@ -62,7 +62,7 @@ calculateBlockWidth =
                                 ({ node = element
                                  , styles =
                                     { styles
-                                        | display = Style.Block
+                                        | display = CSSOM.Block
                                         , width = Style.Length 50 CSSOM.Pixel
                                     }
                                  , children = []
@@ -88,7 +88,7 @@ calculateBlockWidth =
                                 ({ node = element
                                  , styles =
                                     { styles
-                                        | display = Style.Block
+                                        | display = CSSOM.Block
                                     }
                                  , children = []
                                  }
@@ -112,7 +112,7 @@ calculateBlockWidth =
                             ({ node = element
                              , styles =
                                 { styles
-                                    | display = Style.Block
+                                    | display = CSSOM.Block
                                     , width = Style.Length 100 CSSOM.Pixel
                                     , marginLeft = Style.Auto
                                     , marginRight = Style.Auto
@@ -152,7 +152,7 @@ calculateBlockWidth =
                             ({ node = element
                              , styles =
                                 { styles
-                                    | display = Style.Block
+                                    | display = CSSOM.Block
                                     , width = Style.Length 100 CSSOM.Pixel
                                     , marginLeft = Style.Auto
                                     , marginRight = Style.Auto
@@ -192,7 +192,7 @@ calculateBlockWidth =
                             ({ node = element
                              , styles =
                                 { styles
-                                    | display = Style.Block
+                                    | display = CSSOM.Block
                                     , width = Style.Length 100 CSSOM.Pixel
                                     , marginLeft = Style.Length 50 CSSOM.Pixel
                                     , marginRight = Style.Auto
@@ -232,7 +232,7 @@ calculateBlockWidth =
                             ({ node = element
                              , styles =
                                 { styles
-                                    | display = Style.Block
+                                    | display = CSSOM.Block
                                     , width = Style.Length 100 CSSOM.Pixel
                                     , marginRight = Style.Length 50 CSSOM.Pixel
                                     , marginLeft = Style.Auto
@@ -272,7 +272,7 @@ calculateBlockWidth =
                             ({ node = element
                              , styles =
                                 { styles
-                                    | display = Style.Block
+                                    | display = CSSOM.Block
                                     , width = Style.Auto
                                     , marginRight = Style.Auto
                                     , marginLeft = Style.Auto
@@ -312,7 +312,7 @@ calculateBlockWidth =
                             ({ node = element
                              , styles =
                                 { styles
-                                    | display = Style.Block
+                                    | display = CSSOM.Block
                                     , width = Style.Auto
                                     , marginRight = Style.Length 100 CSSOM.Pixel
                                     , marginLeft = Style.Length 200 CSSOM.Pixel
@@ -352,7 +352,7 @@ calculateBlockHeight =
                                 ({ node = element
                                  , styles =
                                     { styles
-                                        | display = Style.Block
+                                        | display = CSSOM.Block
                                         , height = Style.Length 50 CSSOM.Pixel
                                     }
                                  , children = []
@@ -422,7 +422,7 @@ startLayout =
                         Style.StyledElement
                             { styles =
                                 { styles
-                                    | display = Style.Block
+                                    | display = CSSOM.Block
                                     , height = height
                                 }
                             , node = element
@@ -459,7 +459,7 @@ startLayout =
                         Style.StyledElement
                             { styles =
                                 { styles
-                                    | display = Style.Block
+                                    | display = CSSOM.Block
                                     , height = height
                                     , paddingTop = Style.Length 20 CSSOM.Pixel
                                     , paddingBottom = Style.Length 20 CSSOM.Pixel
@@ -500,7 +500,7 @@ startLayout =
                         Style.StyledElement
                             { styles =
                                 { styles
-                                    | display = Style.Block
+                                    | display = CSSOM.Block
                                     , height = height
                                     , borderTop = Style.Length 20 CSSOM.Pixel
                                     , borderBottom = Style.Length 20 CSSOM.Pixel
@@ -541,7 +541,7 @@ startLayout =
                         Style.StyledElement
                             { styles =
                                 { styles
-                                    | display = Style.Block
+                                    | display = CSSOM.Block
                                     , height = height
                                     , marginTop = Style.Length 20 CSSOM.Pixel
                                     , marginBottom = Style.Length 20 CSSOM.Pixel

@@ -11,12 +11,6 @@ type CSSColor
     | Transparent
 
 
-type CSSDisplay
-    = Inline
-    | Block
-    | None
-
-
 type CSSDimension
     = Auto
     | Length Float CSSUnit
@@ -110,22 +104,6 @@ styleTree stylesheet domNode =
                     }
 
 
-display : CSSValue -> Maybe CSSDisplay
-display value =
-    case value of
-        Keyword CSSOM.Block ->
-            Just Block
-
-        Keyword CSSOM.Inline ->
-            Just Inline
-
-        Keyword CSSOM.None ->
-            Just None
-
-        _ ->
-            Nothing
-
-
 color : CSSValue -> Maybe CSSColor
 color value =
     case value of
@@ -168,78 +146,11 @@ specifiedValues node stylesheet =
         |> List.map .declarations
         |> List.concat
         |> List.foldl
-            (\{ name, value } styles ->
-                case name of
-                    Display ->
+            (\declaration styles ->
+                case declaration of
+                    Display value ->
                         { styles
-                            | display =
-                                Maybe.withDefault styles.display <| display value
-                        }
-
-                    MarginLeft ->
-                        { styles
-                            | marginLeft =
-                                Maybe.withDefault styles.marginLeft <| margin value
-                        }
-
-                    MarginRight ->
-                        { styles
-                            | marginRight =
-                                Maybe.withDefault styles.marginRight <| margin value
-                        }
-
-                    MarginTop ->
-                        { styles
-                            | marginTop =
-                                Maybe.withDefault styles.marginTop <| margin value
-                        }
-
-                    MarginBottom ->
-                        { styles
-                            | marginBottom =
-                                Maybe.withDefault styles.marginBottom <| margin value
-                        }
-
-                    PaddingTop ->
-                        { styles
-                            | paddingTop =
-                                Maybe.withDefault styles.paddingTop <| padding value
-                        }
-
-                    PaddingBottom ->
-                        { styles
-                            | paddingBottom =
-                                Maybe.withDefault styles.paddingBottom <| padding value
-                        }
-
-                    PaddingLeft ->
-                        { styles
-                            | paddingLeft =
-                                Maybe.withDefault styles.paddingLeft <| padding value
-                        }
-
-                    PaddingRight ->
-                        { styles
-                            | paddingRight =
-                                Maybe.withDefault styles.paddingRight <| padding value
-                        }
-
-                    Width ->
-                        { styles
-                            | width =
-                                Maybe.withDefault styles.width <| margin value
-                        }
-
-                    Height ->
-                        { styles
-                            | height =
-                                Maybe.withDefault styles.height <| margin value
-                        }
-
-                    BackgroundColor ->
-                        { styles
-                            | backgroundColor =
-                                Maybe.withDefault styles.backgroundColor <| color value
+                            | display = value
                         }
             )
             initialStyles
