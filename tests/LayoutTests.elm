@@ -8,6 +8,7 @@ import Layout
 import Test exposing (..)
 import Expect
 import BoxModel
+import CSSBasicTypes
 
 
 layout : Test
@@ -39,6 +40,15 @@ dimensions =
         edgeSize
 
 
+testCSSLength length =
+    case CSSBasicTypes.cssLength length CSSBasicTypes.Pixel of
+        Just validLength ->
+            validLength
+
+        Nothing ->
+            CSSBasicTypes.defaultCSSLength
+
+
 styles =
     Style.initialStyles
 
@@ -63,7 +73,7 @@ calculateBlockWidth =
                                  , styles =
                                     { styles
                                         | display = CSSOM.Block
-                                        , width = CSSOM.WidthLength <| CSSOM.CSSLength 50 CSSOM.Pixel
+                                        , width = CSSOM.WidthLength <| testCSSLength 50
                                     }
                                  , children = []
                                  }
@@ -113,7 +123,7 @@ calculateBlockWidth =
                              , styles =
                                 { styles
                                     | display = CSSOM.Block
-                                    , width = CSSOM.WidthLength <| CSSOM.CSSLength 100 CSSOM.Pixel
+                                    , width = CSSOM.WidthLength <| testCSSLength 100
                                     , marginLeft = CSSOM.MarginAuto
                                     , marginRight = CSSOM.MarginAuto
                                 }
@@ -153,7 +163,7 @@ calculateBlockWidth =
                              , styles =
                                 { styles
                                     | display = CSSOM.Block
-                                    , width = CSSOM.WidthLength <| CSSOM.CSSLength 100 CSSOM.Pixel
+                                    , width = CSSOM.WidthLength <| testCSSLength 100
                                     , marginLeft = CSSOM.MarginAuto
                                     , marginRight = CSSOM.MarginAuto
                                 }
@@ -193,8 +203,8 @@ calculateBlockWidth =
                              , styles =
                                 { styles
                                     | display = CSSOM.Block
-                                    , width = CSSOM.WidthLength <| CSSOM.CSSLength 100 CSSOM.Pixel
-                                    , marginLeft = CSSOM.MarginLength <| CSSOM.CSSLength 50 CSSOM.Pixel
+                                    , width = CSSOM.WidthLength <| testCSSLength 100
+                                    , marginLeft = CSSOM.MarginLength <| testCSSLength 50
                                     , marginRight = CSSOM.MarginAuto
                                 }
                              , children = []
@@ -233,8 +243,8 @@ calculateBlockWidth =
                              , styles =
                                 { styles
                                     | display = CSSOM.Block
-                                    , width = CSSOM.WidthLength <| CSSOM.CSSLength 100 CSSOM.Pixel
-                                    , marginRight = CSSOM.MarginLength <| CSSOM.CSSLength 50 CSSOM.Pixel
+                                    , width = CSSOM.WidthLength <| testCSSLength 100
+                                    , marginRight = CSSOM.MarginLength <| testCSSLength 50
                                     , marginLeft = CSSOM.MarginAuto
                                 }
                              , children = []
@@ -314,8 +324,8 @@ calculateBlockWidth =
                                 { styles
                                     | display = CSSOM.Block
                                     , width = CSSOM.WidthAuto
-                                    , marginRight = CSSOM.MarginLength <| CSSOM.CSSLength 100 CSSOM.Pixel
-                                    , marginLeft = CSSOM.MarginLength <| CSSOM.CSSLength 200 CSSOM.Pixel
+                                    , marginRight = CSSOM.MarginLength <| testCSSLength 100
+                                    , marginLeft = CSSOM.MarginLength <| testCSSLength 200
                                 }
                              , children = []
                              }
@@ -353,7 +363,7 @@ calculateBlockHeight =
                                  , styles =
                                     { styles
                                         | display = CSSOM.Block
-                                        , height = CSSOM.HeightLength <| CSSOM.CSSLength 50 CSSOM.Pixel
+                                        , height = CSSOM.HeightLength <| testCSSLength 50
                                     }
                                  , children = []
                                  }
@@ -431,8 +441,8 @@ startLayout =
 
                     styledNode =
                         getStyledNode
-                            [ getStyledNode [] (CSSOM.HeightLength <| CSSOM.CSSLength 50 CSSOM.Pixel)
-                            , getStyledNode [] (CSSOM.HeightLength <| CSSOM.CSSLength 50 CSSOM.Pixel)
+                            [ getStyledNode [] (CSSOM.HeightLength <| testCSSLength 50)
+                            , getStyledNode [] (CSSOM.HeightLength <| testCSSLength 50)
                             ]
                             CSSOM.HeightAuto
 
@@ -461,8 +471,8 @@ startLayout =
                                 { styles
                                     | display = CSSOM.Block
                                     , height = height
-                                    , paddingTop = CSSOM.PaddingLength <| CSSOM.CSSLength 20 CSSOM.Pixel
-                                    , paddingBottom = CSSOM.PaddingLength <| CSSOM.CSSLength 20 CSSOM.Pixel
+                                    , paddingTop = CSSOM.PaddingLength <| testCSSLength 20
+                                    , paddingBottom = CSSOM.PaddingLength <| testCSSLength 20
                                 }
                             , node = element
                             , children = children
@@ -470,8 +480,8 @@ startLayout =
 
                     styledNode =
                         getStyledNode
-                            [ getStyledNode [] (CSSOM.HeightLength <| CSSOM.CSSLength 50 CSSOM.Pixel)
-                            , getStyledNode [] (CSSOM.HeightLength <| CSSOM.CSSLength 50 CSSOM.Pixel)
+                            [ getStyledNode [] (CSSOM.HeightLength <| testCSSLength 50)
+                            , getStyledNode [] (CSSOM.HeightLength <| testCSSLength 50)
                             ]
                             CSSOM.HeightAuto
 
@@ -502,8 +512,8 @@ startLayout =
                                 { styles
                                     | display = CSSOM.Block
                                     , height = height
-                                    , borderTopWidth = CSSOM.BorderWidthLength <| CSSOM.CSSLength 20 CSSOM.Pixel
-                                    , borderBottomWidth = CSSOM.BorderWidthLength <| CSSOM.CSSLength 20 CSSOM.Pixel
+                                    , borderTopWidth = CSSOM.BorderWidthLength <| testCSSLength 20
+                                    , borderBottomWidth = CSSOM.BorderWidthLength <| testCSSLength 20
                                 }
                             , node = element
                             , children = children
@@ -511,8 +521,8 @@ startLayout =
 
                     styledNode =
                         getStyledNode
-                            [ getStyledNode [] (CSSOM.HeightLength <| CSSOM.CSSLength 50 CSSOM.Pixel)
-                            , getStyledNode [] (CSSOM.HeightLength <| CSSOM.CSSLength 50 CSSOM.Pixel)
+                            [ getStyledNode [] (CSSOM.HeightLength <| testCSSLength 50)
+                            , getStyledNode [] (CSSOM.HeightLength <| testCSSLength 50)
                             ]
                             CSSOM.HeightAuto
 
@@ -543,8 +553,8 @@ startLayout =
                                 { styles
                                     | display = CSSOM.Block
                                     , height = height
-                                    , marginTop = CSSOM.MarginLength <| CSSOM.CSSLength 20 CSSOM.Pixel
-                                    , marginBottom = CSSOM.MarginLength <| CSSOM.CSSLength 20 CSSOM.Pixel
+                                    , marginTop = CSSOM.MarginLength <| testCSSLength 20
+                                    , marginBottom = CSSOM.MarginLength <| testCSSLength 20
                                 }
                             , node = element
                             , children = children
@@ -552,8 +562,8 @@ startLayout =
 
                     styledNode =
                         getStyledNode
-                            [ getStyledNode [] (CSSOM.HeightLength <| CSSOM.CSSLength 50 CSSOM.Pixel)
-                            , getStyledNode [] (CSSOM.HeightLength <| CSSOM.CSSLength 50 CSSOM.Pixel)
+                            [ getStyledNode [] (CSSOM.HeightLength <| testCSSLength 50)
+                            , getStyledNode [] (CSSOM.HeightLength <| testCSSLength 50)
                             ]
                             CSSOM.HeightAuto
 

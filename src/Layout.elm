@@ -4,6 +4,7 @@ import Style exposing (..)
 import CSSOM exposing (..)
 import DOM exposing (..)
 import BoxModel
+import CSSBasicTypes exposing (..)
 
 
 type Box
@@ -23,21 +24,21 @@ type LayoutBox
 
 marginToPx dimension =
     case dimension of
-        MarginLength (CSSLength l _) ->
-            l
+        MarginLength length ->
+            computedCSSLength length
 
         MarginAuto ->
             0.0
 
 
-paddingToPx (PaddingLength (CSSLength l _)) =
-    l
+paddingToPx (PaddingLength length) =
+    computedCSSLength length
 
 
 borderToPx dimension =
     case dimension of
-        BorderWidthLength (CSSLength l _) ->
-            l
+        BorderWidthLength length ->
+            computedCSSLength length
 
         _ ->
             0.0
@@ -45,8 +46,8 @@ borderToPx dimension =
 
 widthToPx dimension =
     case dimension of
-        WidthLength (CSSLength l _) ->
-            l
+        WidthLength length ->
+            computedCSSLength length
 
         _ ->
             0.0
@@ -239,10 +240,10 @@ calculateBlockWidth { node, styles } boxModel containingBoxModel =
                     False
 
         marginLength l u =
-            MarginLength <| CSSLength l u
+            MarginLength <| Maybe.withDefault defaultCSSLength (cssLength l u)
 
         widthLength l u =
-            WidthLength <| CSSLength l u
+            WidthLength <| Maybe.withDefault defaultCSSLength (cssLength l u)
 
         dimensions =
             [ marginToPx styles.marginLeft
@@ -265,13 +266,13 @@ calculateBlockWidth { node, styles } boxModel containingBoxModel =
                 let
                     marginLeft =
                         if isAutoMargin styles.marginLeft then
-                            MarginLength <| CSSLength 0.0 Pixel
+                            MarginLength defaultCSSLength
                         else
                             styles.marginLeft
 
                     marginRight =
                         if isAutoMargin styles.marginRight then
-                            MarginLength <| CSSLength 0.0 Pixel
+                            MarginLength defaultCSSLength
                         else
                             styles.marginRight
                 in
@@ -372,7 +373,7 @@ calculateBlockHeight :
     -> BoxModel.BoxModel
 calculateBlockHeight { styles } boxModel =
     case styles.height of
-        HeightLength (CSSLength length _) ->
+        HeightLength length ->
             let
                 boxModelContent =
                     BoxModel.content boxModel
@@ -381,7 +382,7 @@ calculateBlockHeight { styles } boxModel =
                     { x = boxModelContent.x
                     , y = boxModelContent.y
                     , width = boxModelContent.width
-                    , height = length
+                    , height = computedCSSLength length
                     }
             in
                 BoxModel.boxModel

@@ -4,6 +4,7 @@ import Char
 import ParseInt exposing (..)
 import Parser exposing (..)
 import CSSOM exposing (..)
+import CSSBasicTypes exposing (..)
 import Color exposing (..)
 import String
 
@@ -56,9 +57,19 @@ parseColor =
 
 parseLength : Parser CSSLength
 parseLength =
-    succeed CSSLength
-        |= float
-        |= parseUnit
+    andThen
+        (\maybeLength ->
+            case maybeLength of
+                Just length ->
+                    succeed length
+
+                Nothing ->
+                    fail "bim"
+        )
+        (succeed cssLength
+            |= float
+            |= parseUnit
+        )
 
 
 parseColorKeyword : Parser CSSColorKeyword
@@ -174,10 +185,10 @@ parseDeclaration =
         , parsePadding "padding-right" PaddingRight
         , parsePadding "padding-top" PaddingTop
         , parsePadding "padding-bottom" PaddingBottom
-        , parseBorderWidth "border-left" BorderLeftWidth
-        , parseBorderWidth "border-right" BorderRightWidth
-        , parseBorderWidth "border-top" BorderTopWidth
-        , parseBorderWidth "border-bottom" BorderBottomWidth
+        , parseBorderWidth "border-left-width" BorderLeftWidth
+        , parseBorderWidth "border-right-width" BorderRightWidth
+        , parseBorderWidth "border-top-width" BorderTopWidth
+        , parseBorderWidth "border-bottom-width" BorderBottomWidth
         , parseHeight
         , parseWidth
         , parseBackgroundColor

@@ -1,6 +1,7 @@
 module CSSOM exposing (..)
 
 import Color exposing (..)
+import CSSBasicTypes exposing (..)
 
 
 type CSSDisplay
@@ -16,10 +17,6 @@ type CSSMargin
 
 type CSSPadding
     = PaddingLength CSSLength
-
-
-type CSSLength
-    = CSSLength Float CSSUnit
 
 
 type CSSHeight
@@ -83,10 +80,6 @@ type CSSSelector
 
 type alias CSSStyleSheet =
     List CSSRule
-
-
-type CSSUnit
-    = Pixel
 
 
 type CSSValue

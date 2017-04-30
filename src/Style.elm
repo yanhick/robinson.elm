@@ -4,11 +4,7 @@ import Dict
 import CSSOM exposing (..)
 import DOM exposing (..)
 import Color exposing (..)
-
-
-type CSSColor
-    = CSSColor Color
-    | Transparent
+import CSSBasicTypes exposing (..)
 
 
 type CSSDimension
@@ -37,14 +33,14 @@ type StyledNode
 initialStyles : Styles
 initialStyles =
     { display = Inline
-    , marginLeft = MarginLength <| CSSLength 0 Pixel
-    , marginRight = MarginLength <| CSSLength 0 Pixel
-    , marginTop = MarginLength <| CSSLength 0 Pixel
-    , marginBottom = MarginLength <| CSSLength 0 Pixel
-    , paddingLeft = PaddingLength <| CSSLength 0 Pixel
-    , paddingRight = PaddingLength <| CSSLength 0 Pixel
-    , paddingTop = PaddingLength <| CSSLength 0 Pixel
-    , paddingBottom = PaddingLength <| CSSLength 0 Pixel
+    , marginLeft = MarginLength defaultCSSLength
+    , marginRight = MarginLength defaultCSSLength
+    , marginTop = MarginLength defaultCSSLength
+    , marginBottom = MarginLength defaultCSSLength
+    , paddingLeft = PaddingLength defaultCSSLength
+    , paddingRight = PaddingLength defaultCSSLength
+    , paddingTop = PaddingLength defaultCSSLength
+    , paddingBottom = PaddingLength defaultCSSLength
     , borderLeftWidth = BorderWidthMedium
     , borderRightWidth = BorderWidthMedium
     , borderTopWidth = BorderWidthMedium
@@ -52,10 +48,6 @@ initialStyles =
     , width = WidthAuto
     , height = HeightAuto
     , backgroundColor = BackgroundColorTransparent
-    , borderTopColor = Transparent
-    , borderBottomColor = Transparent
-    , borderLeftColor = Transparent
-    , borderRightColor = Transparent
     }
 
 
@@ -76,10 +68,6 @@ type alias Styles =
     , borderRightWidth : CSSBorderWidth
     , borderTopWidth : CSSBorderWidth
     , borderBottomWidth : CSSBorderWidth
-    , borderTopColor : CSSColor
-    , borderBottomColor : CSSColor
-    , borderLeftColor : CSSColor
-    , borderRightColor : CSSColor
     }
 
 
@@ -102,36 +90,6 @@ styleTree stylesheet domNode =
                     , styles = styles
                     , children = children
                     }
-
-
-color : CSSValue -> Maybe CSSColor
-color value =
-    case value of
-        ColorValue (RGBA color) ->
-            Just (CSSColor color)
-
-        _ ->
-            Nothing
-
-
-margin : CSSValue -> Maybe CSSDimension
-margin value =
-    case value of
-        CSSOM.Length l u ->
-            Just <| Length l u
-
-        _ ->
-            Nothing
-
-
-padding : CSSValue -> Maybe CSSDimension
-padding value =
-    case value of
-        CSSOM.Length l u ->
-            Just <| Length l u
-
-        _ ->
-            Nothing
 
 
 specifiedValues : ElementNode -> CSSStyleSheet -> Styles

@@ -2,6 +2,7 @@ module CSSTests exposing (..)
 
 import Test exposing (..)
 import CSSOM
+import CSSBasicTypes
 import CSSParser
 import Parser
 import Expect
@@ -213,8 +214,8 @@ cssParser =
                     case (Parser.run CSSParser.parse "div {margin-left:10px;}") of
                         Ok [ { selectors, declarations } ] ->
                             case declarations of
-                                [ CSSOM.MarginLeft (CSSOM.MarginLength (CSSOM.CSSLength 10 CSSOM.Pixel)) ] ->
-                                    True
+                                [ CSSOM.MarginLeft (CSSOM.MarginLength length) ] ->
+                                    CSSBasicTypes.computedCSSLength length == 10
 
                                 _ ->
                                     False
