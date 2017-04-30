@@ -11,6 +11,7 @@ import CSSParser
 import Style
 import Layout
 import Painting
+import BoxModel
 
 
 main =
@@ -23,67 +24,115 @@ main =
 
 
 type alias Model =
-    List Painting.DisplayCommand
+    { paintingCommands : List Painting.DisplayCommand
+    , html : String
+    , css : String
+    }
 
 
 type Msg
-    = Start
+    = CSS String
+    | HTML String
+
+
+startCSS =
+    """
+.bang {
+    width: 200px;
+    height: 200px;
+    display: block;
+    background-color: #333333;
+}
+.bam {
+    width: 100px;
+    height: 100px;
+    display:block;
+    background-color: #ff0000;
+    padding-top: 10px;
+}
+#boum{
+    width: 50px;
+    height: 50px;
+    display: block;
+    background-color: #00ff00;
+}
+"""
+
+
+startHTML =
+    """
+<div class="bang">
+    <div id="boum"></div>
+    <div class="bam"></div>
+</div>
+"""
 
 
 init : ( Model, Cmd Msg )
 init =
-    ( []
+    ( { paintingCommands = render startHTML startCSS
+      , css = startCSS
+      , html = startHTML
+      }
     , Cmd.none
     )
 
 
-update : Msg -> Model -> ( Model, Cmd Msg )
-update Start _ =
+render : String -> String -> List Painting.DisplayCommand
+render html css =
     let
-        html =
-            Debug.log "html" <|
-                Parser.run HtmlParser.parse "<div class=\"bang\"><div id=\"boum\"></div><div class=\"bam\"></div></div>"
+        dom =
+            Parser.run HtmlParser.parse html
 
-        css =
-            Parser.run CSSParser.parse """
-            .bang { width: 200px; height: 200px; display: block; background-color: #333333; }
-            .bam { width: 100px; height: 100px; display:block; background-color: #ff0000; }
-            #boum{ width: 50px; height: 50px; display: block; background-color: #00ff00; }"""
+        cssom =
+            Parser.run CSSParser.parse css
 
         style =
-            Result.map2 Style.styleTree css html
+            Result.map2 Style.styleTree cssom dom
 
         layout =
-            Result.map2 Layout.startLayout style (Ok Layout.initialDimensions)
-
-        l =
-            case layout of
-                Ok (Layout.LayoutBox { children }) ->
-                    Debug.log "children" <|
-                        List.map (\(Layout.LayoutBox { dimensions }) -> dimensions) children
-
-                Err _ ->
-                    Debug.crash "oups"
+            Result.map2 Layout.startLayout style (Ok BoxModel.initBoxModel)
 
         displayCommand =
             Result.map Painting.buildDisplayList layout
     in
         case displayCommand of
             Ok dc ->
-                ( dc, Cmd.none )
+                dc
 
             Err _ ->
-                ( [], Cmd.none )
+                []
+
+
+update : Msg -> Model -> ( Model, Cmd Msg )
+update msg { paintingCommands, html, css } =
+    case msg of
+        CSS newCSS ->
+            ( { paintingCommands = render html newCSS, html = html, css = newCSS }, Cmd.none )
+
+        HTML newHTML ->
+            ( { paintingCommands = render newHTML css, html = newHTML, css = css }, Cmd.none )
 
 
 view : Model -> Html Msg
-view model =
-    case model of
-        [] ->
-            div [ onClick Start ] [ text "start" ]
+view { paintingCommands, html, css } =
+    div []
+        [ div [] (List.map element paintingCommands)
+        , ui html css
+        ]
 
-        _ ->
-            div [] (List.map element model)
+
+ui : String -> String -> Html Msg
+ui html css =
+    let
+        textareaStyle =
+            [ ( "display", "block" ), ( "width", "400px" ), ( "height", "400px" ) ]
+    in
+        div
+            [ style [ ( "float", "right" ) ] ]
+            [ textarea [ style textareaStyle, onInput HTML ] [ text html ]
+            , textarea [ style textareaStyle, onInput CSS ] [ text css ]
+            ]
 
 
 element : Painting.DisplayCommand -> Html Msg

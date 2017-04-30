@@ -166,7 +166,7 @@ layoutBlockChildren children boxModel containingBoxModel =
                 childLayoutBox =
                     layout child containingBoxModel
 
-                childBoxModelContent (LayoutBox { dimensions }) =
+                childBoxModelMargin (LayoutBox { dimensions }) =
                     BoxModel.marginBox dimensions
 
                 containingBoxModelContent =
@@ -178,7 +178,7 @@ layoutBlockChildren children boxModel containingBoxModel =
                     , width = containingBoxModelContent.width
                     , height =
                         containingBoxModelContent.height
-                            + (childBoxModelContent childLayoutBox).height
+                            + (childBoxModelMargin childLayoutBox).height
                     }
             in
                 ( List.append children [ childLayoutBox ]
