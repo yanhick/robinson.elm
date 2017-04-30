@@ -58,6 +58,10 @@ initialStyles =
     , borderBottom = Length 0 Pixel
     , width = Auto
     , backgroundColor = Transparent
+    , borderTopColor = Transparent
+    , borderBottomColor = Transparent
+    , borderLeftColor = Transparent
+    , borderRightColor = Transparent
     }
 
 
@@ -77,6 +81,10 @@ type alias Styles =
     , borderRight : CSSDimension
     , borderTop : CSSDimension
     , borderBottom : CSSDimension
+    , borderTopColor : CSSColor
+    , borderBottomColor : CSSColor
+    , borderLeftColor : CSSColor
+    , borderRightColor : CSSColor
     , width : CSSDimension
     }
 
@@ -162,80 +170,77 @@ specifiedValues node stylesheet =
         |> List.foldl
             (\{ name, value } styles ->
                 case name of
-                    "display" ->
+                    Display ->
                         { styles
                             | display =
                                 Maybe.withDefault styles.display <| display value
                         }
 
-                    "margin-left" ->
+                    MarginLeft ->
                         { styles
                             | marginLeft =
                                 Maybe.withDefault styles.marginLeft <| margin value
                         }
 
-                    "margin-right" ->
+                    MarginRight ->
                         { styles
                             | marginRight =
                                 Maybe.withDefault styles.marginRight <| margin value
                         }
 
-                    "margin-top" ->
+                    MarginTop ->
                         { styles
                             | marginTop =
                                 Maybe.withDefault styles.marginTop <| margin value
                         }
 
-                    "margin-bottom" ->
+                    MarginBottom ->
                         { styles
                             | marginBottom =
                                 Maybe.withDefault styles.marginBottom <| margin value
                         }
 
-                    "padding-top" ->
+                    PaddingTop ->
                         { styles
                             | paddingTop =
                                 Maybe.withDefault styles.paddingTop <| padding value
                         }
 
-                    "padding-bottom" ->
+                    PaddingBottom ->
                         { styles
                             | paddingBottom =
                                 Maybe.withDefault styles.paddingBottom <| padding value
                         }
 
-                    "padding-left" ->
+                    PaddingLeft ->
                         { styles
                             | paddingLeft =
                                 Maybe.withDefault styles.paddingLeft <| padding value
                         }
 
-                    "padding-right " ->
+                    PaddingRight ->
                         { styles
                             | paddingRight =
                                 Maybe.withDefault styles.paddingRight <| padding value
                         }
 
-                    "width" ->
+                    Width ->
                         { styles
                             | width =
                                 Maybe.withDefault styles.width <| margin value
                         }
 
-                    "height" ->
+                    Height ->
                         { styles
                             | height =
                                 Maybe.withDefault styles.height <| margin value
                         }
 
-                    "background-color" ->
+                    BackgroundColor ->
                         { styles
                             | backgroundColor =
                                 Maybe.withDefault styles.backgroundColor <| color value
                         }
-
-                    _ ->
-                        styles
             )
             initialStyles
 

@@ -20,31 +20,35 @@ layout =
         ]
 
 
+edgeSize =
+    { top = 0, right = 0, bottom = 0, left = 0 }
+
+
+element =
+    { tagName = "div"
+    , attributes = Dict.fromList [ ( "foo", "bar" ) ]
+    , children = []
+    }
+
+
+dimensions =
+    BoxModel.boxModel
+        { x = 0, y = 0, width = 0, height = 0 }
+        edgeSize
+        edgeSize
+        edgeSize
+
+
+styles =
+    Style.initialStyles
+
+
 calculateBlockWidth : Test
 calculateBlockWidth =
     describe "calculate block width"
         [ test "set the block width with an explicit width" <|
             \() ->
                 let
-                    edgeSize =
-                        { top = 0, right = 0, bottom = 0, left = 0 }
-
-                    dimensions =
-                        BoxModel.boxModel
-                            { x = 0, y = 0, width = 0, height = 0 }
-                            edgeSize
-                            edgeSize
-                            edgeSize
-
-                    element =
-                        { tagName = "div"
-                        , attributes = Dict.fromList [ ( "foo", "bar" ) ]
-                        , children = []
-                        }
-
-                    styles =
-                        Style.initialStyles
-
                     containingDimensions =
                         BoxModel.boxModel
                             { x = 0, y = 0, width = 100, height = 0 }
@@ -71,25 +75,6 @@ calculateBlockWidth =
         , test "set the block width with an auto width" <|
             \() ->
                 let
-                    edgeSize =
-                        { top = 0, right = 0, bottom = 0, left = 0 }
-
-                    dimensions =
-                        BoxModel.boxModel
-                            { x = 0, y = 0, width = 0, height = 0 }
-                            edgeSize
-                            edgeSize
-                            edgeSize
-
-                    element =
-                        { tagName = "div"
-                        , attributes = Dict.fromList [ ( "foo", "bar" ) ]
-                        , children = []
-                        }
-
-                    styles =
-                        Style.initialStyles
-
                     containingDimensions =
                         BoxModel.boxModel
                             { x = 0, y = 0, width = 200, height = 0 }
@@ -115,25 +100,6 @@ calculateBlockWidth =
         , test "set the margins width with auto margins and explicit width" <|
             \() ->
                 let
-                    edgeSize =
-                        { top = 0, right = 0, bottom = 0, left = 0 }
-
-                    dimensions =
-                        BoxModel.boxModel
-                            { x = 0, y = 0, width = 0, height = 0 }
-                            edgeSize
-                            edgeSize
-                            edgeSize
-
-                    element =
-                        { tagName = "div"
-                        , attributes = Dict.fromList [ ( "foo", "bar" ) ]
-                        , children = []
-                        }
-
-                    styles =
-                        Style.initialStyles
-
                     containingDimensions =
                         BoxModel.boxModel
                             { x = 0, y = 0, width = 200, height = 0 }
@@ -174,25 +140,6 @@ calculateBlockWidth =
         , test "set the margins width with auto margins and explicit width" <|
             \() ->
                 let
-                    edgeSize =
-                        { top = 0, right = 0, bottom = 0, left = 0 }
-
-                    dimensions =
-                        BoxModel.boxModel
-                            { x = 0, y = 0, width = 0, height = 0 }
-                            edgeSize
-                            edgeSize
-                            edgeSize
-
-                    element =
-                        { tagName = "div"
-                        , attributes = Dict.fromList [ ( "foo", "bar" ) ]
-                        , children = []
-                        }
-
-                    styles =
-                        Style.initialStyles
-
                     containingDimensions =
                         BoxModel.boxModel
                             { x = 0, y = 0, width = 200, height = 0 }
@@ -233,25 +180,6 @@ calculateBlockWidth =
         , test "resize left auto margin when right margin and width length is explicit" <|
             \() ->
                 let
-                    edgeSize =
-                        { top = 0, right = 0, bottom = 0, left = 0 }
-
-                    dimensions =
-                        BoxModel.boxModel
-                            { x = 0, y = 0, width = 0, height = 0 }
-                            edgeSize
-                            edgeSize
-                            edgeSize
-
-                    element =
-                        { tagName = "div"
-                        , attributes = Dict.fromList [ ( "foo", "bar" ) ]
-                        , children = []
-                        }
-
-                    styles =
-                        Style.initialStyles
-
                     containingDimensions =
                         BoxModel.boxModel
                             { x = 0, y = 0, width = 100, height = 0 }
@@ -292,25 +220,6 @@ calculateBlockWidth =
         , test "resize right auto margin when left margin and width length is explicit" <|
             \() ->
                 let
-                    edgeSize =
-                        { top = 0, right = 0, bottom = 0, left = 0 }
-
-                    dimensions =
-                        BoxModel.boxModel
-                            { x = 0, y = 0, width = 0, height = 0 }
-                            edgeSize
-                            edgeSize
-                            edgeSize
-
-                    element =
-                        { tagName = "div"
-                        , attributes = Dict.fromList [ ( "foo", "bar" ) ]
-                        , children = []
-                        }
-
-                    styles =
-                        Style.initialStyles
-
                     containingDimensions =
                         BoxModel.boxModel
                             { x = 0, y = 0, width = 200, height = 0 }
@@ -351,25 +260,6 @@ calculateBlockWidth =
         , test "set auto margins to 0 if width is auto" <|
             \() ->
                 let
-                    edgeSize =
-                        { top = 0, right = 0, bottom = 0, left = 0 }
-
-                    dimensions =
-                        BoxModel.boxModel
-                            { x = 0, y = 0, width = 0, height = 0 }
-                            edgeSize
-                            edgeSize
-                            edgeSize
-
-                    element =
-                        { tagName = "div"
-                        , attributes = Dict.fromList [ ( "foo", "bar" ) ]
-                        , children = []
-                        }
-
-                    styles =
-                        Style.initialStyles
-
                     containingDimensions =
                         BoxModel.boxModel
                             { x = 0, y = 0, width = 200, height = 0 }
@@ -410,25 +300,6 @@ calculateBlockWidth =
         , test "make right margin negative if the width was going to be negative" <|
             \() ->
                 let
-                    edgeSize =
-                        { top = 0, right = 0, bottom = 0, left = 0 }
-
-                    dimensions =
-                        BoxModel.boxModel
-                            { x = 0, y = 0, width = 0, height = 0 }
-                            edgeSize
-                            edgeSize
-                            edgeSize
-
-                    element =
-                        { tagName = "div"
-                        , attributes = Dict.fromList [ ( "foo", "bar" ) ]
-                        , children = []
-                        }
-
-                    styles =
-                        Style.initialStyles
-
                     containingDimensions =
                         BoxModel.boxModel
                             { x = 0, y = 0, width = 100, height = 0 }
@@ -475,25 +346,6 @@ calculateBlockHeight =
         [ test "set the block height if provided" <|
             \() ->
                 let
-                    element =
-                        { tagName = "div"
-                        , attributes = Dict.fromList [ ( "foo", "bar" ) ]
-                        , children = []
-                        }
-
-                    styles =
-                        Style.initialStyles
-
-                    edgeSize =
-                        { top = 0, right = 0, bottom = 0, left = 0 }
-
-                    dimensions =
-                        BoxModel.boxModel
-                            { x = 0, y = 0, width = 0, height = 0 }
-                            edgeSize
-                            edgeSize
-                            edgeSize
-
                     boxModel =
                         BoxModel.content <|
                             Layout.calculateBlockHeight
@@ -512,22 +364,6 @@ calculateBlockHeight =
         , test "do nothing if auto height" <|
             \() ->
                 let
-                    element =
-                        { tagName = "div"
-                        , attributes = Dict.fromList [ ( "foo", "bar" ) ]
-                        , children = []
-                        }
-
-                    edgeSize =
-                        { top = 0, right = 0, bottom = 0, left = 0 }
-
-                    dimensions =
-                        BoxModel.boxModel
-                            { x = 0, y = 0, width = 0, height = 0 }
-                            edgeSize
-                            edgeSize
-                            edgeSize
-
                     boxModelContent =
                         BoxModel.content <|
                             Layout.calculateBlockHeight
@@ -549,22 +385,6 @@ calculateBlockPosition =
         [ test "set the block position" <|
             \() ->
                 let
-                    edgeSize =
-                        { top = 0, right = 0, bottom = 0, left = 0 }
-
-                    element =
-                        { tagName = "div"
-                        , attributes = Dict.fromList [ ( "foo", "bar" ) ]
-                        , children = []
-                        }
-
-                    dimensions =
-                        BoxModel.boxModel
-                            { x = 0, y = 0, width = 0, height = 0 }
-                            edgeSize
-                            edgeSize
-                            edgeSize
-
                     containingDimensions =
                         BoxModel.boxModel
                             { x = 10, y = 20, width = 0, height = 0 }
@@ -598,18 +418,6 @@ startLayout =
         [ test "layout itself" <|
             \() ->
                 let
-                    edgeSize =
-                        { top = 0, right = 0, bottom = 0, left = 0 }
-
-                    element =
-                        { tagName = "div"
-                        , attributes = Dict.fromList [ ( "foo", "bar" ) ]
-                        , children = []
-                        }
-
-                    styles =
-                        Style.initialStyles
-
                     getStyledNode children height =
                         Style.StyledElement
                             { styles =
@@ -647,18 +455,6 @@ startLayout =
         , test "layout itself with padding" <|
             \() ->
                 let
-                    edgeSize =
-                        { top = 0, right = 0, bottom = 0, left = 0 }
-
-                    element =
-                        { tagName = "div"
-                        , attributes = Dict.fromList [ ( "foo", "bar" ) ]
-                        , children = []
-                        }
-
-                    styles =
-                        Style.initialStyles
-
                     getStyledNode children height =
                         Style.StyledElement
                             { styles =
@@ -696,5 +492,87 @@ startLayout =
                 in
                     Expect.equal
                         boxModelPadding.height
+                        220
+        , test "layout itself with borders" <|
+            \() ->
+                let
+                    getStyledNode children height =
+                        Style.StyledElement
+                            { styles =
+                                { styles
+                                    | display = Style.Block
+                                    , height = height
+                                    , borderTop = Style.Length 20 CSSOM.Pixel
+                                    , borderBottom = Style.Length 20 CSSOM.Pixel
+                                }
+                            , node = element
+                            , children = children
+                            }
+
+                    styledNode =
+                        getStyledNode
+                            [ getStyledNode [] (Style.Length 50 CSSOM.Pixel)
+                            , getStyledNode [] (Style.Length 50 CSSOM.Pixel)
+                            ]
+                            Style.Auto
+
+                    containingDimensions =
+                        BoxModel.boxModel
+                            { x = 0, y = 0, width = 0, height = 0 }
+                            edgeSize
+                            edgeSize
+                            edgeSize
+
+                    (Layout.LayoutBox { dimensions }) =
+                        Layout.startLayout
+                            styledNode
+                            containingDimensions
+
+                    boxModelPadding =
+                        BoxModel.borderBox dimensions
+                in
+                    Expect.equal
+                        boxModelPadding.height
+                        220
+        , test "layout itself with margins" <|
+            \() ->
+                let
+                    getStyledNode children height =
+                        Style.StyledElement
+                            { styles =
+                                { styles
+                                    | display = Style.Block
+                                    , height = height
+                                    , marginTop = Style.Length 20 CSSOM.Pixel
+                                    , marginBottom = Style.Length 20 CSSOM.Pixel
+                                }
+                            , node = element
+                            , children = children
+                            }
+
+                    styledNode =
+                        getStyledNode
+                            [ getStyledNode [] (Style.Length 50 CSSOM.Pixel)
+                            , getStyledNode [] (Style.Length 50 CSSOM.Pixel)
+                            ]
+                            Style.Auto
+
+                    containingDimensions =
+                        BoxModel.boxModel
+                            { x = 0, y = 0, width = 0, height = 0 }
+                            edgeSize
+                            edgeSize
+                            edgeSize
+
+                    (Layout.LayoutBox { dimensions }) =
+                        Layout.startLayout
+                            styledNode
+                            containingDimensions
+
+                    boxModelMargin =
+                        BoxModel.marginBox dimensions
+                in
+                    Expect.equal
+                        boxModelMargin.height
                         220
         ]

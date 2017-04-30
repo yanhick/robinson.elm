@@ -3,8 +3,23 @@ module CSSOM exposing (..)
 import Color exposing (..)
 
 
+type CSSPropertyName
+    = Display
+    | MarginLeft
+    | MarginRight
+    | MarginBottom
+    | MarginTop
+    | PaddingLeft
+    | PaddingRight
+    | PaddingTop
+    | PaddingBottom
+    | Height
+    | Width
+    | BackgroundColor
+
+
 type alias CSSDeclaration =
-    { name : String
+    { name : CSSPropertyName
     , value : CSSValue
     }
 

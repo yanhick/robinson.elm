@@ -19,10 +19,9 @@ span {
 
 html {
   width: 600px;
-  padding: 10px;
-  border-width: 1px;
-  margin: auto;
-  background: #ffffff;
+  padding-top: 10px;
+  margin-left: auto;
+  background-color: #ffffff;
 }
 
 head {
@@ -30,28 +29,23 @@ head {
 }
 
 .outer {
-  background: #00ccff;
-  border-color: #666666;
-  border-width: 2px;
-  margin: 50px;
-  padding: 50px;
+  background-color: #00ccff;
+  margin-left: 50px;
+  padding-top: 50px;
 }
 
 .inner {
-  border-color: #cc0000;
-  border-width: 4px;
   height: 100px;
   margin-bottom: 20px;
   width: 500px;
 }
 
 .inner#bye {
-  background: #ffff00;
+  background-color: #ffff00;
 }
 
 span#name {
-  background: red;
-  color: white;
+  background-color: red;
 }"""
 
 
@@ -81,7 +75,7 @@ cssParser =
         , test "parse name selector" <|
             \() ->
                 Expect.true "name selector" <|
-                    case (Parser.run CSSParser.parse "div {foo:auto;}") of
+                    case (Parser.run CSSParser.parse "div {display:auto;}") of
                         Ok [ { selectors, declarations } ] ->
                             case selectors of
                                 [ CSSOM.Simple { tag, classes, ids } ] ->
@@ -98,7 +92,7 @@ cssParser =
         , test "parse css with newlines " <|
             \() ->
                 Expect.true "name selector" <|
-                    case (Parser.run CSSParser.parse "div\n {foo:auto;\n}") of
+                    case (Parser.run CSSParser.parse "div\n {display:auto;\n}") of
                         Ok [ { selectors, declarations } ] ->
                             case selectors of
                                 [ CSSOM.Simple { tag, classes, ids } ] ->
@@ -115,7 +109,7 @@ cssParser =
         , test "parse id selectors" <|
             \() ->
                 Expect.true "id selector" <|
-                    case (Parser.run CSSParser.parse "#my-id {foo:auto;}") of
+                    case (Parser.run CSSParser.parse "#my-id {display:auto;}") of
                         Ok [ { selectors, declarations } ] ->
                             case selectors of
                                 [ CSSOM.Simple { tag, classes, ids } ] ->
@@ -133,7 +127,7 @@ cssParser =
         , test "parse class selectors" <|
             \() ->
                 Expect.true "class selector" <|
-                    case (Parser.run CSSParser.parse ".my-class {foo:auto;}") of
+                    case (Parser.run CSSParser.parse ".my-class {display:auto;}") of
                         Ok [ { selectors, declarations } ] ->
                             case selectors of
                                 [ CSSOM.Simple { tag, classes, ids } ] ->
@@ -151,7 +145,7 @@ cssParser =
         , test "parse universal selector" <|
             \() ->
                 Expect.true "universal selector" <|
-                    case (Parser.run CSSParser.parse "*{foo:auto;}") of
+                    case (Parser.run CSSParser.parse "*{display:auto;}") of
                         Ok [ { selectors, declarations } ] ->
                             case selectors of
                                 [ CSSOM.Universal ] ->
@@ -165,7 +159,7 @@ cssParser =
         , test "parse multiple classes" <|
             \() ->
                 Expect.true "multiple classes" <|
-                    case (Parser.run CSSParser.parse ".my-class.my-other-class {foo:auto;}") of
+                    case (Parser.run CSSParser.parse ".my-class.my-other-class {display:auto;}") of
                         Ok [ { selectors, declarations } ] ->
                             case selectors of
                                 [ CSSOM.Simple { tag, classes, ids } ] ->
@@ -183,7 +177,7 @@ cssParser =
         , test "parse simple selector" <|
             \() ->
                 Expect.true "simple selector" <|
-                    case (Parser.run CSSParser.parse "div.my-class#my-id {foo:auto;}") of
+                    case (Parser.run CSSParser.parse "div.my-class#my-id {display:auto;}") of
                         Ok [ { selectors, declarations } ] ->
                             case selectors of
                                 [ CSSOM.Simple { tag, classes, ids } ] ->
@@ -202,12 +196,12 @@ cssParser =
         , test "parse keyword value" <|
             \() ->
                 Expect.true "keyword value" <|
-                    case (Parser.run CSSParser.parse "div {foo:auto;}") of
+                    case (Parser.run CSSParser.parse "div {display:auto;}") of
                         Ok [ { selectors, declarations } ] ->
                             case declarations of
                                 [ { name, value } ] ->
                                     name
-                                        == "foo"
+                                        == CSSOM.Display
                                         && case value of
                                             CSSOM.Keyword CSSOM.Auto ->
                                                 True
@@ -223,12 +217,12 @@ cssParser =
         , test "parse length value" <|
             \() ->
                 Expect.true "length value" <|
-                    case (Parser.run CSSParser.parse "div {foo:10px;}") of
+                    case (Parser.run CSSParser.parse "div {display:10px;}") of
                         Ok [ { selectors, declarations } ] ->
                             case declarations of
                                 [ { name, value } ] ->
                                     name
-                                        == "foo"
+                                        == CSSOM.Display
                                         && case value of
                                             CSSOM.Length 10 CSSOM.Pixel ->
                                                 True
@@ -244,12 +238,12 @@ cssParser =
         , test "parse color value" <|
             \() ->
                 Expect.true "color value" <|
-                    case (Parser.run CSSParser.parse "div {foo:#CCFF00;}") of
+                    case (Parser.run CSSParser.parse "div {display:#CCFF00;}") of
                         Ok [ { selectors, declarations } ] ->
                             case declarations of
                                 [ { name, value } ] ->
                                     name
-                                        == "foo"
+                                        == CSSOM.Display
                                         && case value of
                                             CSSOM.ColorValue (CSSOM.RGBA color) ->
                                                 Color.toRgb color
@@ -270,7 +264,7 @@ cssParser =
         , test "parse multiple selectors" <|
             \() ->
                 Expect.true "multiple selectors" <|
-                    case (Parser.run CSSParser.parse "div, p {foo:auto;}") of
+                    case (Parser.run CSSParser.parse "div, p {display:auto;}") of
                         Ok [ { selectors, declarations } ] ->
                             case selectors of
                                 [ CSSOM.Simple first, CSSOM.Simple second ] ->
