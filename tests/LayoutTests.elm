@@ -63,7 +63,7 @@ calculateBlockWidth =
                                  , styles =
                                     { styles
                                         | display = CSSOM.Block
-                                        , width = Style.Length 50 CSSOM.Pixel
+                                        , width = CSSOM.WidthLength <| CSSOM.CSSLength 50 CSSOM.Pixel
                                     }
                                  , children = []
                                  }
@@ -113,7 +113,7 @@ calculateBlockWidth =
                              , styles =
                                 { styles
                                     | display = CSSOM.Block
-                                    , width = Style.Length 100 CSSOM.Pixel
+                                    , width = CSSOM.WidthLength <| CSSOM.CSSLength 100 CSSOM.Pixel
                                     , marginLeft = CSSOM.MarginAuto
                                     , marginRight = CSSOM.MarginAuto
                                 }
@@ -153,7 +153,7 @@ calculateBlockWidth =
                              , styles =
                                 { styles
                                     | display = CSSOM.Block
-                                    , width = Style.Length 100 CSSOM.Pixel
+                                    , width = CSSOM.WidthLength <| CSSOM.CSSLength 100 CSSOM.Pixel
                                     , marginLeft = CSSOM.MarginAuto
                                     , marginRight = CSSOM.MarginAuto
                                 }
@@ -193,7 +193,7 @@ calculateBlockWidth =
                              , styles =
                                 { styles
                                     | display = CSSOM.Block
-                                    , width = Style.Length 100 CSSOM.Pixel
+                                    , width = CSSOM.WidthLength <| CSSOM.CSSLength 100 CSSOM.Pixel
                                     , marginLeft = CSSOM.MarginLength <| CSSOM.CSSLength 50 CSSOM.Pixel
                                     , marginRight = CSSOM.MarginAuto
                                 }
@@ -233,7 +233,7 @@ calculateBlockWidth =
                              , styles =
                                 { styles
                                     | display = CSSOM.Block
-                                    , width = Style.Length 100 CSSOM.Pixel
+                                    , width = CSSOM.WidthLength <| CSSOM.CSSLength 100 CSSOM.Pixel
                                     , marginRight = CSSOM.MarginLength <| CSSOM.CSSLength 50 CSSOM.Pixel
                                     , marginLeft = CSSOM.MarginAuto
                                 }
@@ -273,7 +273,7 @@ calculateBlockWidth =
                              , styles =
                                 { styles
                                     | display = CSSOM.Block
-                                    , width = Style.Auto
+                                    , width = CSSOM.WidthAuto
                                     , marginRight = CSSOM.MarginAuto
                                     , marginLeft = CSSOM.MarginAuto
                                 }
@@ -313,7 +313,7 @@ calculateBlockWidth =
                              , styles =
                                 { styles
                                     | display = CSSOM.Block
-                                    , width = Style.Auto
+                                    , width = CSSOM.WidthAuto
                                     , marginRight = CSSOM.MarginLength <| CSSOM.CSSLength 100 CSSOM.Pixel
                                     , marginLeft = CSSOM.MarginLength <| CSSOM.CSSLength 200 CSSOM.Pixel
                                 }
@@ -353,7 +353,7 @@ calculateBlockHeight =
                                  , styles =
                                     { styles
                                         | display = CSSOM.Block
-                                        , height = Style.Length 50 CSSOM.Pixel
+                                        , height = CSSOM.HeightLength <| CSSOM.CSSLength 50 CSSOM.Pixel
                                     }
                                  , children = []
                                  }
@@ -431,10 +431,10 @@ startLayout =
 
                     styledNode =
                         getStyledNode
-                            [ getStyledNode [] (Style.Length 50 CSSOM.Pixel)
-                            , getStyledNode [] (Style.Length 50 CSSOM.Pixel)
+                            [ getStyledNode [] (CSSOM.HeightLength <| CSSOM.CSSLength 50 CSSOM.Pixel)
+                            , getStyledNode [] (CSSOM.HeightLength <| CSSOM.CSSLength 50 CSSOM.Pixel)
                             ]
-                            Style.Auto
+                            CSSOM.HeightAuto
 
                     containingDimensions =
                         BoxModel.boxModel
@@ -461,8 +461,8 @@ startLayout =
                                 { styles
                                     | display = CSSOM.Block
                                     , height = height
-                                    , paddingTop = Style.Length 20 CSSOM.Pixel
-                                    , paddingBottom = Style.Length 20 CSSOM.Pixel
+                                    , paddingTop = CSSOM.PaddingLength <| CSSOM.CSSLength 20 CSSOM.Pixel
+                                    , paddingBottom = CSSOM.PaddingLength <| CSSOM.CSSLength 20 CSSOM.Pixel
                                 }
                             , node = element
                             , children = children
@@ -470,10 +470,10 @@ startLayout =
 
                     styledNode =
                         getStyledNode
-                            [ getStyledNode [] (Style.Length 50 CSSOM.Pixel)
-                            , getStyledNode [] (Style.Length 50 CSSOM.Pixel)
+                            [ getStyledNode [] (CSSOM.HeightLength <| CSSOM.CSSLength 50 CSSOM.Pixel)
+                            , getStyledNode [] (CSSOM.HeightLength <| CSSOM.CSSLength 50 CSSOM.Pixel)
                             ]
-                            Style.Auto
+                            CSSOM.HeightAuto
 
                     containingDimensions =
                         BoxModel.boxModel
@@ -511,10 +511,10 @@ startLayout =
 
                     styledNode =
                         getStyledNode
-                            [ getStyledNode [] (Style.Length 50 CSSOM.Pixel)
-                            , getStyledNode [] (Style.Length 50 CSSOM.Pixel)
+                            [ getStyledNode [] (CSSOM.HeightLength <| CSSOM.CSSLength 50 CSSOM.Pixel)
+                            , getStyledNode [] (CSSOM.HeightLength <| CSSOM.CSSLength 50 CSSOM.Pixel)
                             ]
-                            Style.Auto
+                            CSSOM.HeightAuto
 
                     containingDimensions =
                         BoxModel.boxModel
@@ -552,10 +552,10 @@ startLayout =
 
                     styledNode =
                         getStyledNode
-                            [ getStyledNode [] (Style.Length 50 CSSOM.Pixel)
-                            , getStyledNode [] (Style.Length 50 CSSOM.Pixel)
+                            [ getStyledNode [] (CSSOM.HeightLength <| CSSOM.CSSLength 50 CSSOM.Pixel)
+                            , getStyledNode [] (CSSOM.HeightLength <| CSSOM.CSSLength 50 CSSOM.Pixel)
                             ]
-                            Style.Auto
+                            CSSOM.HeightAuto
 
                     containingDimensions =
                         BoxModel.boxModel

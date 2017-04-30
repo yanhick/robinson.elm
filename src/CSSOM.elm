@@ -3,19 +3,6 @@ module CSSOM exposing (..)
 import Color exposing (..)
 
 
-type CSSPropertyName
-    = MarginRight
-    | MarginBottom
-    | MarginTop
-    | PaddingLeft
-    | PaddingRight
-    | PaddingTop
-    | PaddingBottom
-    | Height
-    | Width
-    | BackgroundColor
-
-
 type CSSDisplay
     = Block
     | Inline
@@ -27,13 +14,42 @@ type CSSMargin
     | MarginLength CSSLength
 
 
+type CSSPadding
+    = PaddingLength CSSLength
+
+
 type CSSLength
     = CSSLength Float CSSUnit
+
+
+type CSSHeight
+    = HeightAuto
+    | HeightLength CSSLength
+
+
+type CSSWidth
+    = WidthAuto
+    | WidthLength CSSLength
+
+
+type CSSBackgroundColor
+    = BackgroundColorColor CSSColor
+    | BackgroundColorTransparent
 
 
 type CSSDeclaration
     = Display CSSDisplay
     | MarginLeft CSSMargin
+    | MarginRight CSSMargin
+    | MarginTop CSSMargin
+    | MarginBottom CSSMargin
+    | PaddingLeft CSSPadding
+    | PaddingRight CSSPadding
+    | PaddingTop CSSPadding
+    | PaddingBottom CSSPadding
+    | Height CSSHeight
+    | Width CSSWidth
+    | BackgroundColor CSSBackgroundColor
 
 
 type alias CSSRule =
@@ -64,10 +80,10 @@ type CSSUnit
 
 type CSSValue
     = Length Float CSSUnit
-    | ColorValue CSSColorValue
+    | ColorValue CSSColor
 
 
-type CSSColorValue
+type CSSColor
     = ColorKeyword CSSColorKeyword
     | RGBA Color
 

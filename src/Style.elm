@@ -37,21 +37,21 @@ type StyledNode
 initialStyles : Styles
 initialStyles =
     { display = Inline
-    , height = Auto
     , marginLeft = MarginLength <| CSSLength 0 Pixel
     , marginRight = MarginLength <| CSSLength 0 Pixel
     , marginTop = MarginLength <| CSSLength 0 Pixel
     , marginBottom = MarginLength <| CSSLength 0 Pixel
-    , paddingRight = Length 0 Pixel
-    , paddingLeft = Length 0 Pixel
-    , paddingTop = Length 0 Pixel
-    , paddingBottom = Length 0 Pixel
+    , paddingLeft = PaddingLength <| CSSLength 0 Pixel
+    , paddingRight = PaddingLength <| CSSLength 0 Pixel
+    , paddingTop = PaddingLength <| CSSLength 0 Pixel
+    , paddingBottom = PaddingLength <| CSSLength 0 Pixel
     , borderLeft = Length 0 Pixel
     , borderRight = Length 0 Pixel
     , borderTop = Length 0 Pixel
     , borderBottom = Length 0 Pixel
-    , width = Auto
-    , backgroundColor = Transparent
+    , width = WidthAuto
+    , height = HeightAuto
+    , backgroundColor = BackgroundColorTransparent
     , borderTopColor = Transparent
     , borderBottomColor = Transparent
     , borderLeftColor = Transparent
@@ -61,16 +61,17 @@ initialStyles =
 
 type alias Styles =
     { display : CSSDisplay
-    , height : CSSDimension
-    , backgroundColor : CSSColor
+    , height : CSSHeight
+    , width : CSSWidth
+    , backgroundColor : CSSBackgroundColor
     , marginLeft : CSSMargin
     , marginRight : CSSMargin
     , marginTop : CSSMargin
     , marginBottom : CSSMargin
-    , paddingLeft : CSSDimension
-    , paddingRight : CSSDimension
-    , paddingTop : CSSDimension
-    , paddingBottom : CSSDimension
+    , paddingLeft : CSSPadding
+    , paddingRight : CSSPadding
+    , paddingTop : CSSPadding
+    , paddingBottom : CSSPadding
     , borderLeft : CSSDimension
     , borderRight : CSSDimension
     , borderTop : CSSDimension
@@ -79,7 +80,6 @@ type alias Styles =
     , borderBottomColor : CSSColor
     , borderLeftColor : CSSColor
     , borderRightColor : CSSColor
-    , width : CSSDimension
     }
 
 
@@ -153,6 +153,56 @@ specifiedValues node stylesheet =
                     MarginLeft value ->
                         { styles
                             | marginLeft = value
+                        }
+
+                    MarginRight value ->
+                        { styles
+                            | marginRight = value
+                        }
+
+                    MarginTop value ->
+                        { styles
+                            | marginTop = value
+                        }
+
+                    MarginBottom value ->
+                        { styles
+                            | marginBottom = value
+                        }
+
+                    PaddingLeft value ->
+                        { styles
+                            | paddingLeft = value
+                        }
+
+                    PaddingRight value ->
+                        { styles
+                            | paddingRight = value
+                        }
+
+                    PaddingTop value ->
+                        { styles
+                            | paddingTop = value
+                        }
+
+                    PaddingBottom value ->
+                        { styles
+                            | paddingBottom = value
+                        }
+
+                    Height value ->
+                        { styles
+                            | height = value
+                        }
+
+                    Width value ->
+                        { styles
+                            | width = value
+                        }
+
+                    BackgroundColor value ->
+                        { styles
+                            | backgroundColor = value
                         }
             )
             initialStyles

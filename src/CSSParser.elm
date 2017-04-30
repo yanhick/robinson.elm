@@ -37,7 +37,7 @@ parseUnit =
         |. symbol "px"
 
 
-parseColor : Parser CSSValue
+parseColor : Parser CSSColor
 parseColor =
     let
         parseHex =
@@ -45,8 +45,8 @@ parseColor =
                 (keep (Exactly 2) Char.isHexDigit)
     in
         oneOf
-            [ parseColorKeyword
-            , succeed (\r g b -> ColorValue (RGBA (Color.rgb r g b)))
+            [ map ColorKeyword parseColorKeyword
+            , succeed (\r g b -> RGBA (Color.rgb r g b))
                 |. symbol "#"
                 |= parseHex
                 |= parseHex
@@ -61,12 +61,12 @@ parseLength =
         |= parseUnit
 
 
-parseColorKeyword : Parser CSSValue
+parseColorKeyword : Parser CSSColorKeyword
 parseColorKeyword =
     succeed identity
         |= oneOf
-            [ map (\_ -> ColorValue (ColorKeyword Red)) (keyword "red")
-            , map (\_ -> ColorValue (ColorKeyword White)) (keyword "white")
+            [ map (\_ -> Red) (keyword "red")
+            , map (\_ -> White) (keyword "white")
             ]
 
 
@@ -164,13 +164,71 @@ parseSelectors =
 
 parseDeclaration : Parser CSSDeclaration
 parseDeclaration =
-    oneOf [ parseDisplay, parseMarginLeft ]
+    oneOf
+        [ parseDisplay
+        , parseMargin "margin-left" MarginLeft
+        , parseMargin "margin-right" MarginRight
+        , parseMargin "margin-top" MarginTop
+        , parseMargin "margin-bottom" MarginBottom
+        , parsePadding "padding-left" PaddingLeft
+        , parsePadding "padding-right" PaddingRight
+        , parsePadding "padding-top" PaddingTop
+        , parsePadding "padding-bottom" PaddingBottom
+        , parseHeight
+        , parseWidth
+        , parseBackgroundColor
+        ]
 
 
-parseMarginLeft : Parser CSSDeclaration
-parseMarginLeft =
-    succeed MarginLeft
-        |. keyword "margin-left"
+parseBackgroundColor : Parser CSSDeclaration
+parseBackgroundColor =
+    succeed BackgroundColor
+        |. keyword "background-color"
+        |. spaces
+        |. symbol ":"
+        |. spaces
+        |= oneOf
+            [ map BackgroundColorColor parseColor
+            , map (always BackgroundColorTransparent) (keyword "transparent")
+            ]
+        |. spaces
+        |. symbol ";"
+
+
+parseHeight : Parser CSSDeclaration
+parseHeight =
+    succeed Height
+        |. keyword "height"
+        |. spaces
+        |. symbol ":"
+        |. spaces
+        |= oneOf
+            [ map HeightLength parseLength
+            , map (always HeightAuto) (keyword "auto")
+            ]
+        |. spaces
+        |. symbol ";"
+
+
+parseWidth : Parser CSSDeclaration
+parseWidth =
+    succeed Width
+        |. keyword "width"
+        |. spaces
+        |. symbol ":"
+        |. spaces
+        |= oneOf
+            [ map WidthLength parseLength
+            , map (always WidthAuto) (keyword "auto")
+            ]
+        |. spaces
+        |. symbol ";"
+
+
+parseMargin : String -> (CSSMargin -> CSSDeclaration) -> Parser CSSDeclaration
+parseMargin marginName marginConstructor =
+    succeed marginConstructor
+        |. keyword marginName
         |. spaces
         |. symbol ":"
         |. spaces
@@ -178,6 +236,18 @@ parseMarginLeft =
             [ map MarginLength parseLength
             , map (always MarginAuto) (keyword "auto")
             ]
+        |. spaces
+        |. symbol ";"
+
+
+parsePadding : String -> (CSSPadding -> CSSDeclaration) -> Parser CSSDeclaration
+parsePadding paddingName paddingConstructor =
+    succeed paddingConstructor
+        |. keyword paddingName
+        |. spaces
+        |. symbol ":"
+        |. spaces
+        |= map PaddingLength parseLength
         |. spaces
         |. symbol ";"
 

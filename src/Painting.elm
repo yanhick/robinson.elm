@@ -1,6 +1,7 @@
 module Painting exposing (..)
 
 import Color exposing (..)
+import CSSOM
 import Layout exposing (..)
 import Style exposing (..)
 import BoxModel
@@ -25,7 +26,7 @@ renderLayoutBox (LayoutBox { dimensions, children, box }) =
                 case box of
                     Layout.Block (StyledElement { styles }) ->
                         case styles.backgroundColor of
-                            CSSColor color ->
+                            CSSOM.BackgroundColorColor (CSSOM.RGBA color) ->
                                 Just color
 
                             _ ->

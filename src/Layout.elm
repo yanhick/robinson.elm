@@ -30,13 +30,8 @@ marginToPx dimension =
             0.0
 
 
-paddingToPx dimension =
-    case dimension of
-        Style.Length l _ ->
-            l
-
-        _ ->
-            0.0
+paddingToPx (PaddingLength (CSSLength l _)) =
+    l
 
 
 borderToPx dimension =
@@ -50,7 +45,7 @@ borderToPx dimension =
 
 widthToPx dimension =
     case dimension of
-        Style.Length l _ ->
+        WidthLength (CSSLength l _) ->
             l
 
         _ ->
@@ -229,7 +224,7 @@ calculateBlockWidth { node, styles } boxModel containingBoxModel =
     let
         isAutoWidth dimension =
             case dimension of
-                Style.Auto ->
+                WidthAuto ->
                     True
 
                 _ ->
@@ -245,6 +240,9 @@ calculateBlockWidth { node, styles } boxModel containingBoxModel =
 
         marginLength l u =
             MarginLength <| CSSLength l u
+
+        widthLength l u =
+            WidthLength <| CSSLength l u
 
         dimensions =
             [ marginToPx styles.marginLeft
@@ -315,24 +313,24 @@ calculateBlockWidth { node, styles } boxModel containingBoxModel =
             else if widthIsAuto then
                 if marginLeftIsAuto && not marginRightIsAuto then
                     if underflow >= 0.0 then
-                        ( marginLength 0.0 Pixel, marginRight, Style.Length underflow Pixel )
+                        ( marginLength 0.0 Pixel, marginRight, widthLength underflow Pixel )
                     else
-                        ( marginLength 0.0 Pixel, marginLength ((marginToPx marginRight) + underflow) Pixel, Style.Length 0.0 Pixel )
+                        ( marginLength 0.0 Pixel, marginLength ((marginToPx marginRight) + underflow) Pixel, widthLength 0.0 Pixel )
                 else if marginRightIsAuto && not marginLeftIsAuto then
                     if underflow >= 0.0 then
-                        ( marginLeft, marginLength 0.0 Pixel, Style.Length underflow Pixel )
+                        ( marginLeft, marginLength 0.0 Pixel, widthLength underflow Pixel )
                     else
-                        ( marginLeft, marginLength (underflow) Pixel, Style.Length 0.0 Pixel )
+                        ( marginLeft, marginLength (underflow) Pixel, widthLength 0.0 Pixel )
                 else if marginLeftIsAuto && marginRightIsAuto then
                     if underflow >= 0.0 then
-                        ( marginLength 0.0 Pixel, marginLength 0.0 Pixel, Style.Length underflow Pixel )
+                        ( marginLength 0.0 Pixel, marginLength 0.0 Pixel, widthLength underflow Pixel )
                     else
-                        ( marginLength 0.0 Pixel, marginLength (underflow) Pixel, Style.Length 0.0 Pixel )
+                        ( marginLength 0.0 Pixel, marginLength (underflow) Pixel, widthLength 0.0 Pixel )
                 else if not marginLeftIsAuto && not marginRightIsAuto then
                     if underflow >= 0.0 then
-                        ( marginLeft, marginRight, Style.Length underflow Pixel )
+                        ( marginLeft, marginRight, widthLength underflow Pixel )
                     else
-                        ( marginLeft, marginLength ((marginToPx marginRight) + underflow) Pixel, Style.Length 0.0 Pixel )
+                        ( marginLeft, marginLength ((marginToPx marginRight) + underflow) Pixel, widthLength 0.0 Pixel )
                 else
                     ( marginLeft
                     , marginRight
@@ -374,7 +372,7 @@ calculateBlockHeight :
     -> BoxModel.BoxModel
 calculateBlockHeight { styles } boxModel =
     case styles.height of
-        Style.Length length _ ->
+        HeightLength (CSSLength length _) ->
             let
                 boxModelContent =
                     BoxModel.content boxModel
