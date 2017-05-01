@@ -213,6 +213,10 @@ parseDeclaration =
         , parseHeight
         , parseWidth
         , parseBackgroundColor
+        , parseBorderColor "border-top-color" BorderTopColor
+        , parseBorderColor "border-bottom-color" BorderBottomColor
+        , parseBorderColor "border-left-color" BorderLeftColor
+        , parseBorderColor "border-right-color" BorderRightColor
         ]
 
 
@@ -226,6 +230,21 @@ parseBackgroundColor =
         |= oneOf
             [ map BackgroundColorColor parseColor
             , map (always BackgroundColorTransparent) (keyword "transparent")
+            ]
+        |. spaces
+        |. symbol ";"
+
+
+parseBorderColor : String -> (CSSBorderColor -> CSSDeclaration) -> Parser CSSDeclaration
+parseBorderColor borderName borderConstructor =
+    succeed borderConstructor
+        |. keyword borderName
+        |. spaces
+        |. symbol ":"
+        |. spaces
+        |= oneOf
+            [ map BorderColorColor parseColor
+            , map (always BorderColorTransparent) (keyword "transparent")
             ]
         |. spaces
         |. symbol ";"

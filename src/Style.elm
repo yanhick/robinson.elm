@@ -7,11 +7,6 @@ import Color exposing (..)
 import CSSBasicTypes exposing (..)
 
 
-type CSSDimension
-    = Auto
-    | Length Float CSSUnit
-
-
 type alias MatchedRule =
     { specifity : Int
     , rule : CSSRule
@@ -48,6 +43,10 @@ initialStyles =
     , width = WidthAuto
     , height = HeightAuto
     , backgroundColor = BackgroundColorTransparent
+    , borderTopColor = BorderColorTransparent
+    , borderBottomColor = BorderColorTransparent
+    , borderLeftColor = BorderColorTransparent
+    , borderRightColor = BorderColorTransparent
     }
 
 
@@ -68,6 +67,10 @@ type alias Styles =
     , borderRightWidth : CSSBorderWidth
     , borderTopWidth : CSSBorderWidth
     , borderBottomWidth : CSSBorderWidth
+    , borderTopColor : CSSBorderColor
+    , borderBottomColor : CSSBorderColor
+    , borderLeftColor : CSSBorderColor
+    , borderRightColor : CSSBorderColor
     }
 
 
@@ -181,6 +184,26 @@ specifiedValues node stylesheet =
                     BorderBottomWidth value ->
                         { styles
                             | borderBottomWidth = value
+                        }
+
+                    BorderTopColor value ->
+                        { styles
+                            | borderTopColor = value
+                        }
+
+                    BorderBottomColor value ->
+                        { styles
+                            | borderBottomColor = value
+                        }
+
+                    BorderLeftColor value ->
+                        { styles
+                            | borderLeftColor = value
+                        }
+
+                    BorderRightColor value ->
+                        { styles
+                            | borderRightColor = value
                         }
             )
             initialStyles

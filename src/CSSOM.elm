@@ -34,6 +34,11 @@ type CSSBackgroundColor
     | BackgroundColorTransparent
 
 
+type CSSBorderColor
+    = BorderColorColor CSSColor
+    | BorderColorTransparent
+
+
 type CSSBorderWidth
     = BorderWidthThin
     | BorderWidthMedium
@@ -58,6 +63,10 @@ type CSSDeclaration
     | BorderRightWidth CSSBorderWidth
     | BorderTopWidth CSSBorderWidth
     | BorderBottomWidth CSSBorderWidth
+    | BorderTopColor CSSBorderColor
+    | BorderBottomColor CSSBorderColor
+    | BorderLeftColor CSSBorderColor
+    | BorderRightColor CSSBorderColor
 
 
 type alias CSSRule =

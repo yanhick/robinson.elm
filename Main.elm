@@ -49,6 +49,9 @@ startCSS =
     display:block;
     background-color: #ff0000;
     padding-top: 10px;
+    border-top-width: 10px;
+    border-top-color: white;
+    margin-top: 10px;
 }
 #boum{
     width: 50px;
