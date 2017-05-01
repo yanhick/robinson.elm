@@ -302,7 +302,7 @@ parsePadding paddingName paddingConstructor =
         |. spaces
         |. symbol ":"
         |. spaces
-        |= map PaddingLength parseLength
+        |= map padding parseLength
         |. spaces
         |. symbol ";"
 

@@ -471,8 +471,8 @@ startLayout =
                                 { styles
                                     | display = CSSOM.Block
                                     , height = height
-                                    , paddingTop = CSSOM.PaddingLength <| testCSSLength 20
-                                    , paddingBottom = CSSOM.PaddingLength <| testCSSLength 20
+                                    , paddingTop = CSSOM.padding <| testCSSLength 20
+                                    , paddingBottom = CSSOM.padding <| testCSSLength 20
                                 }
                             , node = element
                             , children = children

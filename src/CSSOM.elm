@@ -1,6 +1,24 @@
-module CSSOM exposing (..)
+module CSSOM
+    exposing
+        ( CSSDisplay(..)
+        , CSSMargin(..)
+        , CSSPadding
+        , defaultPadding
+        , computedPadding
+        , padding
+        , CSSHeight(..)
+        , CSSWidth(..)
+        , CSSBackgroundColor(..)
+        , CSSBorderColor(..)
+        , CSSBorderWidth(..)
+        , CSSDeclaration(..)
+        , CSSRule
+        , CSSSelector(..)
+        , CSSSimpleSelector
+        , specifity
+        , CSSStyleSheet
+        )
 
-import Color exposing (..)
 import CSSBasicTypes exposing (..)
 
 
@@ -17,6 +35,21 @@ type CSSMargin
 
 type CSSPadding
     = PaddingLength CSSLength
+
+
+defaultPadding : CSSPadding
+defaultPadding =
+    PaddingLength defaultCSSLength
+
+
+padding : CSSLength -> CSSPadding
+padding =
+    PaddingLength
+
+
+computedPadding : CSSPadding -> Float
+computedPadding (PaddingLength length) =
+    computedCSSLength length
 
 
 type CSSHeight
