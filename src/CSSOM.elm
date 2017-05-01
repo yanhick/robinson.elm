@@ -5,6 +5,8 @@ module CSSOM
         , CSSPadding
         , defaultPadding
         , computedPadding
+        , usedPadding
+        , SpecifiedValue
         , padding
         , CSSHeight(..)
         , CSSWidth(..)
@@ -33,22 +35,35 @@ type CSSMargin
     | MarginLength CSSLength
 
 
-type CSSPadding
+type SpecifiedValue
+    = SpecifiedValue
+
+
+type ComputedValue
+    = ComputedValue
+
+
+type CSSPadding valueType
     = PaddingLength CSSLength
 
 
-defaultPadding : CSSPadding
+defaultPadding : CSSPadding SpecifiedValue
 defaultPadding =
     PaddingLength defaultCSSLength
 
 
-padding : CSSLength -> CSSPadding
+padding : CSSLength -> CSSPadding SpecifiedValue
 padding =
     PaddingLength
 
 
-computedPadding : CSSPadding -> Float
+computedPadding : CSSPadding SpecifiedValue -> CSSPadding ComputedValue
 computedPadding (PaddingLength length) =
+    PaddingLength length
+
+
+usedPadding : CSSPadding ComputedValue -> Float
+usedPadding (PaddingLength length) =
     computedCSSLength length
 
 
@@ -85,10 +100,10 @@ type CSSDeclaration
     | MarginRight CSSMargin
     | MarginTop CSSMargin
     | MarginBottom CSSMargin
-    | PaddingLeft CSSPadding
-    | PaddingRight CSSPadding
-    | PaddingTop CSSPadding
-    | PaddingBottom CSSPadding
+    | PaddingLeft (CSSPadding SpecifiedValue)
+    | PaddingRight (CSSPadding SpecifiedValue)
+    | PaddingTop (CSSPadding SpecifiedValue)
+    | PaddingBottom (CSSPadding SpecifiedValue)
     | Height CSSHeight
     | Width CSSWidth
     | BackgroundColor CSSBackgroundColor

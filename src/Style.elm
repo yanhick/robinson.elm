@@ -59,10 +59,10 @@ type alias Styles =
     , marginRight : CSSMargin
     , marginTop : CSSMargin
     , marginBottom : CSSMargin
-    , paddingLeft : CSSPadding
-    , paddingRight : CSSPadding
-    , paddingTop : CSSPadding
-    , paddingBottom : CSSPadding
+    , paddingLeft : CSSPadding SpecifiedValue
+    , paddingRight : CSSPadding SpecifiedValue
+    , paddingTop : CSSPadding SpecifiedValue
+    , paddingBottom : CSSPadding SpecifiedValue
     , borderLeftWidth : CSSBorderWidth
     , borderRightWidth : CSSBorderWidth
     , borderTopWidth : CSSBorderWidth

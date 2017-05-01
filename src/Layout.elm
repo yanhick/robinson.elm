@@ -244,8 +244,8 @@ calculateBlockWidth { node, styles } boxModel containingBoxModel =
         dimensions =
             [ marginToPx styles.marginLeft
             , marginToPx styles.marginRight
-            , computedPadding styles.paddingLeft
-            , computedPadding styles.paddingRight
+            , usedPadding <| computedPadding styles.paddingLeft
+            , usedPadding <| computedPadding styles.paddingRight
             , borderToPx styles.borderLeftWidth
             , borderToPx styles.borderRightWidth
             , widthToPx styles.width
@@ -360,7 +360,10 @@ calculateBlockWidth { node, styles } boxModel containingBoxModel =
             BoxModel.padding boxModel
 
         newPadding =
-            { oldPadding | left = computedPadding styles.paddingLeft, right = computedPadding styles.paddingRight }
+            { oldPadding
+                | left = usedPadding <| computedPadding styles.paddingLeft
+                , right = usedPadding <| computedPadding styles.paddingRight
+            }
 
         oldBorder =
             BoxModel.border boxModel
@@ -416,8 +419,8 @@ calculateBlockPosition { node, styles } boxModel containingBoxModel =
         newPadding =
             { left = boxModelPadding.left
             , right = boxModelPadding.right
-            , top = computedPadding styles.paddingTop
-            , bottom = computedPadding styles.paddingBottom
+            , top = usedPadding <| computedPadding styles.paddingTop
+            , bottom = usedPadding <| computedPadding styles.paddingBottom
             }
 
         boxModelBorder =

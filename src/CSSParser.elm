@@ -295,7 +295,7 @@ parseMargin marginName marginConstructor =
         |. symbol ";"
 
 
-parsePadding : String -> (CSSPadding -> CSSDeclaration) -> Parser CSSDeclaration
+parsePadding : String -> (CSSPadding SpecifiedValue -> CSSDeclaration) -> Parser CSSDeclaration
 parsePadding paddingName paddingConstructor =
     succeed paddingConstructor
         |. keyword paddingName
