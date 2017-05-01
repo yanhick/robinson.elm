@@ -67,6 +67,30 @@ renderBorders styles boxModel =
                 _ ->
                     { red = 0, green = 0, blue = 0, alpha = 0 }
 
+        bottomColor =
+            case styles.borderBottomColor of
+                CSSOM.BorderColorColor color ->
+                    CSSBasicTypes.computedCSSColor color
+
+                _ ->
+                    { red = 0, green = 0, blue = 0, alpha = 0 }
+
+        leftColor =
+            case styles.borderLeftColor of
+                CSSOM.BorderColorColor color ->
+                    CSSBasicTypes.computedCSSColor color
+
+                _ ->
+                    { red = 0, green = 0, blue = 0, alpha = 0 }
+
+        rightColor =
+            case styles.borderRightColor of
+                CSSOM.BorderColorColor color ->
+                    CSSBasicTypes.computedCSSColor color
+
+                _ ->
+                    { red = 0, green = 0, blue = 0, alpha = 0 }
+
         borderBox =
             BoxModel.borderBox boxModel
 
@@ -81,4 +105,28 @@ renderBorders styles boxModel =
              }
             )
             topColor
+        , SolidColor
+            ({ x = borderBox.x + borderBox.width - border.right
+             , y = borderBox.y
+             , width = border.right
+             , height = borderBox.height
+             }
+            )
+            rightColor
+        , SolidColor
+            ({ x = borderBox.x
+             , y = borderBox.y + borderBox.height - border.bottom
+             , width = borderBox.width
+             , height = border.bottom
+             }
+            )
+            bottomColor
+        , SolidColor
+            ({ x = borderBox.x
+             , y = borderBox.y
+             , width = border.left
+             , height = borderBox.height
+             }
+            )
+            leftColor
         ]

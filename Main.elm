@@ -51,6 +51,12 @@ startCSS =
     padding-top: 10px;
     border-top-width: 10px;
     border-top-color: white;
+    border-bottom-width: 10px;
+    border-bottom-color: white;
+    border-left-width: 10px;
+    border-left-color: white;
+    border-right-width: 10px;
+    border-right-color: white;
     margin-top: 10px;
 }
 #boum{

@@ -359,11 +359,23 @@ calculateBlockWidth { node, styles } boxModel containingBoxModel =
 
         newMargin =
             { oldMargin | left = marginToPx l, right = marginToPx r }
+
+        oldPadding =
+            BoxModel.padding boxModel
+
+        newPadding =
+            { oldPadding | left = paddingToPx styles.paddingLeft, right = paddingToPx styles.paddingRight }
+
+        oldBorder =
+            BoxModel.border boxModel
+
+        newBorder =
+            { oldBorder | left = borderToPx styles.borderLeftWidth, right = borderToPx styles.borderRightWidth }
     in
         BoxModel.boxModel
             newContent
-            (BoxModel.padding boxModel)
-            (BoxModel.border boxModel)
+            newPadding
+            newBorder
             newMargin
 
 
