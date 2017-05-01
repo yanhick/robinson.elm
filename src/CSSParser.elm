@@ -280,7 +280,7 @@ parseWidth =
         |. symbol ";"
 
 
-parseMargin : String -> (CSSMargin -> CSSDeclaration) -> Parser CSSDeclaration
+parseMargin : String -> (CSSMargin SpecifiedValue -> CSSDeclaration) -> Parser CSSDeclaration
 parseMargin marginName marginConstructor =
     succeed marginConstructor
         |. keyword marginName
@@ -288,8 +288,8 @@ parseMargin marginName marginConstructor =
         |. symbol ":"
         |. spaces
         |= oneOf
-            [ map MarginLength parseLength
-            , map (always MarginAuto) (keyword "auto")
+            [ map marginLength parseLength
+            , map (always marginAuto) (keyword "auto")
             ]
         |. spaces
         |. symbol ";"

@@ -1,7 +1,13 @@
 module CSSOM
     exposing
         ( CSSDisplay(..)
-        , CSSMargin(..)
+        , CSSMargin
+        , marginLength
+        , marginAuto
+        , defaultMargin
+        , isAutoMargin
+        , computedMargin
+        , usedMargin
         , CSSPadding
         , defaultPadding
         , computedPadding
@@ -24,23 +30,68 @@ module CSSOM
 import CSSBasicTypes exposing (..)
 
 
-type CSSDisplay
-    = Block
-    | Inline
-    | None
-
-
-type CSSMargin
-    = MarginAuto
-    | MarginLength CSSLength
-
-
 type SpecifiedValue
     = SpecifiedValue
 
 
 type ComputedValue
     = ComputedValue
+
+
+type CSSDisplay
+    = Block
+    | Inline
+    | None
+
+
+type CSSMargin valueType
+    = MarginAuto
+    | MarginLength CSSLength
+
+
+marginLength : CSSLength -> CSSMargin SpecifiedValue
+marginLength =
+    MarginLength
+
+
+marginAuto : CSSMargin SpecifiedValue
+marginAuto =
+    MarginAuto
+
+
+defaultMargin : CSSMargin SpecifiedValue
+defaultMargin =
+    MarginLength defaultCSSLength
+
+
+isAutoMargin : CSSMargin valueType -> Bool
+isAutoMargin margin =
+    case margin of
+        MarginAuto ->
+            True
+
+        _ ->
+            False
+
+
+computedMargin : CSSMargin SpecifiedValue -> CSSMargin ComputedValue
+computedMargin margin =
+    case margin of
+        MarginLength length ->
+            MarginLength length
+
+        MarginAuto ->
+            MarginAuto
+
+
+usedMargin : CSSMargin ComputedValue -> Float
+usedMargin margin =
+    case margin of
+        MarginLength length ->
+            computedCSSLength length
+
+        MarginAuto ->
+            0.0
 
 
 type CSSPadding valueType
@@ -96,10 +147,10 @@ type CSSBorderWidth
 
 type CSSDeclaration
     = Display CSSDisplay
-    | MarginLeft CSSMargin
-    | MarginRight CSSMargin
-    | MarginTop CSSMargin
-    | MarginBottom CSSMargin
+    | MarginLeft (CSSMargin SpecifiedValue)
+    | MarginRight (CSSMargin SpecifiedValue)
+    | MarginTop (CSSMargin SpecifiedValue)
+    | MarginBottom (CSSMargin SpecifiedValue)
     | PaddingLeft (CSSPadding SpecifiedValue)
     | PaddingRight (CSSPadding SpecifiedValue)
     | PaddingTop (CSSPadding SpecifiedValue)

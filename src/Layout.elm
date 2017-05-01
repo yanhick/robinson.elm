@@ -22,15 +22,6 @@ type LayoutBox
         }
 
 
-marginToPx dimension =
-    case dimension of
-        MarginLength length ->
-            computedCSSLength length
-
-        MarginAuto ->
-            0.0
-
-
 borderToPx dimension =
     case dimension of
         BorderWidthLength length ->
@@ -227,23 +218,15 @@ calculateBlockWidth { node, styles } boxModel containingBoxModel =
                 _ ->
                     False
 
-        isAutoMargin dimension =
-            case dimension of
-                MarginAuto ->
-                    True
-
-                _ ->
-                    False
-
         marginLength l u =
-            MarginLength <| Maybe.withDefault defaultCSSLength (cssLength l u)
+            CSSOM.marginLength <| Maybe.withDefault defaultCSSLength (cssLength l u)
 
         widthLength l u =
             WidthLength <| Maybe.withDefault defaultCSSLength (cssLength l u)
 
         dimensions =
-            [ marginToPx styles.marginLeft
-            , marginToPx styles.marginRight
+            [ usedMargin <| computedMargin styles.marginLeft
+            , usedMargin <| computedMargin styles.marginRight
             , usedPadding <| computedPadding styles.paddingLeft
             , usedPadding <| computedPadding styles.paddingRight
             , borderToPx styles.borderLeftWidth
@@ -262,13 +245,13 @@ calculateBlockWidth { node, styles } boxModel containingBoxModel =
                 let
                     marginLeft =
                         if isAutoMargin styles.marginLeft then
-                            MarginLength defaultCSSLength
+                            defaultMargin
                         else
                             styles.marginLeft
 
                     marginRight =
                         if isAutoMargin styles.marginRight then
-                            MarginLength defaultCSSLength
+                            defaultMargin
                         else
                             styles.marginRight
                 in
@@ -294,7 +277,7 @@ calculateBlockWidth { node, styles } boxModel containingBoxModel =
         ( l, r, w ) =
             if not widthIsAuto && not marginLeftIsAuto && not marginRightIsAuto then
                 ( marginLeft
-                , marginLength ((marginToPx marginRight) + underflow) Pixel
+                , marginLength ((usedMargin <| computedMargin marginRight) + underflow) Pixel
                 , width
                 )
             else if not widthIsAuto && not marginLeftIsAuto && marginRightIsAuto then
@@ -312,7 +295,7 @@ calculateBlockWidth { node, styles } boxModel containingBoxModel =
                     if underflow >= 0.0 then
                         ( marginLength 0.0 Pixel, marginRight, widthLength underflow Pixel )
                     else
-                        ( marginLength 0.0 Pixel, marginLength ((marginToPx marginRight) + underflow) Pixel, widthLength 0.0 Pixel )
+                        ( marginLength 0.0 Pixel, marginLength ((usedMargin <| computedMargin marginRight) + underflow) Pixel, widthLength 0.0 Pixel )
                 else if marginRightIsAuto && not marginLeftIsAuto then
                     if underflow >= 0.0 then
                         ( marginLeft, marginLength 0.0 Pixel, widthLength underflow Pixel )
@@ -327,7 +310,7 @@ calculateBlockWidth { node, styles } boxModel containingBoxModel =
                     if underflow >= 0.0 then
                         ( marginLeft, marginRight, widthLength underflow Pixel )
                     else
-                        ( marginLeft, marginLength ((marginToPx marginRight) + underflow) Pixel, widthLength 0.0 Pixel )
+                        ( marginLeft, marginLength ((usedMargin <| computedMargin marginRight) + underflow) Pixel, widthLength 0.0 Pixel )
                 else
                     ( marginLeft
                     , marginRight
@@ -354,7 +337,7 @@ calculateBlockWidth { node, styles } boxModel containingBoxModel =
             BoxModel.margin boxModel
 
         newMargin =
-            { oldMargin | left = marginToPx l, right = marginToPx r }
+            { oldMargin | left = usedMargin <| computedMargin l, right = usedMargin <| computedMargin r }
 
         oldPadding =
             BoxModel.padding boxModel
@@ -439,8 +422,8 @@ calculateBlockPosition { node, styles } boxModel containingBoxModel =
         newMargin =
             { left = boxModelMargin.left
             , right = boxModelMargin.right
-            , top = marginToPx styles.marginTop
-            , bottom = marginToPx styles.marginBottom
+            , top = usedMargin <| computedMargin styles.marginTop
+            , bottom = usedMargin <| computedMargin styles.marginBottom
             }
 
         containingBoxModelContent =

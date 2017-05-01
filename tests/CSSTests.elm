@@ -213,8 +213,8 @@ cssParser =
                     case (Parser.run CSSParser.parse "div {margin-left:10px;}") of
                         Ok [ { selectors, declarations } ] ->
                             case declarations of
-                                [ CSSOM.MarginLeft (CSSOM.MarginLength length) ] ->
-                                    CSSBasicTypes.computedCSSLength length == 10
+                                [ CSSOM.MarginLeft margin ] ->
+                                    (CSSOM.usedMargin <| CSSOM.computedMargin margin) == 10
 
                                 _ ->
                                     False

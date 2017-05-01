@@ -28,10 +28,10 @@ type StyledNode
 initialStyles : Styles
 initialStyles =
     { display = Inline
-    , marginLeft = MarginLength defaultCSSLength
-    , marginRight = MarginLength defaultCSSLength
-    , marginTop = MarginLength defaultCSSLength
-    , marginBottom = MarginLength defaultCSSLength
+    , marginLeft = defaultMargin
+    , marginRight = defaultMargin
+    , marginTop = defaultMargin
+    , marginBottom = defaultMargin
     , paddingLeft = defaultPadding
     , paddingRight = defaultPadding
     , paddingTop = defaultPadding
@@ -55,10 +55,10 @@ type alias Styles =
     , height : CSSHeight
     , width : CSSWidth
     , backgroundColor : CSSBackgroundColor
-    , marginLeft : CSSMargin
-    , marginRight : CSSMargin
-    , marginTop : CSSMargin
-    , marginBottom : CSSMargin
+    , marginLeft : CSSMargin SpecifiedValue
+    , marginRight : CSSMargin SpecifiedValue
+    , marginTop : CSSMargin SpecifiedValue
+    , marginBottom : CSSMargin SpecifiedValue
     , paddingLeft : CSSPadding SpecifiedValue
     , paddingRight : CSSPadding SpecifiedValue
     , paddingTop : CSSPadding SpecifiedValue

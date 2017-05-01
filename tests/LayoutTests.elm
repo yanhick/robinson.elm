@@ -124,8 +124,8 @@ calculateBlockWidth =
                                 { styles
                                     | display = CSSOM.Block
                                     , width = CSSOM.WidthLength <| testCSSLength 100
-                                    , marginLeft = CSSOM.MarginAuto
-                                    , marginRight = CSSOM.MarginAuto
+                                    , marginLeft = CSSOM.marginAuto
+                                    , marginRight = CSSOM.marginAuto
                                 }
                              , children = []
                              }
@@ -164,8 +164,8 @@ calculateBlockWidth =
                                 { styles
                                     | display = CSSOM.Block
                                     , width = CSSOM.WidthLength <| testCSSLength 100
-                                    , marginLeft = CSSOM.MarginAuto
-                                    , marginRight = CSSOM.MarginAuto
+                                    , marginLeft = CSSOM.marginAuto
+                                    , marginRight = CSSOM.marginAuto
                                 }
                              , children = []
                              }
@@ -204,8 +204,8 @@ calculateBlockWidth =
                                 { styles
                                     | display = CSSOM.Block
                                     , width = CSSOM.WidthLength <| testCSSLength 100
-                                    , marginLeft = CSSOM.MarginLength <| testCSSLength 50
-                                    , marginRight = CSSOM.MarginAuto
+                                    , marginLeft = CSSOM.marginLength <| testCSSLength 50
+                                    , marginRight = CSSOM.marginAuto
                                 }
                              , children = []
                              }
@@ -244,8 +244,8 @@ calculateBlockWidth =
                                 { styles
                                     | display = CSSOM.Block
                                     , width = CSSOM.WidthLength <| testCSSLength 100
-                                    , marginRight = CSSOM.MarginLength <| testCSSLength 50
-                                    , marginLeft = CSSOM.MarginAuto
+                                    , marginRight = CSSOM.marginLength <| testCSSLength 50
+                                    , marginLeft = CSSOM.marginAuto
                                 }
                              , children = []
                              }
@@ -284,8 +284,8 @@ calculateBlockWidth =
                                 { styles
                                     | display = CSSOM.Block
                                     , width = CSSOM.WidthAuto
-                                    , marginRight = CSSOM.MarginAuto
-                                    , marginLeft = CSSOM.MarginAuto
+                                    , marginRight = CSSOM.marginAuto
+                                    , marginLeft = CSSOM.marginAuto
                                 }
                              , children = []
                              }
@@ -324,8 +324,8 @@ calculateBlockWidth =
                                 { styles
                                     | display = CSSOM.Block
                                     , width = CSSOM.WidthAuto
-                                    , marginRight = CSSOM.MarginLength <| testCSSLength 100
-                                    , marginLeft = CSSOM.MarginLength <| testCSSLength 200
+                                    , marginRight = CSSOM.marginLength <| testCSSLength 100
+                                    , marginLeft = CSSOM.marginLength <| testCSSLength 200
                                 }
                              , children = []
                              }
@@ -553,8 +553,8 @@ startLayout =
                                 { styles
                                     | display = CSSOM.Block
                                     , height = height
-                                    , marginTop = CSSOM.MarginLength <| testCSSLength 20
-                                    , marginBottom = CSSOM.MarginLength <| testCSSLength 20
+                                    , marginTop = CSSOM.marginLength <| testCSSLength 20
+                                    , marginBottom = CSSOM.marginLength <| testCSSLength 20
                                 }
                             , node = element
                             , children = children
