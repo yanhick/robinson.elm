@@ -73,7 +73,7 @@ calculateBlockWidth =
                                  , styles =
                                     { styles
                                         | display = CSSOM.Block
-                                        , width = CSSOM.WidthLength <| testCSSLength 50
+                                        , width = CSSOM.widthLength <| testCSSLength 50
                                     }
                                  , children = []
                                  }
@@ -123,7 +123,7 @@ calculateBlockWidth =
                              , styles =
                                 { styles
                                     | display = CSSOM.Block
-                                    , width = CSSOM.WidthLength <| testCSSLength 100
+                                    , width = CSSOM.widthLength <| testCSSLength 100
                                     , marginLeft = CSSOM.marginAuto
                                     , marginRight = CSSOM.marginAuto
                                 }
@@ -163,7 +163,7 @@ calculateBlockWidth =
                              , styles =
                                 { styles
                                     | display = CSSOM.Block
-                                    , width = CSSOM.WidthLength <| testCSSLength 100
+                                    , width = CSSOM.widthLength <| testCSSLength 100
                                     , marginLeft = CSSOM.marginAuto
                                     , marginRight = CSSOM.marginAuto
                                 }
@@ -203,7 +203,7 @@ calculateBlockWidth =
                              , styles =
                                 { styles
                                     | display = CSSOM.Block
-                                    , width = CSSOM.WidthLength <| testCSSLength 100
+                                    , width = CSSOM.widthLength <| testCSSLength 100
                                     , marginLeft = CSSOM.marginLength <| testCSSLength 50
                                     , marginRight = CSSOM.marginAuto
                                 }
@@ -243,7 +243,7 @@ calculateBlockWidth =
                              , styles =
                                 { styles
                                     | display = CSSOM.Block
-                                    , width = CSSOM.WidthLength <| testCSSLength 100
+                                    , width = CSSOM.widthLength <| testCSSLength 100
                                     , marginRight = CSSOM.marginLength <| testCSSLength 50
                                     , marginLeft = CSSOM.marginAuto
                                 }
@@ -283,7 +283,7 @@ calculateBlockWidth =
                              , styles =
                                 { styles
                                     | display = CSSOM.Block
-                                    , width = CSSOM.WidthAuto
+                                    , width = CSSOM.widthAuto
                                     , marginRight = CSSOM.marginAuto
                                     , marginLeft = CSSOM.marginAuto
                                 }
@@ -323,7 +323,7 @@ calculateBlockWidth =
                              , styles =
                                 { styles
                                     | display = CSSOM.Block
-                                    , width = CSSOM.WidthAuto
+                                    , width = CSSOM.widthAuto
                                     , marginRight = CSSOM.marginLength <| testCSSLength 100
                                     , marginLeft = CSSOM.marginLength <| testCSSLength 200
                                 }

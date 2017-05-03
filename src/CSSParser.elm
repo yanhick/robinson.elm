@@ -273,8 +273,8 @@ parseWidth =
         |. symbol ":"
         |. spaces
         |= oneOf
-            [ map WidthLength parseLength
-            , map (always WidthAuto) (keyword "auto")
+            [ map widthLength parseLength
+            , map (always widthAuto) (keyword "auto")
             ]
         |. spaces
         |. symbol ";"

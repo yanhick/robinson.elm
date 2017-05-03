@@ -20,7 +20,13 @@ module CSSOM
         , heightAuto
         , computedHeight
         , usedHeight
-        , CSSWidth(..)
+        , CSSWidth
+        , defaultWidth
+        , widthLength
+        , widthAuto
+        , computedWidth
+        , isAutoWidth
+        , usedWidth
         , CSSBackgroundColor(..)
         , CSSBorderColor(..)
         , CSSBorderWidth(..)
@@ -163,9 +169,54 @@ usedHeight height =
             Just <| computedCSSLength length
 
 
-type CSSWidth
+type CSSWidth valueType
     = WidthAuto
     | WidthLength CSSLength
+
+
+widthLength : CSSLength -> CSSWidth SpecifiedValue
+widthLength =
+    WidthLength
+
+
+widthAuto : CSSWidth SpecifiedValue
+widthAuto =
+    WidthAuto
+
+
+isAutoWidth : CSSWidth valueType -> Bool
+isAutoWidth width =
+    case width of
+        WidthAuto ->
+            True
+
+        _ ->
+            False
+
+
+computedWidth : CSSWidth SpecifiedValue -> CSSWidth ComputedValue
+computedWidth width =
+    case width of
+        WidthAuto ->
+            WidthAuto
+
+        WidthLength length ->
+            WidthLength length
+
+
+defaultWidth : CSSWidth SpecifiedValue
+defaultWidth =
+    WidthAuto
+
+
+usedWidth : CSSWidth ComputedValue -> Maybe Float
+usedWidth width =
+    case width of
+        WidthAuto ->
+            Nothing
+
+        WidthLength length ->
+            Just <| computedCSSLength length
 
 
 type CSSBackgroundColor
@@ -196,7 +247,7 @@ type CSSDeclaration
     | PaddingTop (CSSPadding SpecifiedValue)
     | PaddingBottom (CSSPadding SpecifiedValue)
     | Height (CSSHeight SpecifiedValue)
-    | Width CSSWidth
+    | Width (CSSWidth SpecifiedValue)
     | BackgroundColor CSSBackgroundColor
     | BorderLeftWidth CSSBorderWidth
     | BorderRightWidth CSSBorderWidth

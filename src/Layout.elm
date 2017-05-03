@@ -31,15 +31,6 @@ borderToPx dimension =
             0.0
 
 
-widthToPx dimension =
-    case dimension of
-        WidthLength length ->
-            computedCSSLength length
-
-        _ ->
-            0.0
-
-
 startLayout : StyledNode -> BoxModel.BoxModel -> LayoutBox
 startLayout node containingBoxModel =
     layout (layoutTree node) containingBoxModel
@@ -210,19 +201,11 @@ calculateBlockWidth :
     -> BoxModel.BoxModel
 calculateBlockWidth { node, styles } boxModel containingBoxModel =
     let
-        isAutoWidth dimension =
-            case dimension of
-                WidthAuto ->
-                    True
-
-                _ ->
-                    False
-
         marginLength l u =
             CSSOM.marginLength <| Maybe.withDefault defaultCSSLength (cssLength l u)
 
         widthLength l u =
-            WidthLength <| Maybe.withDefault defaultCSSLength (cssLength l u)
+            CSSOM.widthLength <| Maybe.withDefault defaultCSSLength (cssLength l u)
 
         dimensions =
             [ Maybe.withDefault 0 <| usedMargin <| computedMargin styles.marginLeft
@@ -231,7 +214,7 @@ calculateBlockWidth { node, styles } boxModel containingBoxModel =
             , usedPadding <| computedPadding styles.paddingRight
             , borderToPx styles.borderLeftWidth
             , borderToPx styles.borderRightWidth
-            , widthToPx styles.width
+            , Maybe.withDefault 0 <| usedWidth <| computedWidth styles.width
             ]
 
         total =
@@ -331,7 +314,7 @@ calculateBlockWidth { node, styles } boxModel containingBoxModel =
             BoxModel.content boxModel
 
         newContent =
-            { oldContent | width = widthToPx w }
+            { oldContent | width = Maybe.withDefault 0 <| usedWidth <| computedWidth w }
 
         oldMargin =
             BoxModel.margin boxModel
