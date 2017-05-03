@@ -3,6 +3,7 @@ module Tests exposing (..)
 import Layout
 import LayoutTests
 import CSSTests
+import CSSBasicTypesTests
 import Style
 import Color
 import DOM
@@ -41,6 +42,7 @@ all =
         , styledTree
         , LayoutTests.layout
         , CSSTests.cssTest
+        , CSSBasicTypesTests.cssBasicTypes
         ]
 
 
