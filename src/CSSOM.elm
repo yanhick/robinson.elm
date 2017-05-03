@@ -27,7 +27,11 @@ module CSSOM
         , computedWidth
         , isAutoWidth
         , usedWidth
-        , CSSBackgroundColor(..)
+        , CSSBackgroundColor
+        , backgroundColorColor
+        , backgroundColorTransparent
+        , defaultBackgroundColor
+        , usedBackgroundColor
         , CSSBorderColor(..)
         , CSSBorderWidth
         , borderWidthThin
@@ -226,9 +230,38 @@ usedWidth width =
             Just <| computedCSSLength length
 
 
-type CSSBackgroundColor
+type CSSBackgroundColor valueType
     = BackgroundColorColor CSSColor
     | BackgroundColorTransparent
+
+
+backgroundColorColor : CSSColor -> CSSBackgroundColor SpecifiedValue
+backgroundColorColor =
+    BackgroundColorColor
+
+
+backgroundColorTransparent : CSSBackgroundColor SpecifiedValue
+backgroundColorTransparent =
+    BackgroundColorTransparent
+
+
+defaultBackgroundColor : CSSBackgroundColor SpecifiedValue
+defaultBackgroundColor =
+    BackgroundColorTransparent
+
+
+usedBackgroundColor : CSSBackgroundColor SpecifiedValue -> RGBAColor
+usedBackgroundColor backgroundColor =
+    case backgroundColor of
+        BackgroundColorColor color ->
+            computedCSSColor color
+
+        BackgroundColorTransparent ->
+            { red = 0
+            , green = 0
+            , blue = 0
+            , alpha = 0
+            }
 
 
 type CSSBorderColor
@@ -312,7 +345,7 @@ type CSSDeclaration
     | PaddingBottom (CSSPadding SpecifiedValue)
     | Height (CSSHeight SpecifiedValue)
     | Width (CSSWidth SpecifiedValue)
-    | BackgroundColor CSSBackgroundColor
+    | BackgroundColor (CSSBackgroundColor SpecifiedValue)
     | BorderLeftWidth (CSSBorderWidth SpecifiedValue)
     | BorderRightWidth (CSSBorderWidth SpecifiedValue)
     | BorderTopWidth (CSSBorderWidth SpecifiedValue)

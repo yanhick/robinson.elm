@@ -228,8 +228,8 @@ parseBackgroundColor =
         |. symbol ":"
         |. spaces
         |= oneOf
-            [ map BackgroundColorColor parseColor
-            , map (always BackgroundColorTransparent) (keyword "transparent")
+            [ map backgroundColorColor parseColor
+            , map (always backgroundColorTransparent) (keyword "transparent")
             ]
         |. spaces
         |. symbol ";"

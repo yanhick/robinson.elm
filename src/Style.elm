@@ -42,7 +42,7 @@ initialStyles =
     , borderBottomWidth = defaultBorderWidth
     , width = defaultWidth
     , height = defaultHeight
-    , backgroundColor = BackgroundColorTransparent
+    , backgroundColor = defaultBackgroundColor
     , borderTopColor = BorderColorTransparent
     , borderBottomColor = BorderColorTransparent
     , borderLeftColor = BorderColorTransparent
@@ -54,7 +54,7 @@ type alias Styles =
     { display : CSSDisplay
     , height : CSSHeight SpecifiedValue
     , width : CSSWidth SpecifiedValue
-    , backgroundColor : CSSBackgroundColor
+    , backgroundColor : CSSBackgroundColor SpecifiedValue
     , marginLeft : CSSMargin SpecifiedValue
     , marginRight : CSSMargin SpecifiedValue
     , marginTop : CSSMargin SpecifiedValue

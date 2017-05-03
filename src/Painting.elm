@@ -27,12 +27,7 @@ renderLayoutBox (LayoutBox { dimensions, children, box }) =
             <|
                 case box of
                     Layout.Block (StyledElement { styles }) ->
-                        case styles.backgroundColor of
-                            CSSOM.BackgroundColorColor color ->
-                                Just <| CSSBasicTypes.computedCSSColor color
-
-                            _ ->
-                                Nothing
+                        Just <| CSSOM.usedBackgroundColor styles.backgroundColor
 
                     _ ->
                         Nothing

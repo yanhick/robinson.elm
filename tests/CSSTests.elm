@@ -227,8 +227,8 @@ cssParser =
                     case (Parser.run CSSParser.parse "div {background-color:#CCFF00;}") of
                         Ok [ { selectors, declarations } ] ->
                             case declarations of
-                                [ CSSOM.BackgroundColor (CSSOM.BackgroundColorColor color) ] ->
-                                    CSSBasicTypes.computedCSSColor color
+                                [ CSSOM.BackgroundColor color ] ->
+                                    CSSOM.usedBackgroundColor color
                                         == { red = 204
                                            , green = 255
                                            , blue = 0
