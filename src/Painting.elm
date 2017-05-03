@@ -55,36 +55,16 @@ renderBorders : Styles -> BoxModel.BoxModel -> List DisplayCommand
 renderBorders styles boxModel =
     let
         topColor =
-            case styles.borderTopColor of
-                CSSOM.BorderColorColor color ->
-                    CSSBasicTypes.computedCSSColor color
-
-                _ ->
-                    { red = 0, green = 0, blue = 0, alpha = 0 }
+            CSSOM.usedBorderColor styles.borderTopColor
 
         bottomColor =
-            case styles.borderBottomColor of
-                CSSOM.BorderColorColor color ->
-                    CSSBasicTypes.computedCSSColor color
-
-                _ ->
-                    { red = 0, green = 0, blue = 0, alpha = 0 }
+            CSSOM.usedBorderColor styles.borderBottomColor
 
         leftColor =
-            case styles.borderLeftColor of
-                CSSOM.BorderColorColor color ->
-                    CSSBasicTypes.computedCSSColor color
-
-                _ ->
-                    { red = 0, green = 0, blue = 0, alpha = 0 }
+            CSSOM.usedBorderColor styles.borderLeftColor
 
         rightColor =
-            case styles.borderRightColor of
-                CSSOM.BorderColorColor color ->
-                    CSSBasicTypes.computedCSSColor color
-
-                _ ->
-                    { red = 0, green = 0, blue = 0, alpha = 0 }
+            CSSOM.usedBorderColor styles.borderRightColor
 
         borderBox =
             BoxModel.borderBox boxModel

@@ -32,7 +32,11 @@ module CSSOM
         , backgroundColorTransparent
         , defaultBackgroundColor
         , usedBackgroundColor
-        , CSSBorderColor(..)
+        , CSSBorderColor
+        , borderColorColor
+        , borderColorTransparent
+        , defaultBorderColor
+        , usedBorderColor
         , CSSBorderWidth
         , borderWidthThin
         , borderWidthMedium
@@ -264,9 +268,38 @@ usedBackgroundColor backgroundColor =
             }
 
 
-type CSSBorderColor
+type CSSBorderColor valueType
     = BorderColorColor CSSColor
     | BorderColorTransparent
+
+
+borderColorColor : CSSColor -> CSSBorderColor SpecifiedValue
+borderColorColor =
+    BorderColorColor
+
+
+borderColorTransparent : CSSBorderColor SpecifiedValue
+borderColorTransparent =
+    BorderColorTransparent
+
+
+defaultBorderColor : CSSBorderColor SpecifiedValue
+defaultBorderColor =
+    BorderColorTransparent
+
+
+usedBorderColor : CSSBorderColor SpecifiedValue -> RGBAColor
+usedBorderColor borderColor =
+    case borderColor of
+        BorderColorColor color ->
+            computedCSSColor color
+
+        BorderColorTransparent ->
+            { red = 0
+            , green = 0
+            , blue = 0
+            , alpha = 0
+            }
 
 
 type CSSBorderWidth valueType
@@ -350,10 +383,10 @@ type CSSDeclaration
     | BorderRightWidth (CSSBorderWidth SpecifiedValue)
     | BorderTopWidth (CSSBorderWidth SpecifiedValue)
     | BorderBottomWidth (CSSBorderWidth SpecifiedValue)
-    | BorderTopColor CSSBorderColor
-    | BorderBottomColor CSSBorderColor
-    | BorderLeftColor CSSBorderColor
-    | BorderRightColor CSSBorderColor
+    | BorderTopColor (CSSBorderColor SpecifiedValue)
+    | BorderBottomColor (CSSBorderColor SpecifiedValue)
+    | BorderLeftColor (CSSBorderColor SpecifiedValue)
+    | BorderRightColor (CSSBorderColor SpecifiedValue)
 
 
 type alias CSSRule =

@@ -235,7 +235,7 @@ parseBackgroundColor =
         |. symbol ";"
 
 
-parseBorderColor : String -> (CSSBorderColor -> CSSDeclaration) -> Parser CSSDeclaration
+parseBorderColor : String -> (CSSBorderColor SpecifiedValue -> CSSDeclaration) -> Parser CSSDeclaration
 parseBorderColor borderName borderConstructor =
     succeed borderConstructor
         |. keyword borderName
@@ -243,8 +243,8 @@ parseBorderColor borderName borderConstructor =
         |. symbol ":"
         |. spaces
         |= oneOf
-            [ map BorderColorColor parseColor
-            , map (always BorderColorTransparent) (keyword "transparent")
+            [ map borderColorColor parseColor
+            , map (always borderColorTransparent) (keyword "transparent")
             ]
         |. spaces
         |. symbol ";"

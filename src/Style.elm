@@ -43,10 +43,10 @@ initialStyles =
     , width = defaultWidth
     , height = defaultHeight
     , backgroundColor = defaultBackgroundColor
-    , borderTopColor = BorderColorTransparent
-    , borderBottomColor = BorderColorTransparent
-    , borderLeftColor = BorderColorTransparent
-    , borderRightColor = BorderColorTransparent
+    , borderTopColor = defaultBorderColor
+    , borderBottomColor = defaultBorderColor
+    , borderLeftColor = defaultBorderColor
+    , borderRightColor = defaultBorderColor
     }
 
 
@@ -67,10 +67,10 @@ type alias Styles =
     , borderRightWidth : CSSBorderWidth SpecifiedValue
     , borderTopWidth : CSSBorderWidth SpecifiedValue
     , borderBottomWidth : CSSBorderWidth SpecifiedValue
-    , borderTopColor : CSSBorderColor
-    , borderBottomColor : CSSBorderColor
-    , borderLeftColor : CSSBorderColor
-    , borderRightColor : CSSBorderColor
+    , borderTopColor : CSSBorderColor SpecifiedValue
+    , borderBottomColor : CSSBorderColor SpecifiedValue
+    , borderLeftColor : CSSBorderColor SpecifiedValue
+    , borderRightColor : CSSBorderColor SpecifiedValue
     }
 
 
