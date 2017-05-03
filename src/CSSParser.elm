@@ -258,8 +258,8 @@ parseHeight =
         |. symbol ":"
         |. spaces
         |= oneOf
-            [ map HeightLength parseLength
-            , map (always HeightAuto) (keyword "auto")
+            [ map heightLength parseLength
+            , map (always heightAuto) (keyword "auto")
             ]
         |. spaces
         |. symbol ";"

@@ -225,8 +225,8 @@ calculateBlockWidth { node, styles } boxModel containingBoxModel =
             WidthLength <| Maybe.withDefault defaultCSSLength (cssLength l u)
 
         dimensions =
-            [ usedMargin <| computedMargin styles.marginLeft
-            , usedMargin <| computedMargin styles.marginRight
+            [ Maybe.withDefault 0 <| usedMargin <| computedMargin styles.marginLeft
+            , Maybe.withDefault 0 <| usedMargin <| computedMargin styles.marginRight
             , usedPadding <| computedPadding styles.paddingLeft
             , usedPadding <| computedPadding styles.paddingRight
             , borderToPx styles.borderLeftWidth
@@ -277,7 +277,7 @@ calculateBlockWidth { node, styles } boxModel containingBoxModel =
         ( l, r, w ) =
             if not widthIsAuto && not marginLeftIsAuto && not marginRightIsAuto then
                 ( marginLeft
-                , marginLength ((usedMargin <| computedMargin marginRight) + underflow) Pixel
+                , marginLength ((Maybe.withDefault 0 <| usedMargin <| computedMargin marginRight) + underflow) Pixel
                 , width
                 )
             else if not widthIsAuto && not marginLeftIsAuto && marginRightIsAuto then
@@ -295,7 +295,7 @@ calculateBlockWidth { node, styles } boxModel containingBoxModel =
                     if underflow >= 0.0 then
                         ( marginLength 0.0 Pixel, marginRight, widthLength underflow Pixel )
                     else
-                        ( marginLength 0.0 Pixel, marginLength ((usedMargin <| computedMargin marginRight) + underflow) Pixel, widthLength 0.0 Pixel )
+                        ( marginLength 0.0 Pixel, marginLength ((Maybe.withDefault 0 <| usedMargin <| computedMargin marginRight) + underflow) Pixel, widthLength 0.0 Pixel )
                 else if marginRightIsAuto && not marginLeftIsAuto then
                     if underflow >= 0.0 then
                         ( marginLeft, marginLength 0.0 Pixel, widthLength underflow Pixel )
@@ -310,7 +310,7 @@ calculateBlockWidth { node, styles } boxModel containingBoxModel =
                     if underflow >= 0.0 then
                         ( marginLeft, marginRight, widthLength underflow Pixel )
                     else
-                        ( marginLeft, marginLength ((usedMargin <| computedMargin marginRight) + underflow) Pixel, widthLength 0.0 Pixel )
+                        ( marginLeft, marginLength ((Maybe.withDefault 0 <| usedMargin <| computedMargin marginRight) + underflow) Pixel, widthLength 0.0 Pixel )
                 else
                     ( marginLeft
                     , marginRight
@@ -337,7 +337,10 @@ calculateBlockWidth { node, styles } boxModel containingBoxModel =
             BoxModel.margin boxModel
 
         newMargin =
-            { oldMargin | left = usedMargin <| computedMargin l, right = usedMargin <| computedMargin r }
+            { oldMargin
+                | left = Maybe.withDefault 0 <| usedMargin <| computedMargin l
+                , right = Maybe.withDefault 0 <| usedMargin <| computedMargin r
+            }
 
         oldPadding =
             BoxModel.padding boxModel
@@ -366,27 +369,27 @@ calculateBlockHeight :
     -> BoxModel.BoxModel
     -> BoxModel.BoxModel
 calculateBlockHeight { styles } boxModel =
-    case styles.height of
-        HeightLength length ->
-            let
-                boxModelContent =
-                    BoxModel.content boxModel
+    let
+        boxModelContent =
+            BoxModel.content boxModel
 
-                newContent =
-                    { x = boxModelContent.x
-                    , y = boxModelContent.y
-                    , width = boxModelContent.width
-                    , height = computedCSSLength length
-                    }
-            in
-                BoxModel.boxModel
-                    newContent
-                    (BoxModel.padding boxModel)
-                    (BoxModel.border boxModel)
-                    (BoxModel.margin boxModel)
-
-        _ ->
-            boxModel
+        newContent =
+            { x = boxModelContent.x
+            , y = boxModelContent.y
+            , width = boxModelContent.width
+            , height =
+                Maybe.withDefault
+                    boxModelContent.height
+                <|
+                    usedHeight <|
+                        computedHeight styles.height
+            }
+    in
+        BoxModel.boxModel
+            newContent
+            (BoxModel.padding boxModel)
+            (BoxModel.border boxModel)
+            (BoxModel.margin boxModel)
 
 
 calculateBlockPosition :
@@ -422,8 +425,8 @@ calculateBlockPosition { node, styles } boxModel containingBoxModel =
         newMargin =
             { left = boxModelMargin.left
             , right = boxModelMargin.right
-            , top = usedMargin <| computedMargin styles.marginTop
-            , bottom = usedMargin <| computedMargin styles.marginBottom
+            , top = Maybe.withDefault 0 <| usedMargin <| computedMargin styles.marginTop
+            , bottom = Maybe.withDefault 0 <| usedMargin <| computedMargin styles.marginBottom
             }
 
         containingBoxModelContent =

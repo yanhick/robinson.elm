@@ -214,7 +214,7 @@ cssParser =
                         Ok [ { selectors, declarations } ] ->
                             case declarations of
                                 [ CSSOM.MarginLeft margin ] ->
-                                    (CSSOM.usedMargin <| CSSOM.computedMargin margin) == 10
+                                    (Maybe.withDefault 0 <| CSSOM.usedMargin <| CSSOM.computedMargin margin) == 10
 
                                 _ ->
                                     False

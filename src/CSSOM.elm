@@ -14,7 +14,12 @@ module CSSOM
         , usedPadding
         , SpecifiedValue
         , padding
-        , CSSHeight(..)
+        , CSSHeight
+        , defaultHeight
+        , heightLength
+        , heightAuto
+        , computedHeight
+        , usedHeight
         , CSSWidth(..)
         , CSSBackgroundColor(..)
         , CSSBorderColor(..)
@@ -84,14 +89,14 @@ computedMargin margin =
             MarginAuto
 
 
-usedMargin : CSSMargin ComputedValue -> Float
+usedMargin : CSSMargin ComputedValue -> Maybe Float
 usedMargin margin =
     case margin of
         MarginLength length ->
-            computedCSSLength length
+            Just <| computedCSSLength length
 
         MarginAuto ->
-            0.0
+            Nothing
 
 
 type CSSPadding valueType
@@ -118,9 +123,44 @@ usedPadding (PaddingLength length) =
     computedCSSLength length
 
 
-type CSSHeight
+type CSSHeight valueType
     = HeightAuto
     | HeightLength CSSLength
+
+
+heightLength : CSSLength -> CSSHeight SpecifiedValue
+heightLength =
+    HeightLength
+
+
+heightAuto : CSSHeight SpecifiedValue
+heightAuto =
+    HeightAuto
+
+
+defaultHeight : CSSHeight SpecifiedValue
+defaultHeight =
+    HeightAuto
+
+
+computedHeight : CSSHeight SpecifiedValue -> CSSHeight ComputedValue
+computedHeight height =
+    case height of
+        HeightAuto ->
+            HeightAuto
+
+        HeightLength length ->
+            HeightLength length
+
+
+usedHeight : CSSHeight ComputedValue -> Maybe Float
+usedHeight height =
+    case height of
+        HeightAuto ->
+            Nothing
+
+        HeightLength length ->
+            Just <| computedCSSLength length
 
 
 type CSSWidth
@@ -155,7 +195,7 @@ type CSSDeclaration
     | PaddingRight (CSSPadding SpecifiedValue)
     | PaddingTop (CSSPadding SpecifiedValue)
     | PaddingBottom (CSSPadding SpecifiedValue)
-    | Height CSSHeight
+    | Height (CSSHeight SpecifiedValue)
     | Width CSSWidth
     | BackgroundColor CSSBackgroundColor
     | BorderLeftWidth CSSBorderWidth

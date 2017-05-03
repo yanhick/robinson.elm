@@ -363,7 +363,7 @@ calculateBlockHeight =
                                  , styles =
                                     { styles
                                         | display = CSSOM.Block
-                                        , height = CSSOM.HeightLength <| testCSSLength 50
+                                        , height = CSSOM.heightLength <| testCSSLength 50
                                     }
                                  , children = []
                                  }
@@ -441,10 +441,10 @@ startLayout =
 
                     styledNode =
                         getStyledNode
-                            [ getStyledNode [] (CSSOM.HeightLength <| testCSSLength 50)
-                            , getStyledNode [] (CSSOM.HeightLength <| testCSSLength 50)
+                            [ getStyledNode [] (CSSOM.heightLength <| testCSSLength 50)
+                            , getStyledNode [] (CSSOM.heightLength <| testCSSLength 50)
                             ]
-                            CSSOM.HeightAuto
+                            CSSOM.heightAuto
 
                     containingDimensions =
                         BoxModel.boxModel
@@ -480,10 +480,10 @@ startLayout =
 
                     styledNode =
                         getStyledNode
-                            [ getStyledNode [] (CSSOM.HeightLength <| testCSSLength 50)
-                            , getStyledNode [] (CSSOM.HeightLength <| testCSSLength 50)
+                            [ getStyledNode [] (CSSOM.heightLength <| testCSSLength 50)
+                            , getStyledNode [] (CSSOM.heightLength <| testCSSLength 50)
                             ]
-                            CSSOM.HeightAuto
+                            CSSOM.heightAuto
 
                     containingDimensions =
                         BoxModel.boxModel
@@ -521,10 +521,10 @@ startLayout =
 
                     styledNode =
                         getStyledNode
-                            [ getStyledNode [] (CSSOM.HeightLength <| testCSSLength 50)
-                            , getStyledNode [] (CSSOM.HeightLength <| testCSSLength 50)
+                            [ getStyledNode [] (CSSOM.heightLength <| testCSSLength 50)
+                            , getStyledNode [] (CSSOM.heightLength <| testCSSLength 50)
                             ]
-                            CSSOM.HeightAuto
+                            CSSOM.heightAuto
 
                     containingDimensions =
                         BoxModel.boxModel
@@ -562,10 +562,10 @@ startLayout =
 
                     styledNode =
                         getStyledNode
-                            [ getStyledNode [] (CSSOM.HeightLength <| testCSSLength 50)
-                            , getStyledNode [] (CSSOM.HeightLength <| testCSSLength 50)
+                            [ getStyledNode [] (CSSOM.heightLength <| testCSSLength 50)
+                            , getStyledNode [] (CSSOM.heightLength <| testCSSLength 50)
                             ]
-                            CSSOM.HeightAuto
+                            CSSOM.heightAuto
 
                     containingDimensions =
                         BoxModel.boxModel
