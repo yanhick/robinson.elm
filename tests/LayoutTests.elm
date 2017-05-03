@@ -512,8 +512,8 @@ startLayout =
                                 { styles
                                     | display = CSSOM.Block
                                     , height = height
-                                    , borderTopWidth = CSSOM.BorderWidthLength <| testCSSLength 20
-                                    , borderBottomWidth = CSSOM.BorderWidthLength <| testCSSLength 20
+                                    , borderTopWidth = CSSOM.borderWidthLength <| testCSSLength 20
+                                    , borderBottomWidth = CSSOM.borderWidthLength <| testCSSLength 20
                                 }
                             , node = element
                             , children = children

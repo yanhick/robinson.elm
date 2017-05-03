@@ -36,10 +36,10 @@ initialStyles =
     , paddingRight = defaultPadding
     , paddingTop = defaultPadding
     , paddingBottom = defaultPadding
-    , borderLeftWidth = BorderWidthMedium
-    , borderRightWidth = BorderWidthMedium
-    , borderTopWidth = BorderWidthMedium
-    , borderBottomWidth = BorderWidthMedium
+    , borderLeftWidth = defaultBorderWidth
+    , borderRightWidth = defaultBorderWidth
+    , borderTopWidth = defaultBorderWidth
+    , borderBottomWidth = defaultBorderWidth
     , width = defaultWidth
     , height = defaultHeight
     , backgroundColor = BackgroundColorTransparent
@@ -63,10 +63,10 @@ type alias Styles =
     , paddingRight : CSSPadding SpecifiedValue
     , paddingTop : CSSPadding SpecifiedValue
     , paddingBottom : CSSPadding SpecifiedValue
-    , borderLeftWidth : CSSBorderWidth
-    , borderRightWidth : CSSBorderWidth
-    , borderTopWidth : CSSBorderWidth
-    , borderBottomWidth : CSSBorderWidth
+    , borderLeftWidth : CSSBorderWidth SpecifiedValue
+    , borderRightWidth : CSSBorderWidth SpecifiedValue
+    , borderTopWidth : CSSBorderWidth SpecifiedValue
+    , borderBottomWidth : CSSBorderWidth SpecifiedValue
     , borderTopColor : CSSBorderColor
     , borderBottomColor : CSSBorderColor
     , borderLeftColor : CSSBorderColor

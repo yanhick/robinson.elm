@@ -307,7 +307,7 @@ parsePadding paddingName paddingConstructor =
         |. symbol ";"
 
 
-parseBorderWidth : String -> (CSSBorderWidth -> CSSDeclaration) -> Parser CSSDeclaration
+parseBorderWidth : String -> (CSSBorderWidth SpecifiedValue -> CSSDeclaration) -> Parser CSSDeclaration
 parseBorderWidth borderWidthName borderWidthConstructor =
     succeed borderWidthConstructor
         |. keyword borderWidthName
@@ -315,10 +315,10 @@ parseBorderWidth borderWidthName borderWidthConstructor =
         |. symbol ":"
         |. spaces
         |= oneOf
-            [ map BorderWidthLength parseLength
-            , map (always BorderWidthThin) (keyword "thin")
-            , map (always BorderWidthMedium) (keyword "medium")
-            , map (always BorderWidthThick) (keyword "thick")
+            [ map borderWidthLength parseLength
+            , map (always borderWidthThin) (keyword "thin")
+            , map (always borderWidthMedium) (keyword "medium")
+            , map (always borderWidthThick) (keyword "thick")
             ]
         |. spaces
         |. symbol ";"

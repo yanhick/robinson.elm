@@ -29,7 +29,14 @@ module CSSOM
         , usedWidth
         , CSSBackgroundColor(..)
         , CSSBorderColor(..)
-        , CSSBorderWidth(..)
+        , CSSBorderWidth
+        , borderWidthThin
+        , borderWidthMedium
+        , borderWidthThick
+        , borderWidthLength
+        , computedBorderWidth
+        , usedBorderWidth
+        , defaultBorderWidth
         , CSSDeclaration(..)
         , CSSRule
         , CSSSelector(..)
@@ -229,11 +236,68 @@ type CSSBorderColor
     | BorderColorTransparent
 
 
-type CSSBorderWidth
+type CSSBorderWidth valueType
     = BorderWidthThin
     | BorderWidthMedium
     | BorderWidthThick
     | BorderWidthLength CSSLength
+
+
+defaultBorderWidth : CSSBorderWidth SpecifiedValue
+defaultBorderWidth =
+    BorderWidthMedium
+
+
+computedBorderWidth : CSSBorderWidth SpecifiedValue -> CSSBorderWidth ComputedValue
+computedBorderWidth borderWidth =
+    case borderWidth of
+        BorderWidthThin ->
+            BorderWidthThin
+
+        BorderWidthMedium ->
+            BorderWidthMedium
+
+        BorderWidthThick ->
+            BorderWidthThick
+
+        BorderWidthLength length ->
+            BorderWidthLength length
+
+
+usedBorderWidth : CSSBorderWidth ComputedValue -> Float
+usedBorderWidth borderWidth =
+    case borderWidth of
+        BorderWidthThin ->
+            0
+
+        BorderWidthMedium ->
+            0
+
+        BorderWidthThick ->
+            0
+
+        BorderWidthLength length ->
+            computedCSSLength length
+
+
+borderWidthThick : CSSBorderWidth SpecifiedValue
+borderWidthThick =
+    BorderWidthThick
+
+
+borderWidthMedium : CSSBorderWidth SpecifiedValue
+borderWidthMedium =
+    BorderWidthMedium
+
+
+borderWidthThin : CSSBorderWidth SpecifiedValue
+borderWidthThin =
+    BorderWidthThin
+
+
+borderWidthLength : CSSLength -> CSSBorderWidth SpecifiedValue
+borderWidthLength =
+    BorderWidthLength
 
 
 type CSSDeclaration
@@ -249,10 +313,10 @@ type CSSDeclaration
     | Height (CSSHeight SpecifiedValue)
     | Width (CSSWidth SpecifiedValue)
     | BackgroundColor CSSBackgroundColor
-    | BorderLeftWidth CSSBorderWidth
-    | BorderRightWidth CSSBorderWidth
-    | BorderTopWidth CSSBorderWidth
-    | BorderBottomWidth CSSBorderWidth
+    | BorderLeftWidth (CSSBorderWidth SpecifiedValue)
+    | BorderRightWidth (CSSBorderWidth SpecifiedValue)
+    | BorderTopWidth (CSSBorderWidth SpecifiedValue)
+    | BorderBottomWidth (CSSBorderWidth SpecifiedValue)
     | BorderTopColor CSSBorderColor
     | BorderBottomColor CSSBorderColor
     | BorderLeftColor CSSBorderColor
