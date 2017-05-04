@@ -45,6 +45,10 @@ module CSSOM
         , computedBorderWidth
         , usedBorderWidth
         , defaultBorderWidth
+        , CSSBorderStyle
+        , borderStyleNone
+        , borderStyleSolid
+        , defaultBorderStyle
         , CSSDeclaration(..)
         , CSSRule
         , CSSSelector(..)
@@ -268,6 +272,26 @@ usedBackgroundColor backgroundColor =
             }
 
 
+type CSSBorderStyle valueType
+    = BorderStyleNone
+    | BorderStyleSolid
+
+
+borderStyleNone : CSSBorderStyle SpecifiedValue
+borderStyleNone =
+    BorderStyleNone
+
+
+borderStyleSolid : CSSBorderStyle SpecifiedValue
+borderStyleSolid =
+    BorderStyleSolid
+
+
+defaultBorderStyle : CSSBorderStyle SpecifiedValue
+defaultBorderStyle =
+    BorderStyleNone
+
+
 type CSSBorderColor valueType
     = BorderColorColor CSSColor
     | BorderColorTransparent
@@ -314,20 +338,28 @@ defaultBorderWidth =
     BorderWidthMedium
 
 
-computedBorderWidth : CSSBorderWidth SpecifiedValue -> CSSBorderWidth ComputedValue
-computedBorderWidth borderWidth =
-    case borderWidth of
-        BorderWidthThin ->
-            BorderWidthThin
+computedBorderWidth :
+    CSSBorderStyle SpecifiedValue
+    -> CSSBorderWidth SpecifiedValue
+    -> CSSBorderWidth ComputedValue
+computedBorderWidth borderStyle borderWidth =
+    case borderStyle of
+        BorderStyleNone ->
+            BorderWidthLength defaultCSSLength
 
-        BorderWidthMedium ->
-            BorderWidthMedium
+        BorderStyleSolid ->
+            case borderWidth of
+                BorderWidthThin ->
+                    BorderWidthThin
 
-        BorderWidthThick ->
-            BorderWidthThick
+                BorderWidthMedium ->
+                    BorderWidthMedium
 
-        BorderWidthLength length ->
-            BorderWidthLength length
+                BorderWidthThick ->
+                    BorderWidthThick
+
+                BorderWidthLength length ->
+                    BorderWidthLength length
 
 
 usedBorderWidth : CSSBorderWidth ComputedValue -> Float
@@ -387,6 +419,10 @@ type CSSDeclaration
     | BorderBottomColor (CSSBorderColor SpecifiedValue)
     | BorderLeftColor (CSSBorderColor SpecifiedValue)
     | BorderRightColor (CSSBorderColor SpecifiedValue)
+    | BorderLeftStyle (CSSBorderStyle SpecifiedValue)
+    | BorderRightStyle (CSSBorderStyle SpecifiedValue)
+    | BorderTopStyle (CSSBorderStyle SpecifiedValue)
+    | BorderBottomStyle (CSSBorderStyle SpecifiedValue)
 
 
 type alias CSSRule =

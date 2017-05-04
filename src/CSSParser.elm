@@ -1,4 +1,4 @@
-module CSSParser exposing (parse)
+module CSSParser exposing (..)
 
 import Char
 import ParseInt exposing (..)
@@ -217,7 +217,26 @@ parseDeclaration =
         , parseBorderColor "border-bottom-color" BorderBottomColor
         , parseBorderColor "border-left-color" BorderLeftColor
         , parseBorderColor "border-right-color" BorderRightColor
+        , parseBorderStyle "border-top-style" BorderTopStyle
+        , parseBorderStyle "border-bottom-style" BorderBottomStyle
+        , parseBorderStyle "border-left-style" BorderLeftStyle
+        , parseBorderStyle "border-right-style" BorderRightStyle
         ]
+
+
+parseBorderStyle : String -> (CSSBorderStyle SpecifiedValue -> CSSDeclaration) -> Parser CSSDeclaration
+parseBorderStyle borderStyleName borderStyleConstructor =
+    succeed borderStyleConstructor
+        |. keyword borderStyleName
+        |. spaces
+        |. symbol ":"
+        |. spaces
+        |= oneOf
+            [ map (always borderStyleNone) (keyword "none")
+            , map (always borderStyleSolid) (keyword "solid")
+            ]
+        |. spaces
+        |. symbol ";"
 
 
 parseBackgroundColor : Parser CSSDeclaration

@@ -47,6 +47,10 @@ initialStyles =
     , borderBottomColor = defaultBorderColor
     , borderLeftColor = defaultBorderColor
     , borderRightColor = defaultBorderColor
+    , borderLeftStyle = defaultBorderStyle
+    , borderRightStyle = defaultBorderStyle
+    , borderTopStyle = defaultBorderStyle
+    , borderBottomStyle = defaultBorderStyle
     }
 
 
@@ -71,6 +75,10 @@ type alias Styles =
     , borderBottomColor : CSSBorderColor SpecifiedValue
     , borderLeftColor : CSSBorderColor SpecifiedValue
     , borderRightColor : CSSBorderColor SpecifiedValue
+    , borderLeftStyle : CSSBorderStyle SpecifiedValue
+    , borderRightStyle : CSSBorderStyle SpecifiedValue
+    , borderTopStyle : CSSBorderStyle SpecifiedValue
+    , borderBottomStyle : CSSBorderStyle SpecifiedValue
     }
 
 
@@ -204,6 +212,26 @@ specifiedValues node stylesheet =
                     BorderRightColor value ->
                         { styles
                             | borderRightColor = value
+                        }
+
+                    BorderLeftStyle value ->
+                        { styles
+                            | borderLeftStyle = value
+                        }
+
+                    BorderRightStyle value ->
+                        { styles
+                            | borderRightStyle = value
+                        }
+
+                    BorderTopStyle value ->
+                        { styles
+                            | borderTopStyle = value
+                        }
+
+                    BorderBottomStyle value ->
+                        { styles
+                            | borderBottomStyle = value
                         }
             )
             initialStyles

@@ -72,5 +72,6 @@ boxModelTests =
                     paddingBoxRect =
                         paddingBox boxModel
                 in
-                    Expect.true "" ((width * height) <= (paddingBoxRect.width * paddingBoxRect.height))
+                    Expect.true "area of padding box is larger or equal to area of content box"
+                        ((width * height) <= (paddingBoxRect.width * paddingBoxRect.height))
         ]

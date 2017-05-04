@@ -203,8 +203,8 @@ calculateBlockWidth { node, styles } boxModel containingBoxModel =
             , Maybe.withDefault 0 <| usedMargin <| computedMargin styles.marginRight
             , usedPadding <| computedPadding styles.paddingLeft
             , usedPadding <| computedPadding styles.paddingRight
-            , usedBorderWidth <| computedBorderWidth styles.borderLeftWidth
-            , usedBorderWidth <| computedBorderWidth styles.borderRightWidth
+            , usedBorderWidth <| computedBorderWidth styles.borderLeftStyle styles.borderLeftWidth
+            , usedBorderWidth <| computedBorderWidth styles.borderRightStyle styles.borderRightWidth
             , Maybe.withDefault 0 <| usedWidth <| computedWidth styles.width
             ]
 
@@ -330,8 +330,8 @@ calculateBlockWidth { node, styles } boxModel containingBoxModel =
 
         newBorder =
             { oldBorder
-                | left = usedBorderWidth <| computedBorderWidth styles.borderLeftWidth
-                , right = usedBorderWidth <| computedBorderWidth styles.borderRightWidth
+                | left = usedBorderWidth <| computedBorderWidth styles.borderLeftStyle styles.borderLeftWidth
+                , right = usedBorderWidth <| computedBorderWidth styles.borderRightStyle styles.borderRightWidth
             }
     in
         BoxModel.boxModel
@@ -392,8 +392,14 @@ calculateBlockPosition { node, styles } boxModel containingBoxModel =
         newBorder =
             { left = boxModelBorder.left
             , right = boxModelBorder.right
-            , top = usedBorderWidth <| computedBorderWidth <| styles.borderTopWidth
-            , bottom = usedBorderWidth <| computedBorderWidth <| styles.borderBottomWidth
+            , top =
+                styles.borderTopWidth
+                    |> computedBorderWidth styles.borderTopStyle
+                    |> usedBorderWidth
+            , bottom =
+                styles.borderBottomWidth
+                    |> computedBorderWidth styles.borderTopStyle
+                    |> usedBorderWidth
             }
 
         boxModelMargin =
