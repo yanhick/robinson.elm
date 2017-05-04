@@ -366,13 +366,13 @@ usedBorderWidth : CSSBorderWidth ComputedValue -> Float
 usedBorderWidth borderWidth =
     case borderWidth of
         BorderWidthThin ->
-            0
+            1
 
         BorderWidthMedium ->
-            0
+            5
 
         BorderWidthThick ->
-            0
+            10
 
         BorderWidthLength length ->
             computedCSSLength length

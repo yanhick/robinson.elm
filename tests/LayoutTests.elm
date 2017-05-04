@@ -514,6 +514,8 @@ startLayout =
                                     , height = height
                                     , borderTopWidth = CSSOM.borderWidthLength <| testCSSLength 20
                                     , borderBottomWidth = CSSOM.borderWidthLength <| testCSSLength 20
+                                    , borderTopStyle = CSSOM.borderStyleSolid
+                                    , borderBottomStyle = CSSOM.borderStyleSolid
                                 }
                             , node = element
                             , children = children
