@@ -2,6 +2,7 @@ module Tests exposing (..)
 
 import Layout
 import LayoutTests
+import BoxModelTests
 import CSSTests
 import CSSBasicTypesTests
 import Style
@@ -43,6 +44,7 @@ all =
         , LayoutTests.layout
         , CSSTests.cssTest
         , CSSBasicTypesTests.cssBasicTypes
+        , BoxModelTests.boxModelTests
         ]
 
 

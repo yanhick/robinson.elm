@@ -459,7 +459,7 @@ startLayout =
                             containingDimensions
                 in
                     Expect.true ""
-                        ((BoxModel.runBoxModel dimensions).content.height
+                        ((BoxModel.content dimensions).height
                             == 100
                         )
         , test "layout itself with padding" <|

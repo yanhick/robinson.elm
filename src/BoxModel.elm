@@ -8,7 +8,7 @@ module BoxModel
         , border
         , initBoxModel
         , Rect
-        , runBoxModel
+        , EdgeSize
         , paddingBox
         , marginBox
         , borderBox
@@ -50,11 +50,6 @@ type alias Dimensions =
     , border : EdgeSize
     , margin : EdgeSize
     }
-
-
-runBoxModel : BoxModel -> Dimensions
-runBoxModel (BoxModel dimensions) =
-    dimensions
 
 
 padding : BoxModel -> EdgeSize
