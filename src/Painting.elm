@@ -19,31 +19,36 @@ buildDisplayList layoutBox =
 
 
 renderLayoutBox : LayoutBox -> List DisplayCommand
-renderLayoutBox (LayoutBox { dimensions, children, box }) =
-    let
-        backgroundColor =
-            Maybe.withDefault
-                { red = 0, green = 0, blue = 0, alpha = 0 }
-            <|
-                case box of
-                    Layout.Block (StyledElement { styles }) ->
-                        Just <| CSSOM.usedBackgroundColor styles.backgroundColor
+renderLayoutBox layoutBox =
+    case layoutBox of
+        BlockBox { boxModel, styledNode, children } ->
+            let
+                backgroundColor =
+                    Maybe.withDefault
+                        { red = 0, green = 0, blue = 0, alpha = 0 }
+                    <|
+                        case styledNode of
+                            StyledElement { styles } ->
+                                Just <| CSSOM.usedBackgroundColor styles.backgroundColor
 
-                    _ ->
-                        Nothing
+                            _ ->
+                                Nothing
 
-        styles =
-            Maybe.withDefault Style.initialStyles <|
-                case box of
-                    Layout.Block (StyledElement { styles }) ->
-                        Just styles
+                styles =
+                    Maybe.withDefault Style.initialStyles <|
+                        case styledNode of
+                            StyledElement { styles } ->
+                                Just styles
 
-                    _ ->
-                        Nothing
-    in
-        [ renderBackground dimensions backgroundColor ]
-            ++ renderBorders styles dimensions
-            ++ (List.concatMap renderLayoutBox children)
+                            _ ->
+                                Nothing
+            in
+                [ renderBackground boxModel backgroundColor ]
+                    ++ renderBorders styles boxModel
+                    ++ (List.concatMap renderLayoutBox children)
+
+        _ ->
+            []
 
 
 renderBackground : BoxModel.BoxModel -> CSSBasicTypes.RGBAColor -> DisplayCommand

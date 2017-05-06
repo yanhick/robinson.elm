@@ -7,19 +7,18 @@ import BoxModel
 import CSSBasicTypes exposing (..)
 
 
-type Box
-    = Block StyledNode
-    | Inline StyledNode
-    | Anonymous
-    | None
+type alias Box =
+    { boxModel : BoxModel.BoxModel
+    , styledNode : StyledNode
+    , children : List LayoutBox
+    }
 
 
 type LayoutBox
-    = LayoutBox
-        { dimensions : BoxModel.BoxModel
-        , box : Box
-        , children : List LayoutBox
-        }
+    = BlockBox Box
+    | InlineBox Box
+    | AnonymousBox Box
+    | TextBox String
 
 
 startLayout : StyledNode -> BoxModel.BoxModel -> LayoutBox
@@ -41,6 +40,11 @@ layoutTree node =
                                         List.singleton <|
                                             layoutTree child
 
+                                CSSOM.Inline ->
+                                    List.append children <|
+                                        List.singleton <|
+                                            layoutTree child
+
                                 _ ->
                                     children
 
@@ -49,101 +53,76 @@ layoutTree node =
                 )
                 []
     in
-        LayoutBox <|
-            case node of
-                StyledElement { styles, children } ->
-                    let
-                        box =
-                            case styles.display of
-                                CSSOM.Block ->
-                                    Block node
+        case node of
+            StyledElement { styles, children } ->
+                BlockBox
+                    { styledNode = node
+                    , boxModel = BoxModel.initBoxModel
+                    , children = childrenBox children
+                    }
 
-                                CSSOM.Inline ->
-                                    Inline node
-
-                                CSSOM.None ->
-                                    None
-                    in
-                        { box = box
-                        , dimensions = BoxModel.initBoxModel
-                        , children = childrenBox children
-                        }
-
-                StyledText _ ->
-                    { box = Inline node, dimensions = BoxModel.initBoxModel, children = [] }
+            StyledText text ->
+                TextBox text
 
 
 layout : LayoutBox -> BoxModel.BoxModel -> LayoutBox
 layout layoutBox containingBlockDimensions =
-    let
-        (LayoutBox { box, children, dimensions }) =
+    case layoutBox of
+        BlockBox box ->
+            case box.styledNode of
+                StyledElement { styles } ->
+                    BlockBox <| layoutBlock box styles containingBlockDimensions
+
+                _ ->
+                    layoutBox
+
+        _ ->
             layoutBox
-    in
-        case box of
-            Block node ->
-                case node of
-                    StyledElement element ->
-                        layoutBlock layoutBox containingBlockDimensions
-
-                    StyledText _ ->
-                        layoutBox
-
-            _ ->
-                LayoutBox
-                    { box = box
-                    , dimensions = dimensions
-                    , children = children
-                    }
 
 
 layoutBlock :
-    LayoutBox
+    Box
+    -> Styles
     -> BoxModel.BoxModel
-    -> LayoutBox
-layoutBlock (LayoutBox { box, children, dimensions }) containingBoxModel =
-    case box of
-        Block (StyledElement node) ->
-            let
-                boxModelWithCorrectWidth =
-                    calculateBlockWidth node dimensions containingBoxModel
+    -> Box
+layoutBlock { boxModel, styledNode, children } styles containingBoxModel =
+    let
+        boxModelWithCorrectWidth =
+            calculateBlockWidth styles boxModel containingBoxModel
 
-                boxModelWithCorrectPosition =
-                    calculateBlockPosition node boxModelWithCorrectWidth containingBoxModel
+        boxModelWithCorrectPosition =
+            calculateBlockPosition styles boxModelWithCorrectWidth containingBoxModel
 
-                ( laidoutChildren, childrenBoxModel ) =
-                    layoutBlockChildren children boxModelWithCorrectPosition containingBoxModel
+        ( laidoutChildren, childrenBoxModel ) =
+            layoutBlockChildren children boxModelWithCorrectPosition containingBoxModel
 
-                boxModelContent =
-                    BoxModel.content boxModelWithCorrectPosition
+        boxModelContent =
+            BoxModel.content boxModelWithCorrectPosition
 
-                childrenBoxModelContent =
-                    BoxModel.content childrenBoxModel
+        childrenBoxModelContent =
+            BoxModel.content childrenBoxModel
 
-                newContent =
-                    { x = boxModelContent.x
-                    , y = boxModelContent.y
-                    , width = boxModelContent.width
-                    , height = childrenBoxModelContent.height
-                    }
+        newContent =
+            { x = boxModelContent.x
+            , y = boxModelContent.y
+            , width = boxModelContent.width
+            , height = childrenBoxModelContent.height
+            }
 
-                horizontalBoxModel =
-                    BoxModel.boxModel
-                        newContent
-                        (BoxModel.padding boxModelWithCorrectPosition)
-                        (BoxModel.border boxModelWithCorrectPosition)
-                        (BoxModel.margin boxModelWithCorrectPosition)
+        horizontalBoxModel =
+            BoxModel.boxModel
+                newContent
+                (BoxModel.padding boxModelWithCorrectPosition)
+                (BoxModel.border boxModelWithCorrectPosition)
+                (BoxModel.margin boxModelWithCorrectPosition)
 
-                newBoxModel =
-                    calculateBlockHeight node horizontalBoxModel
-            in
-                LayoutBox
-                    { box = box
-                    , children = laidoutChildren
-                    , dimensions = newBoxModel
-                    }
-
-        _ ->
-            LayoutBox { box = box, children = children, dimensions = dimensions }
+        newBoxModel =
+            calculateBlockHeight styles horizontalBoxModel
+    in
+        { styledNode = styledNode
+        , children = laidoutChildren
+        , boxModel = newBoxModel
+        }
 
 
 layoutBlockChildren :
@@ -158,39 +137,53 @@ layoutBlockChildren children boxModel containingBoxModel =
                 childLayoutBox =
                     layout child containingBoxModel
 
-                childBoxModelMargin (LayoutBox { dimensions }) =
-                    BoxModel.marginBox dimensions
+                childBoxModelMargin boxModel =
+                    BoxModel.marginBox boxModel
 
                 containingBoxModelContent =
                     BoxModel.content containingBoxModel
 
-                newContent =
+                newContent boxModel =
                     { x = containingBoxModelContent.x
                     , y = containingBoxModelContent.y
                     , width = containingBoxModelContent.width
                     , height =
                         containingBoxModelContent.height
-                            + (childBoxModelMargin childLayoutBox).height
+                            + (childBoxModelMargin boxModel).height
                     }
+
+                addChild boxModel =
+                    ( List.append children [ childLayoutBox ]
+                    , BoxModel.boxModel
+                        (newContent boxModel)
+                        (BoxModel.padding boxModel)
+                        (BoxModel.border boxModel)
+                        (BoxModel.margin boxModel)
+                    )
             in
-                ( List.append children [ childLayoutBox ]
-                , BoxModel.boxModel
-                    newContent
-                    (BoxModel.padding boxModel)
-                    (BoxModel.border boxModel)
-                    (BoxModel.margin boxModel)
-                )
+                case childLayoutBox of
+                    BlockBox { boxModel } ->
+                        addChild boxModel
+
+                    InlineBox { boxModel } ->
+                        addChild boxModel
+
+                    AnonymousBox { boxModel } ->
+                        addChild boxModel
+
+                    TextBox _ ->
+                        ( children, containingBoxModel )
         )
         ( [], containingBoxModel )
         children
 
 
 calculateBlockWidth :
-    StyledElementNode
+    Styles
     -> BoxModel.BoxModel
     -> BoxModel.BoxModel
     -> BoxModel.BoxModel
-calculateBlockWidth { node, styles } boxModel containingBoxModel =
+calculateBlockWidth styles boxModel containingBoxModel =
     let
         marginLength l u =
             CSSOM.marginLength <| Maybe.withDefault defaultCSSLength (cssLength l u)
@@ -342,10 +335,10 @@ calculateBlockWidth { node, styles } boxModel containingBoxModel =
 
 
 calculateBlockHeight :
-    StyledElementNode
+    Styles
     -> BoxModel.BoxModel
     -> BoxModel.BoxModel
-calculateBlockHeight { styles } boxModel =
+calculateBlockHeight styles boxModel =
     let
         boxModelContent =
             BoxModel.content boxModel
@@ -370,11 +363,11 @@ calculateBlockHeight { styles } boxModel =
 
 
 calculateBlockPosition :
-    StyledElementNode
+    Styles
     -> BoxModel.BoxModel
     -> BoxModel.BoxModel
     -> BoxModel.BoxModel
-calculateBlockPosition { node, styles } boxModel containingBoxModel =
+calculateBlockPosition styles boxModel containingBoxModel =
     let
         boxModelPadding =
             BoxModel.padding boxModel

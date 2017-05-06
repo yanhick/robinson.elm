@@ -17,6 +17,7 @@ layout =
         [ calculateBlockWidth
         , calculateBlockHeight
         , calculateBlockPosition
+        , layoutBlockChildren
         , startLayout
         ]
 
@@ -53,6 +54,25 @@ styles =
     Style.initialStyles
 
 
+getBoxModel layoutBox =
+    case layoutBox of
+        Layout.BlockBox { boxModel } ->
+            Just boxModel
+
+        Layout.InlineBox { boxModel } ->
+            Just boxModel
+
+        Layout.AnonymousBox { boxModel } ->
+            Just boxModel
+
+        Layout.TextBox _ ->
+            Nothing
+
+
+exampleLength =
+    Maybe.withDefault CSSBasicTypes.defaultCSSLength (CSSBasicTypes.cssLength 100 CSSBasicTypes.Pixel)
+
+
 calculateBlockWidth : Test
 calculateBlockWidth =
     describe "calculate block width"
@@ -69,15 +89,10 @@ calculateBlockWidth =
                     boxModelContent =
                         BoxModel.content <|
                             Layout.calculateBlockWidth
-                                ({ node = element
-                                 , styles =
-                                    { styles
-                                        | display = CSSOM.Block
-                                        , width = CSSOM.widthLength <| testCSSLength 50
-                                    }
-                                 , children = []
-                                 }
-                                )
+                                { styles
+                                    | display = CSSOM.Block
+                                    , width = CSSOM.widthLength <| testCSSLength 50
+                                }
                                 dimensions
                                 containingDimensions
                 in
@@ -95,14 +110,9 @@ calculateBlockWidth =
                     boxModelContent =
                         BoxModel.content <|
                             Layout.calculateBlockWidth
-                                ({ node = element
-                                 , styles =
-                                    { styles
-                                        | display = CSSOM.Block
-                                    }
-                                 , children = []
-                                 }
-                                )
+                                { styles
+                                    | display = CSSOM.Block
+                                }
                                 dimensions
                                 containingDimensions
                 in
@@ -119,17 +129,12 @@ calculateBlockWidth =
 
                     boxModel =
                         Layout.calculateBlockWidth
-                            ({ node = element
-                             , styles =
-                                { styles
-                                    | display = CSSOM.Block
-                                    , width = CSSOM.widthLength <| testCSSLength 100
-                                    , marginLeft = CSSOM.marginAuto
-                                    , marginRight = CSSOM.marginAuto
-                                }
-                             , children = []
-                             }
-                            )
+                            { styles
+                                | display = CSSOM.Block
+                                , width = CSSOM.widthLength <| testCSSLength 100
+                                , marginLeft = CSSOM.marginAuto
+                                , marginRight = CSSOM.marginAuto
+                            }
                             dimensions
                             containingDimensions
 
@@ -159,17 +164,12 @@ calculateBlockWidth =
 
                     boxModel =
                         Layout.calculateBlockWidth
-                            ({ node = element
-                             , styles =
-                                { styles
-                                    | display = CSSOM.Block
-                                    , width = CSSOM.widthLength <| testCSSLength 100
-                                    , marginLeft = CSSOM.marginAuto
-                                    , marginRight = CSSOM.marginAuto
-                                }
-                             , children = []
-                             }
-                            )
+                            { styles
+                                | display = CSSOM.Block
+                                , width = CSSOM.widthLength <| testCSSLength 100
+                                , marginLeft = CSSOM.marginAuto
+                                , marginRight = CSSOM.marginAuto
+                            }
                             dimensions
                             containingDimensions
 
@@ -199,17 +199,12 @@ calculateBlockWidth =
 
                     boxModel =
                         Layout.calculateBlockWidth
-                            ({ node = element
-                             , styles =
-                                { styles
-                                    | display = CSSOM.Block
-                                    , width = CSSOM.widthLength <| testCSSLength 100
-                                    , marginLeft = CSSOM.marginLength <| testCSSLength 50
-                                    , marginRight = CSSOM.marginAuto
-                                }
-                             , children = []
-                             }
-                            )
+                            { styles
+                                | display = CSSOM.Block
+                                , width = CSSOM.widthLength <| testCSSLength 100
+                                , marginLeft = CSSOM.marginLength <| testCSSLength 50
+                                , marginRight = CSSOM.marginAuto
+                            }
                             dimensions
                             containingDimensions
 
@@ -239,17 +234,12 @@ calculateBlockWidth =
 
                     boxModel =
                         Layout.calculateBlockWidth
-                            ({ node = element
-                             , styles =
-                                { styles
-                                    | display = CSSOM.Block
-                                    , width = CSSOM.widthLength <| testCSSLength 100
-                                    , marginRight = CSSOM.marginLength <| testCSSLength 50
-                                    , marginLeft = CSSOM.marginAuto
-                                }
-                             , children = []
-                             }
-                            )
+                            { styles
+                                | display = CSSOM.Block
+                                , width = CSSOM.widthLength <| testCSSLength 100
+                                , marginRight = CSSOM.marginLength <| testCSSLength 50
+                                , marginLeft = CSSOM.marginAuto
+                            }
                             dimensions
                             containingDimensions
 
@@ -279,17 +269,12 @@ calculateBlockWidth =
 
                     boxModel =
                         Layout.calculateBlockWidth
-                            ({ node = element
-                             , styles =
-                                { styles
-                                    | display = CSSOM.Block
-                                    , width = CSSOM.widthAuto
-                                    , marginRight = CSSOM.marginAuto
-                                    , marginLeft = CSSOM.marginAuto
-                                }
-                             , children = []
-                             }
-                            )
+                            { styles
+                                | display = CSSOM.Block
+                                , width = CSSOM.widthAuto
+                                , marginRight = CSSOM.marginAuto
+                                , marginLeft = CSSOM.marginAuto
+                            }
                             dimensions
                             containingDimensions
 
@@ -319,17 +304,12 @@ calculateBlockWidth =
 
                     boxModel =
                         Layout.calculateBlockWidth
-                            ({ node = element
-                             , styles =
-                                { styles
-                                    | display = CSSOM.Block
-                                    , width = CSSOM.widthAuto
-                                    , marginRight = CSSOM.marginLength <| testCSSLength 100
-                                    , marginLeft = CSSOM.marginLength <| testCSSLength 200
-                                }
-                             , children = []
-                             }
-                            )
+                            { styles
+                                | display = CSSOM.Block
+                                , width = CSSOM.widthAuto
+                                , marginRight = CSSOM.marginLength <| testCSSLength 100
+                                , marginLeft = CSSOM.marginLength <| testCSSLength 200
+                            }
                             dimensions
                             containingDimensions
 
@@ -356,18 +336,16 @@ calculateBlockHeight =
         [ test "set the block height if provided" <|
             \() ->
                 let
+                    newStyles =
+                        { styles
+                            | display = CSSOM.Block
+                            , height = CSSOM.heightLength <| testCSSLength 50
+                        }
+
                     boxModel =
                         BoxModel.content <|
                             Layout.calculateBlockHeight
-                                ({ node = element
-                                 , styles =
-                                    { styles
-                                        | display = CSSOM.Block
-                                        , height = CSSOM.heightLength <| testCSSLength 50
-                                    }
-                                 , children = []
-                                 }
-                                )
+                                newStyles
                                 dimensions
                 in
                     Expect.equal boxModel.height 50
@@ -377,12 +355,7 @@ calculateBlockHeight =
                     boxModelContent =
                         BoxModel.content <|
                             Layout.calculateBlockHeight
-                                ({ node = element
-                                 , styles =
-                                    Style.initialStyles
-                                 , children = []
-                                 }
-                                )
+                                Style.initialStyles
                                 dimensions
                 in
                     Expect.equal boxModelContent.height 0
@@ -405,11 +378,7 @@ calculateBlockPosition =
                     boxModelContent =
                         BoxModel.content <|
                             Layout.calculateBlockPosition
-                                ({ node = element
-                                 , styles = Style.initialStyles
-                                 , children = []
-                                 }
-                                )
+                                Style.initialStyles
                                 dimensions
                                 containingDimensions
                 in
@@ -419,6 +388,49 @@ calculateBlockPosition =
                             && boxModelContent.y
                             == 20
                         )
+        ]
+
+
+layoutBlockChildren : Test
+layoutBlockChildren =
+    describe "layout block children"
+        [ test "compute the containing block height" <|
+            \() ->
+                let
+                    containingDimensions =
+                        BoxModel.boxModel
+                            { x = 0, y = 0, width = 0, height = 0 }
+                            edgeSize
+                            edgeSize
+                            edgeSize
+
+                    getBlockBox children height =
+                        Layout.BlockBox
+                            { boxModel = dimensions
+                            , styledNode =
+                                Style.StyledElement
+                                    { styles =
+                                        { styles
+                                            | display = CSSOM.Block
+                                            , height = height
+                                        }
+                                    , node = element
+                                    , children = []
+                                    }
+                            , children = children
+                            }
+
+                    ( laidoutChildren, childrenBoxModel ) =
+                        Layout.layoutBlockChildren
+                            [ (getBlockBox [] <| CSSOM.heightLength exampleLength)
+                            , (getBlockBox [] <| CSSOM.heightLength exampleLength)
+                            ]
+                            dimensions
+                            containingDimensions
+                in
+                    Expect.equal
+                        (BoxModel.content childrenBoxModel).height
+                        200
         ]
 
 
@@ -453,15 +465,17 @@ startLayout =
                             edgeSize
                             edgeSize
 
-                    (Layout.LayoutBox { dimensions }) =
+                    layoutBox =
                         Layout.startLayout
                             styledNode
                             containingDimensions
+
+                    boxModelContent =
+                        Maybe.map BoxModel.content <| getBoxModel layoutBox
                 in
-                    Expect.true ""
-                        ((BoxModel.content dimensions).height
-                            == 100
-                        )
+                    Expect.equal
+                        (Maybe.map .height boxModelContent)
+                        (Just 100)
         , test "layout itself with padding" <|
             \() ->
                 let
@@ -492,17 +506,17 @@ startLayout =
                             edgeSize
                             edgeSize
 
-                    (Layout.LayoutBox { dimensions }) =
+                    layoutBox =
                         Layout.startLayout
                             styledNode
                             containingDimensions
 
                     boxModelPadding =
-                        BoxModel.paddingBox dimensions
+                        Maybe.map BoxModel.paddingBox <| getBoxModel layoutBox
                 in
                     Expect.equal
-                        boxModelPadding.height
-                        220
+                        (Maybe.map .height boxModelPadding)
+                        (Just 220)
         , test "layout itself with borders" <|
             \() ->
                 let
@@ -535,17 +549,17 @@ startLayout =
                             edgeSize
                             edgeSize
 
-                    (Layout.LayoutBox { dimensions }) =
+                    layoutBox =
                         Layout.startLayout
                             styledNode
                             containingDimensions
 
-                    boxModelPadding =
-                        BoxModel.borderBox dimensions
+                    boxModelBorder =
+                        Maybe.map BoxModel.borderBox <| getBoxModel layoutBox
                 in
                     Expect.equal
-                        boxModelPadding.height
-                        220
+                        (Maybe.map .height boxModelBorder)
+                        (Just 220)
         , test "layout itself with margins" <|
             \() ->
                 let
@@ -576,15 +590,15 @@ startLayout =
                             edgeSize
                             edgeSize
 
-                    (Layout.LayoutBox { dimensions }) =
+                    layoutBox =
                         Layout.startLayout
                             styledNode
                             containingDimensions
 
                     boxModelMargin =
-                        BoxModel.marginBox dimensions
+                        Maybe.map BoxModel.marginBox <| getBoxModel layoutBox
                 in
                     Expect.equal
-                        boxModelMargin.height
-                        220
+                        (Maybe.map .height boxModelMargin)
+                        (Just 220)
         ]
