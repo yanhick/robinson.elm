@@ -38,13 +38,12 @@ type Msg
 startCSS =
     """
 .bang {
-    width: 200px;
     height: 200px;
     display: block;
     background-color: #333333;
 }
 .bam {
-    width: 100px;
+    width: auto;
     height: 100px;
     display:block;
     background-color: #ff0000;
@@ -57,6 +56,10 @@ startCSS =
     border-left-color: white;
     border-right-width: 10px;
     border-right-color: white;
+    border-top-style: solid;
+    border-bottom-style: solid;
+    border-left-style: solid;
+    border-right-style: solid;
     margin-top: 10px;
 }
 #boum{
@@ -99,8 +102,15 @@ render html css =
         style =
             Result.map2 Style.styleTree cssom dom
 
+        containingBlock =
+            BoxModel.boxModel
+                { x = 0, y = 0, width = 400, height = 0 }
+                { top = 0, left = 0, bottom = 0, right = 0 }
+                { top = 0, left = 0, bottom = 0, right = 0 }
+                { top = 0, left = 0, bottom = 0, right = 0 }
+
         layout =
-            Result.map2 Layout.startLayout style (Ok BoxModel.initBoxModel)
+            Result.map2 Layout.startLayout style (Ok containingBlock)
 
         displayCommand =
             Result.map Painting.buildDisplayList layout
