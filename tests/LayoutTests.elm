@@ -42,7 +42,7 @@ dimensions =
 
 
 testCSSLength length =
-    case CSSBasicTypes.cssLength length CSSBasicTypes.Pixel of
+    case CSSBasicTypes.cssPixelLength length of
         Just validLength ->
             validLength
 
@@ -70,7 +70,7 @@ getBoxModel layoutBox =
 
 
 exampleLength =
-    Maybe.withDefault CSSBasicTypes.defaultCSSLength (CSSBasicTypes.cssLength 100 CSSBasicTypes.Pixel)
+    Maybe.withDefault CSSBasicTypes.defaultCSSLength (CSSBasicTypes.cssPixelLength 100)
 
 
 calculateBlockWidth : Test

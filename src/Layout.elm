@@ -185,11 +185,11 @@ calculateBlockWidth :
     -> BoxModel.BoxModel
 calculateBlockWidth styles boxModel containingBoxModel =
     let
-        marginLength l u =
-            CSSOM.marginLength <| Maybe.withDefault defaultCSSLength (cssLength l u)
+        marginLength l =
+            CSSOM.marginLength <| Maybe.withDefault defaultCSSLength (cssPixelLength l)
 
-        widthLength l u =
-            CSSOM.widthLength <| Maybe.withDefault defaultCSSLength (cssLength l u)
+        widthLength l =
+            CSSOM.widthLength <| Maybe.withDefault defaultCSSLength (cssPixelLength l)
 
         dimensions =
             [ Maybe.withDefault 0 <| usedMargin <| computedMargin styles.marginLeft
@@ -244,48 +244,48 @@ calculateBlockWidth styles boxModel containingBoxModel =
         ( l, r, w ) =
             if not widthIsAuto && not marginLeftIsAuto && not marginRightIsAuto then
                 ( marginLeft
-                , marginLength ((Maybe.withDefault 0 <| usedMargin <| computedMargin marginRight) + underflow) Pixel
+                , marginLength ((Maybe.withDefault 0 <| usedMargin <| computedMargin marginRight) + underflow)
                 , width
                 )
             else if not widthIsAuto && not marginLeftIsAuto && marginRightIsAuto then
                 ( marginLeft
-                , marginLength underflow Pixel
+                , marginLength underflow
                 , width
                 )
             else if not widthIsAuto && marginLeftIsAuto && not marginRightIsAuto then
-                ( marginLength underflow Pixel
+                ( marginLength underflow
                 , marginRight
                 , width
                 )
             else if widthIsAuto then
                 if marginLeftIsAuto && not marginRightIsAuto then
                     if underflow >= 0.0 then
-                        ( marginLength 0.0 Pixel, marginRight, widthLength underflow Pixel )
+                        ( marginLength 0.0, marginRight, widthLength underflow )
                     else
-                        ( marginLength 0.0 Pixel, marginLength ((Maybe.withDefault 0 <| usedMargin <| computedMargin marginRight) + underflow) Pixel, widthLength 0.0 Pixel )
+                        ( marginLength 0.0, marginLength ((Maybe.withDefault 0 <| usedMargin <| computedMargin marginRight) + underflow), widthLength 0.0 )
                 else if marginRightIsAuto && not marginLeftIsAuto then
                     if underflow >= 0.0 then
-                        ( marginLeft, marginLength 0.0 Pixel, widthLength underflow Pixel )
+                        ( marginLeft, marginLength 0.0, widthLength underflow )
                     else
-                        ( marginLeft, marginLength (underflow) Pixel, widthLength 0.0 Pixel )
+                        ( marginLeft, marginLength (underflow), widthLength 0.0 )
                 else if marginLeftIsAuto && marginRightIsAuto then
                     if underflow >= 0.0 then
-                        ( marginLength 0.0 Pixel, marginLength 0.0 Pixel, widthLength underflow Pixel )
+                        ( marginLength 0.0, marginLength 0.0, widthLength underflow )
                     else
-                        ( marginLength 0.0 Pixel, marginLength (underflow) Pixel, widthLength 0.0 Pixel )
+                        ( marginLength 0.0, marginLength (underflow), widthLength 0.0 )
                 else if not marginLeftIsAuto && not marginRightIsAuto then
                     if underflow >= 0.0 then
-                        ( marginLeft, marginRight, widthLength underflow Pixel )
+                        ( marginLeft, marginRight, widthLength underflow )
                     else
-                        ( marginLeft, marginLength ((Maybe.withDefault 0 <| usedMargin <| computedMargin marginRight) + underflow) Pixel, widthLength 0.0 Pixel )
+                        ( marginLeft, marginLength ((Maybe.withDefault 0 <| usedMargin <| computedMargin marginRight) + underflow), widthLength 0.0 )
                 else
                     ( marginLeft
                     , marginRight
                     , width
                     )
             else if not widthIsAuto && marginLeftIsAuto && marginRightIsAuto then
-                ( marginLength (underflow / 2.0) Pixel
-                , marginLength (underflow / 2.0) Pixel
+                ( marginLength (underflow / 2.0)
+                , marginLength (underflow / 2.0)
                 , width
                 )
             else

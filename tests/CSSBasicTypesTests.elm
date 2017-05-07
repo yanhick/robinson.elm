@@ -32,12 +32,12 @@ length =
         [ test "create CSSLength value" <|
             \() ->
                 Expect.true "valid length" <|
-                    isJust (cssLength 1 Pixel)
+                    isJust (cssPixelLength 1)
         , test "compute pixel length" <|
             \() ->
                 Expect.equal (Just 1)
                     (Maybe.map computedCSSLength <|
-                        cssLength 1 Pixel
+                        cssPixelLength 1
                     )
         ]
 

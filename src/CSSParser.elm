@@ -32,12 +32,6 @@ parseRule =
         |= parseDeclarations
 
 
-parseUnit : Parser CSSUnit
-parseUnit =
-    succeed Pixel
-        |. symbol "px"
-
-
 parseColor : Parser CSSColor
 parseColor =
     oneOf
@@ -81,9 +75,9 @@ parseLength =
                 Nothing ->
                     fail "bim"
         )
-        (succeed cssLength
+        (succeed cssPixelLength
             |= float
-            |= parseUnit
+            |. keyword "px"
         )
 
 

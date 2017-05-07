@@ -1,8 +1,8 @@
 module CSSBasicTypes
     exposing
         ( CSSLength
-        , cssLength
-        , CSSUnit(..)
+        , cssPixelLength
+        , CSSUnit
         , computedCSSLength
         , defaultCSSLength
         , CSSColor
@@ -22,9 +22,9 @@ type CSSUnit
     = Pixel
 
 
-cssLength : Float -> CSSUnit -> Maybe CSSLength
-cssLength length unit =
-    Just <| CSSLength length unit
+cssPixelLength : Float -> Maybe CSSLength
+cssPixelLength length =
+    Just <| CSSLength length Pixel
 
 
 defaultCSSLength : CSSLength
