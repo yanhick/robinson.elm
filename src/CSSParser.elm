@@ -5,6 +5,7 @@ import ParseInt exposing (..)
 import Parser exposing (..)
 import CSSOM exposing (..)
 import CSSBasicTypes exposing (..)
+import CSSSelectors exposing (..)
 import String
 
 

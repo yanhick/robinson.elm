@@ -2,6 +2,7 @@ module CSSTests exposing (..)
 
 import Test exposing (..)
 import CSSOM
+import CSSSelectors
 import CSSBasicTypes
 import CSSParser
 import Parser
@@ -78,7 +79,7 @@ cssParser =
                     case (Parser.run CSSParser.parse "div {display:block;}") of
                         Ok [ { selectors, declarations } ] ->
                             case selectors of
-                                [ CSSOM.Simple { tag, classes, ids } ] ->
+                                [ CSSSelectors.Simple { tag, classes, ids } ] ->
                                     tag
                                         == Just "div"
                                         && List.isEmpty classes
@@ -95,7 +96,7 @@ cssParser =
                     case (Parser.run CSSParser.parse "div\n {display:block;\n}") of
                         Ok [ { selectors, declarations } ] ->
                             case selectors of
-                                [ CSSOM.Simple { tag, classes, ids } ] ->
+                                [ CSSSelectors.Simple { tag, classes, ids } ] ->
                                     tag
                                         == Just "div"
                                         && List.isEmpty classes
@@ -112,7 +113,7 @@ cssParser =
                     case (Parser.run CSSParser.parse "#my-id {display:block;}") of
                         Ok [ { selectors, declarations } ] ->
                             case selectors of
-                                [ CSSOM.Simple { tag, classes, ids } ] ->
+                                [ CSSSelectors.Simple { tag, classes, ids } ] ->
                                     tag
                                         == Nothing
                                         && List.isEmpty classes
@@ -130,7 +131,7 @@ cssParser =
                     case (Parser.run CSSParser.parse ".my-class {display:block;}") of
                         Ok [ { selectors, declarations } ] ->
                             case selectors of
-                                [ CSSOM.Simple { tag, classes, ids } ] ->
+                                [ CSSSelectors.Simple { tag, classes, ids } ] ->
                                     tag
                                         == Nothing
                                         && List.isEmpty ids
@@ -148,7 +149,7 @@ cssParser =
                     case (Parser.run CSSParser.parse "*{display:block;}") of
                         Ok [ { selectors, declarations } ] ->
                             case selectors of
-                                [ CSSOM.Universal ] ->
+                                [ CSSSelectors.Universal ] ->
                                     True
 
                                 _ ->
@@ -162,7 +163,7 @@ cssParser =
                     case (Parser.run CSSParser.parse ".my-class.my-other-class {display:block;}") of
                         Ok [ { selectors, declarations } ] ->
                             case selectors of
-                                [ CSSOM.Simple { tag, classes, ids } ] ->
+                                [ CSSSelectors.Simple { tag, classes, ids } ] ->
                                     tag
                                         == Nothing
                                         && List.isEmpty ids
@@ -180,7 +181,7 @@ cssParser =
                     case (Parser.run CSSParser.parse "div.my-class#my-id {display:block;}") of
                         Ok [ { selectors, declarations } ] ->
                             case selectors of
-                                [ CSSOM.Simple { tag, classes, ids } ] ->
+                                [ CSSSelectors.Simple { tag, classes, ids } ] ->
                                     tag
                                         == Just "div"
                                         && ids
@@ -246,7 +247,7 @@ cssParser =
                     case (Parser.run CSSParser.parse "div, p {display:block;}") of
                         Ok [ { selectors, declarations } ] ->
                             case selectors of
-                                [ CSSOM.Simple first, CSSOM.Simple second ] ->
+                                [ CSSSelectors.Simple first, CSSSelectors.Simple second ] ->
                                     first.tag
                                         == Just "p"
                                         && second.tag

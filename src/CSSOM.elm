@@ -51,13 +51,13 @@ module CSSOM
         , defaultBorderStyle
         , CSSDeclaration(..)
         , CSSRule
-        , CSSSelector(..)
-        , CSSSimpleSelector
-        , specifity
         , CSSStyleSheet
+        , matchingRules
         )
 
 import CSSBasicTypes exposing (..)
+import CSSSelectors exposing (..)
+import DOM exposing (..)
 
 
 type SpecifiedValue
@@ -431,30 +431,29 @@ type alias CSSRule =
     }
 
 
-type alias CSSSimpleSelector =
-    { tag : Maybe String
-    , classes : List String
-    , ids : List String
-    }
-
-
-type CSSSelector
-    = Simple CSSSimpleSelector
-    | Universal
-
-
 type alias CSSStyleSheet =
     List CSSRule
 
 
-specifity : CSSSelector -> Int
-specifity selector =
-    case selector of
-        Simple { tag, classes, ids } ->
-            List.length classes
-                + List.length ids
-                + Maybe.withDefault 0
-                    (Maybe.map (always 1) tag)
+matchingRules : ElementNode -> CSSStyleSheet -> List MatchedRule
+matchingRules node stylesheet =
+    List.filterMap (matchRule node) stylesheet
 
-        Universal ->
-            0
+
+matchRule : ElementNode -> CSSRule -> Maybe MatchedRule
+matchRule node rule =
+    rule.selectors
+        |> List.filter (matches node)
+        |> List.head
+        |> Maybe.map
+            (\selector ->
+                MatchedRule
+                    (specifity selector)
+                    rule
+            )
+
+
+type alias MatchedRule =
+    { specifity : Int
+    , rule : CSSRule
+    }

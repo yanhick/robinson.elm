@@ -5,12 +5,8 @@ import CSSOM exposing (..)
 import DOM exposing (..)
 import Color exposing (..)
 import CSSBasicTypes exposing (..)
-
-
-type alias MatchedRule =
-    { specifity : Int
-    , rule : CSSRule
-    }
+import CSSSelectors exposing (..)
+import CSSOM exposing (..)
 
 
 type alias StyledElementNode =
@@ -235,57 +231,3 @@ specifiedValues node stylesheet =
                         }
             )
             initialStyles
-
-
-matchingRules : ElementNode -> CSSStyleSheet -> List MatchedRule
-matchingRules node stylesheet =
-    List.filterMap (matchRule node) stylesheet
-
-
-matchRule : ElementNode -> CSSRule -> Maybe MatchedRule
-matchRule node rule =
-    rule.selectors
-        |> List.filter (matches node)
-        |> List.head
-        |> Maybe.map
-            (\selector ->
-                MatchedRule
-                    (specifity selector)
-                    rule
-            )
-
-
-matches : ElementNode -> CSSSelector -> Bool
-matches node selector =
-    case selector of
-        Universal ->
-            True
-
-        Simple s ->
-            matchesSimpleSelector node s
-
-
-matchesSimpleSelector : ElementNode -> CSSSimpleSelector -> Bool
-matchesSimpleSelector { tagName, attributes } { tag, ids, classes } =
-    let
-        id =
-            Dict.get "id" attributes
-
-        className =
-            Dict.get "class" attributes
-
-        matchesTagSelector =
-            Maybe.withDefault True <|
-                Maybe.map ((==) tagName) tag
-
-        matchesIdSelector =
-            Maybe.withDefault True <|
-                Maybe.map (\id -> List.member id ids) id
-
-        matchesClassSelector =
-            Maybe.withDefault True <|
-                Maybe.map (\class -> List.member class classes) className
-    in
-        matchesTagSelector
-            && matchesIdSelector
-            && matchesClassSelector
