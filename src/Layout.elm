@@ -28,41 +28,117 @@ startLayout node containingBoxModel =
 
 layoutTree : StyledNode -> LayoutBox
 layoutTree node =
-    let
-        childrenBox =
-            List.foldl
-                (\child children ->
-                    case child of
-                        StyledElement { styles } ->
-                            case styles.display of
-                                CSSOM.Block ->
-                                    List.append children <|
-                                        List.singleton <|
-                                            layoutTree child
+    case node of
+        StyledElement { styles, children } ->
+            BlockBox
+                { styledNode = node
+                , boxModel = BoxModel.initBoxModel
+                , children = layoutTreeChildren children
+                }
 
-                                CSSOM.Inline ->
-                                    List.append children <|
-                                        List.singleton <|
-                                            layoutTree child
+        StyledText text ->
+            TextBox text
 
-                                _ ->
-                                    children
 
-                        StyledText _ ->
+layoutTreeChildren : List StyledNode -> List LayoutBox
+layoutTreeChildren =
+    List.foldl
+        (\child children ->
+            case child of
+                StyledElement { styles } ->
+                    case styles.display of
+                        Block ->
+                            List.append children <|
+                                List.singleton <|
+                                    layoutTree child
+
+                        Inline ->
+                            List.append children <|
+                                List.singleton <|
+                                    layoutTree child
+
+                        _ ->
                             children
-                )
-                []
-    in
-        case node of
-            StyledElement { styles, children } ->
-                BlockBox
-                    { styledNode = node
-                    , boxModel = BoxModel.initBoxModel
-                    , children = childrenBox children
-                    }
 
-            StyledText text ->
-                TextBox text
+                StyledText _ ->
+                    children
+        )
+        []
+
+
+fixAnonymousChildrenForBlockContainer : List LayoutBox -> List LayoutBox
+fixAnonymousChildrenForBlockContainer children =
+    let
+        allBlockChildren =
+            List.all
+                (\child ->
+                    case child of
+                        BlockBox _ ->
+                            True
+
+                        _ ->
+                            False
+                )
+                children
+
+        allInlineChildren =
+            List.all
+                (\child ->
+                    case child of
+                        InlineBox _ ->
+                            True
+
+                        _ ->
+                            False
+                )
+                children
+    in
+        if allBlockChildren || allInlineChildren then
+            children
+        else
+            wrapInlineBoxInAnonymousBlock children
+
+
+wrapInlineBoxInAnonymousBlock : List LayoutBox -> List LayoutBox
+wrapInlineBoxInAnonymousBlock children =
+    let
+        isInline child =
+            case child of
+                InlineBox _ ->
+                    True
+
+                _ ->
+                    False
+
+        ( wrappedChildren, remainingInlineChildren ) =
+            List.foldl
+                (\child ( children, inlineChildren ) ->
+                    if isInline child then
+                        ( children, inlineChildren ++ [ child ] )
+                    else
+                        ( children
+                            ++ [ AnonymousBox
+                                    { boxModel =
+                                        BoxModel.initBoxModel
+                                    , styledNode = StyledText "bim"
+                                    , children = inlineChildren
+                                    }
+                               ]
+                            ++ [ child ]
+                        , []
+                        )
+                )
+                ( [], [] )
+                children
+    in
+        wrappedChildren
+            ++ [ AnonymousBox
+                    { boxModel =
+                        BoxModel.initBoxModel
+                    , styledNode = StyledText "bim"
+                    , children = remainingInlineChildren
+                    }
+               ]
 
 
 layout : LayoutBox -> BoxModel.BoxModel -> LayoutBox

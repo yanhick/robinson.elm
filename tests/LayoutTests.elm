@@ -19,6 +19,7 @@ layout =
         , calculateBlockPosition
         , layoutBlockChildren
         , startLayout
+        , fixAnonymousChildrenForBlockContainer
         ]
 
 
@@ -601,4 +602,54 @@ startLayout =
                     Expect.equal
                         (Maybe.map .height boxModelMargin)
                         (Just 220)
+        ]
+
+
+blockBox =
+    Layout.BlockBox
+        { styledNode = Style.StyledText "bim"
+        , boxModel = dimensions
+        , children = []
+        }
+
+
+inlineBox =
+    Layout.InlineBox
+        { styledNode = Style.StyledText "bim"
+        , boxModel = dimensions
+        , children = []
+        }
+
+
+anonymousBoxWithInlineBox =
+    Layout.AnonymousBox
+        { styledNode = Style.StyledText "bim"
+        , boxModel = dimensions
+        , children = [ inlineBox ]
+        }
+
+
+fixAnonymousChildrenForBlockContainer =
+    describe "wrap inline children in anonymous block"
+        [ test "wrap inline children in anonymous block" <|
+            \() ->
+                Expect.equal
+                    (Layout.wrapInlineBoxInAnonymousBlock
+                        [ inlineBox, blockBox, inlineBox ]
+                    )
+                    [ anonymousBoxWithInlineBox, blockBox, anonymousBoxWithInlineBox ]
+        , test "do nothing if all children block" <|
+            \() ->
+                Expect.equal
+                    (Layout.fixAnonymousChildrenForBlockContainer
+                        [ blockBox, blockBox ]
+                    )
+                    [ blockBox, blockBox ]
+        , test "do nothing if all children inline" <|
+            \() ->
+                Expect.equal
+                    (Layout.fixAnonymousChildrenForBlockContainer
+                        [ inlineBox, inlineBox ]
+                    )
+                    [ inlineBox, inlineBox ]
         ]
