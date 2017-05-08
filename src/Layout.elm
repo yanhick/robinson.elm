@@ -66,79 +66,109 @@ layoutTreeChildren =
         []
 
 
-fixAnonymousChildrenForBlockContainer : List LayoutBox -> List LayoutBox
-fixAnonymousChildrenForBlockContainer children =
-    let
-        allBlockChildren =
-            List.all
-                (\child ->
-                    case child of
-                        BlockBox _ ->
-                            True
+allBlockChildren : List LayoutBox -> Bool
+allBlockChildren =
+    List.all
+        (\child ->
+            case child of
+                BlockBox _ ->
+                    True
 
-                        _ ->
-                            False
-                )
-                children
-
-        allInlineChildren =
-            List.all
-                (\child ->
-                    case child of
-                        InlineBox _ ->
-                            True
-
-                        _ ->
-                            False
-                )
-                children
-    in
-        if allBlockChildren || allInlineChildren then
-            children
-        else
-            wrapInlineBoxInAnonymousBlock children
+                _ ->
+                    False
+        )
 
 
-wrapInlineBoxInAnonymousBlock : List LayoutBox -> List LayoutBox
-wrapInlineBoxInAnonymousBlock children =
-    let
-        isInline child =
+allInlineChildren : List LayoutBox -> Bool
+allInlineChildren =
+    List.all
+        (\child ->
             case child of
                 InlineBox _ ->
                     True
 
                 _ ->
                     False
+        )
+
+
+fixAnonymousChildrenForInlineContainer : Box -> Box -> List LayoutBox -> Box
+fixAnonymousChildrenForInlineContainer inlineContainerBox parentBox children =
+    if allInlineChildren children then
+        inlineContainerBox
+    else
+        { boxModel = parentBox.boxModel
+        , styledNode = parentBox.styledNode
+        , children =
+            parentBox.children
+                ++ wrapInlineBoxInAnonymousBlockForInlineContainer inlineContainerBox children
+        }
+
+
+fixAnonymousChildrenForBlockContainer : List LayoutBox -> List LayoutBox
+fixAnonymousChildrenForBlockContainer children =
+    if allBlockChildren children || allInlineChildren children then
+        children
+    else
+        wrapInlineBoxInAnonymousBlockForBlockContainer children
+
+
+isInline : LayoutBox -> Bool
+isInline child =
+    case child of
+        InlineBox _ ->
+            True
+
+        _ ->
+            False
+
+
+wrapInlineBoxInAnonymousBlockForBlockContainer : List LayoutBox -> List LayoutBox
+wrapInlineBoxInAnonymousBlockForBlockContainer children =
+    let
+        wrapInAnonymousBlock children =
+            AnonymousBox
+                { boxModel =
+                    BoxModel.initBoxModel
+                , styledNode = StyledText "bim"
+                , children = children
+                }
 
         ( wrappedChildren, remainingInlineChildren ) =
             List.foldl
                 (\child ( children, inlineChildren ) ->
                     if isInline child then
                         ( children, inlineChildren ++ [ child ] )
-                    else
+                    else if not (List.isEmpty inlineChildren) then
                         ( children
-                            ++ [ AnonymousBox
-                                    { boxModel =
-                                        BoxModel.initBoxModel
-                                    , styledNode = StyledText "bim"
-                                    , children = inlineChildren
-                                    }
-                               ]
+                            ++ [ wrapInAnonymousBlock inlineChildren ]
                             ++ [ child ]
                         , []
                         )
+                    else
+                        ( children ++ [ child ], [] )
                 )
                 ( [], [] )
                 children
     in
-        wrappedChildren
-            ++ [ AnonymousBox
-                    { boxModel =
-                        BoxModel.initBoxModel
-                    , styledNode = StyledText "bim"
-                    , children = remainingInlineChildren
-                    }
-               ]
+        if not (List.isEmpty remainingInlineChildren) then
+            wrappedChildren
+                ++ [ wrapInAnonymousBlock remainingInlineChildren ]
+        else
+            wrappedChildren
+
+
+wrapInlineBoxInAnonymousBlockForInlineContainer : Box -> List LayoutBox -> List LayoutBox
+wrapInlineBoxInAnonymousBlockForInlineContainer inlineContainerBox children =
+    wrapInlineBoxInAnonymousBlockForBlockContainer
+        ([ InlineBox
+            { boxModel = inlineContainerBox.boxModel
+            , styledNode = inlineContainerBox.styledNode
+            , children = []
+            }
+         ]
+            ++ children
+        )
 
 
 layout : LayoutBox -> BoxModel.BoxModel -> LayoutBox

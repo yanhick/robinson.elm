@@ -613,43 +613,175 @@ blockBox =
         }
 
 
-inlineBox =
+inlineBox children =
     Layout.InlineBox
         { styledNode = Style.StyledText "bim"
         , boxModel = dimensions
-        , children = []
+        , children = children
         }
 
 
-anonymousBoxWithInlineBox =
+anonymousBox children =
     Layout.AnonymousBox
         { styledNode = Style.StyledText "bim"
         , boxModel = dimensions
-        , children = [ inlineBox ]
+        , children = children
         }
 
 
 fixAnonymousChildrenForBlockContainer =
     describe "wrap inline children in anonymous block"
-        [ test "wrap inline children in anonymous block" <|
+        [ test "wrap inline children in anonymous block for block container with inline element at the end" <|
             \() ->
                 Expect.equal
-                    (Layout.wrapInlineBoxInAnonymousBlock
-                        [ inlineBox, blockBox, inlineBox ]
+                    (Layout.wrapInlineBoxInAnonymousBlockForBlockContainer
+                        [ inlineBox [], blockBox, inlineBox [] ]
                     )
-                    [ anonymousBoxWithInlineBox, blockBox, anonymousBoxWithInlineBox ]
-        , test "do nothing if all children block" <|
+                    [ anonymousBox [ inlineBox [] ]
+                    , blockBox
+                    , anonymousBox [ inlineBox [] ]
+                    ]
+        , test "wrap inline children in anonymous block for block container" <|
+            \() ->
+                Expect.equal
+                    (Layout.wrapInlineBoxInAnonymousBlockForBlockContainer
+                        [ inlineBox [], blockBox ]
+                    )
+                    [ anonymousBox [ inlineBox [] ]
+                    , blockBox
+                    ]
+        , test "wrap contiguous inline children in same anonymous block" <|
+            \() ->
+                Expect.equal
+                    (Layout.wrapInlineBoxInAnonymousBlockForBlockContainer
+                        [ blockBox, inlineBox [], inlineBox [], blockBox ]
+                    )
+                    [ blockBox
+                    , anonymousBox [ inlineBox [], inlineBox [] ]
+                    , blockBox
+                    ]
+        , test "do nothing if single block" <|
+            \() ->
+                Expect.equal
+                    (Layout.wrapInlineBoxInAnonymousBlockForBlockContainer
+                        [ blockBox ]
+                    )
+                    [ blockBox ]
+        , test "do nothing if all children inline for inline container" <|
+            \() ->
+                Expect.equal
+                    (Layout.fixAnonymousChildrenForInlineContainer
+                        { styledNode = Style.StyledText "bim"
+                        , boxModel = dimensions
+                        , children = [ inlineBox [] ]
+                        }
+                        { styledNode = Style.StyledText "bim"
+                        , boxModel = dimensions
+                        , children = []
+                        }
+                        [ inlineBox [] ]
+                    )
+                    { styledNode = Style.StyledText "bim"
+                    , boxModel = dimensions
+                    , children = [ inlineBox [] ]
+                    }
+        , test "wrap contiguous inline children in same anonymous block for inline container" <|
+            \() ->
+                Expect.equal
+                    (Layout.fixAnonymousChildrenForInlineContainer
+                        { styledNode = Style.StyledText "bim"
+                        , boxModel = dimensions
+                        , children = [ inlineBox [], blockBox, inlineBox [], inlineBox [] ]
+                        }
+                        { styledNode = Style.StyledText "bim"
+                        , boxModel = dimensions
+                        , children = []
+                        }
+                        [ inlineBox []
+                        , blockBox
+                        , inlineBox []
+                        , inlineBox []
+                        ]
+                    )
+                    { styledNode = Style.StyledText "bim"
+                    , boxModel = dimensions
+                    , children =
+                        [ anonymousBox [ inlineBox [], inlineBox [] ]
+                        , blockBox
+                        , anonymousBox [ inlineBox [], inlineBox [] ]
+                        ]
+                    }
+        , test "attach children to parent container if need to wrap the inline container" <|
+            \() ->
+                Expect.equal
+                    (Layout.fixAnonymousChildrenForInlineContainer
+                        { styledNode = Style.StyledText "bim"
+                        , boxModel = dimensions
+                        , children = [ blockBox ]
+                        }
+                        { styledNode = Style.StyledText "bim"
+                        , boxModel = dimensions
+                        , children = []
+                        }
+                        [ blockBox ]
+                    )
+                    { styledNode = Style.StyledText "bim"
+                    , boxModel = dimensions
+                    , children = [ anonymousBox [ inlineBox [] ], blockBox ]
+                    }
+        , test "do nothing if all children block for block container" <|
             \() ->
                 Expect.equal
                     (Layout.fixAnonymousChildrenForBlockContainer
                         [ blockBox, blockBox ]
                     )
                     [ blockBox, blockBox ]
-        , test "do nothing if all children inline" <|
+        , test "do nothing if all children inline for block container" <|
             \() ->
                 Expect.equal
                     (Layout.fixAnonymousChildrenForBlockContainer
-                        [ inlineBox, inlineBox ]
+                        [ inlineBox [], inlineBox [] ]
                     )
-                    [ inlineBox, inlineBox ]
+                    [ inlineBox [], inlineBox [] ]
+        , test "wrap inline children in anonymous block for inline container" <|
+            \() ->
+                Expect.equal
+                    (Layout.wrapInlineBoxInAnonymousBlockForInlineContainer
+                        { styledNode = Style.StyledText "bim"
+                        , boxModel = dimensions
+                        , children = [ blockBox ]
+                        }
+                        [ blockBox ]
+                    )
+                    [ anonymousBox [ inlineBox [] ]
+                    , blockBox
+                    ]
+        , test "wrap inline children in anonymous block for inline container with inline element last" <|
+            \() ->
+                Expect.equal
+                    (Layout.wrapInlineBoxInAnonymousBlockForInlineContainer
+                        { styledNode = Style.StyledText "bim"
+                        , boxModel = dimensions
+                        , children = [ blockBox, inlineBox [] ]
+                        }
+                        [ blockBox, inlineBox [] ]
+                    )
+                    [ anonymousBox [ inlineBox [] ]
+                    , blockBox
+                    , anonymousBox [ inlineBox [] ]
+                    ]
+        , test "wrap inline children in anonymous block for inline container with inline element last" <|
+            \() ->
+                Expect.equal
+                    (Layout.wrapInlineBoxInAnonymousBlockForInlineContainer
+                        { styledNode = Style.StyledText "bim"
+                        , boxModel = dimensions
+                        , children = []
+                        }
+                        [ blockBox, inlineBox [] ]
+                    )
+                    [ anonymousBox [ inlineBox [] ]
+                    , blockBox
+                    , anonymousBox [ inlineBox [] ]
+                    ]
         ]
