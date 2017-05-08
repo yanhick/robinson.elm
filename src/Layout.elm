@@ -9,7 +9,7 @@ import CSSBasicTypes exposing (..)
 
 type alias Box =
     { boxModel : BoxModel.BoxModel
-    , styledNode : StyledNode
+    , styles : Styles
     , children : List LayoutBox
     }
 
@@ -31,7 +31,7 @@ layoutTree node =
     case node of
         StyledElement { styles, children } ->
             BlockBox
-                { styledNode = node
+                { styles = styles
                 , boxModel = BoxModel.initBoxModel
                 , children = layoutTreeChildren children
                 }
@@ -98,7 +98,7 @@ fixAnonymousChildrenForInlineContainer inlineContainerBox parentBox children =
         inlineContainerBox
     else
         { boxModel = parentBox.boxModel
-        , styledNode = parentBox.styledNode
+        , styles = parentBox.styles
         , children =
             parentBox.children
                 ++ wrapInlineBoxInAnonymousBlockForInlineContainer inlineContainerBox children
@@ -130,7 +130,7 @@ wrapInlineBoxInAnonymousBlockForBlockContainer children =
             AnonymousBox
                 { boxModel =
                     BoxModel.initBoxModel
-                , styledNode = StyledText "bim"
+                , styles = initialStyles
                 , children = children
                 }
 
@@ -159,11 +159,11 @@ wrapInlineBoxInAnonymousBlockForBlockContainer children =
 
 
 wrapInlineBoxInAnonymousBlockForInlineContainer : Box -> List LayoutBox -> List LayoutBox
-wrapInlineBoxInAnonymousBlockForInlineContainer inlineContainerBox children =
+wrapInlineBoxInAnonymousBlockForInlineContainer { styles, boxModel } children =
     wrapInlineBoxInAnonymousBlockForBlockContainer
         ([ InlineBox
-            { boxModel = inlineContainerBox.boxModel
-            , styledNode = inlineContainerBox.styledNode
+            { boxModel = boxModel
+            , styles = styles
             , children = []
             }
          ]
@@ -175,12 +175,7 @@ layout : LayoutBox -> BoxModel.BoxModel -> LayoutBox
 layout layoutBox containingBlockDimensions =
     case layoutBox of
         BlockBox box ->
-            case box.styledNode of
-                StyledElement { styles } ->
-                    BlockBox <| layoutBlock box styles containingBlockDimensions
-
-                _ ->
-                    layoutBox
+            BlockBox <| layoutBlock box containingBlockDimensions
 
         _ ->
             layoutBox
@@ -188,10 +183,9 @@ layout layoutBox containingBlockDimensions =
 
 layoutBlock :
     Box
-    -> Styles
     -> BoxModel.BoxModel
     -> Box
-layoutBlock { boxModel, styledNode, children } styles containingBoxModel =
+layoutBlock { boxModel, styles, children } containingBoxModel =
     let
         boxModelWithCorrectWidth =
             calculateBlockWidth styles boxModel containingBoxModel
@@ -225,7 +219,7 @@ layoutBlock { boxModel, styledNode, children } styles containingBoxModel =
         newBoxModel =
             calculateBlockHeight styles horizontalBoxModel
     in
-        { styledNode = styledNode
+        { styles = styles
         , children = laidoutChildren
         , boxModel = newBoxModel
         }

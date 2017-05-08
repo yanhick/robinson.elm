@@ -21,27 +21,14 @@ buildDisplayList layoutBox =
 renderLayoutBox : LayoutBox -> List DisplayCommand
 renderLayoutBox layoutBox =
     case layoutBox of
-        BlockBox { boxModel, styledNode, children } ->
+        BlockBox { boxModel, styles, children } ->
             let
                 backgroundColor =
                     Maybe.withDefault
                         { red = 0, green = 0, blue = 0, alpha = 0 }
                     <|
-                        case styledNode of
-                            StyledElement { styles } ->
-                                Just <| CSSOM.usedBackgroundColor styles.backgroundColor
-
-                            _ ->
-                                Nothing
-
-                styles =
-                    Maybe.withDefault Style.initialStyles <|
-                        case styledNode of
-                            StyledElement { styles } ->
-                                Just styles
-
-                            _ ->
-                                Nothing
+                        Just <|
+                            CSSOM.usedBackgroundColor styles.backgroundColor
             in
                 [ renderBackground boxModel backgroundColor ]
                     ++ renderBorders styles boxModel
