@@ -21,6 +21,7 @@ layout =
         , calculateBlockPosition
         , layoutBlockChildren
         , startLayout
+        , layoutTree
         ]
 
 
@@ -59,12 +60,41 @@ getBoxModel layoutBox =
         LayoutBox.AnonymousBox { boxModel } ->
             Just boxModel
 
+        LayoutBox.AnonymousBoxInlineRoot { boxModel } ->
+            Just boxModel
+
         LayoutBox.TextBox _ ->
             Nothing
 
 
 exampleLength =
     Maybe.withDefault CSSBasicTypes.defaultCSSLength (CSSBasicTypes.cssPixelLength 100)
+
+
+type BoxType
+    = Block (List BoxType)
+    | Inline (List BoxType)
+    | Anonymous (List BoxType)
+    | AnonymousInlineRoot (List BoxType)
+    | Text
+
+
+getBoxType layoutBox =
+    case layoutBox of
+        LayoutBox.BlockBox { children } ->
+            Block (List.map getBoxType children)
+
+        LayoutBox.InlineBox { children } ->
+            Inline (List.map getBoxType children)
+
+        LayoutBox.AnonymousBox { children } ->
+            Anonymous (List.map getBoxType children)
+
+        LayoutBox.AnonymousBoxInlineRoot { children } ->
+            AnonymousInlineRoot (List.map getBoxType children)
+
+        LayoutBox.TextBox _ ->
+            Text
 
 
 calculateBlockWidth : Test
@@ -455,9 +485,16 @@ startLayout =
                             edgeSize
 
                     layoutBox =
-                        Layout.startLayout
-                            styledNode
-                            containingDimensions
+                        case
+                            Layout.startLayout
+                                styledNode
+                                containingDimensions
+                        of
+                            Err _ ->
+                                Debug.crash "layout box should not be nothing"
+
+                            Ok box ->
+                                box
 
                     boxModelContent =
                         Maybe.map BoxModel.content <| getBoxModel layoutBox
@@ -496,9 +533,16 @@ startLayout =
                             edgeSize
 
                     layoutBox =
-                        Layout.startLayout
-                            styledNode
-                            containingDimensions
+                        case
+                            Layout.startLayout
+                                styledNode
+                                containingDimensions
+                        of
+                            Err _ ->
+                                Debug.crash "layout box should not be nothing"
+
+                            Ok box ->
+                                box
 
                     boxModelPadding =
                         Maybe.map BoxModel.paddingBox <| getBoxModel layoutBox
@@ -539,9 +583,16 @@ startLayout =
                             edgeSize
 
                     layoutBox =
-                        Layout.startLayout
-                            styledNode
-                            containingDimensions
+                        case
+                            Layout.startLayout
+                                styledNode
+                                containingDimensions
+                        of
+                            Err _ ->
+                                Debug.crash "layout box should not be nothing"
+
+                            Ok box ->
+                                box
 
                     boxModelBorder =
                         Maybe.map BoxModel.borderBox <| getBoxModel layoutBox
@@ -580,9 +631,16 @@ startLayout =
                             edgeSize
 
                     layoutBox =
-                        Layout.startLayout
-                            styledNode
-                            containingDimensions
+                        case
+                            Layout.startLayout
+                                styledNode
+                                containingDimensions
+                        of
+                            Err _ ->
+                                Debug.crash "layout box should not be nothing"
+
+                            Ok box ->
+                                box
 
                     boxModelMargin =
                         Maybe.map BoxModel.marginBox <| getBoxModel layoutBox
@@ -590,4 +648,174 @@ startLayout =
                     Expect.equal
                         (Maybe.map .height boxModelMargin)
                         (Just 220)
+        ]
+
+
+styledBlockNode children =
+    Style.StyledElement
+        { styles =
+            { styles
+                | display = CSSOM.Block
+            }
+        , node = element
+        , children = children
+        }
+
+
+styledInlineNode children =
+    Style.StyledElement
+        { styles =
+            { styles
+                | display = CSSOM.Inline
+            }
+        , node = element
+        , children = children
+        }
+
+
+blockLayoutBox children =
+    LayoutBox.BlockBox
+        { styles =
+            { styles
+                | display = CSSOM.Block
+            }
+        , boxModel = BoxModel.initBoxModel
+        , children = children
+        }
+
+
+inlineLayoutBox children =
+    LayoutBox.InlineBox
+        { styles =
+            { styles
+                | display = CSSOM.Inline
+            }
+        , boxModel = BoxModel.initBoxModel
+        , children = children
+        }
+
+
+anonymousLayoutBox children =
+    LayoutBox.AnonymousBox
+        { styles =
+            { styles
+                | display = CSSOM.Block
+            }
+        , boxModel = BoxModel.initBoxModel
+        , children = children
+        }
+
+
+anonymousInlineRootLayoutBox children =
+    LayoutBox.AnonymousBoxInlineRoot
+        { styles =
+            { styles
+                | display = CSSOM.Block
+            }
+        , boxModel = BoxModel.initBoxModel
+        , children = children
+        }
+
+
+layoutTreeOrCrash styledNode =
+    case Layout.layoutTree styledNode of
+        Nothing ->
+            Debug.crash "layout tree should not be nothing"
+
+        Just tree ->
+            tree
+
+
+layoutTree : Test
+layoutTree =
+    describe "layout tree"
+        [ test "wrap inline box in anonymous block for block formatting context" <|
+            \() ->
+                Expect.equal
+                    (getBoxType <|
+                        layoutTreeOrCrash
+                            (styledBlockNode [ styledInlineNode [], styledBlockNode [] ])
+                    )
+                    (getBoxType <|
+                        blockLayoutBox [ anonymousLayoutBox [ inlineLayoutBox [] ], blockLayoutBox [] ]
+                    )
+        , test "wrap deep inline box in anonymous block for block formatting context" <|
+            \() ->
+                Expect.equal
+                    (getBoxType <|
+                        layoutTreeOrCrash
+                            (styledBlockNode
+                                [ styledInlineNode [ styledInlineNode [] ]
+                                , styledBlockNode []
+                                , styledInlineNode []
+                                , styledBlockNode []
+                                , styledInlineNode []
+                                ]
+                            )
+                    )
+                    (getBoxType <|
+                        blockLayoutBox
+                            [ anonymousLayoutBox
+                                [ inlineLayoutBox [ inlineLayoutBox [] ]
+                                ]
+                            , blockLayoutBox []
+                            , anonymousLayoutBox
+                                [ inlineLayoutBox [] ]
+                            , blockLayoutBox []
+                            , anonymousLayoutBox
+                                [ inlineLayoutBox [] ]
+                            ]
+                    )
+        , test "wrap inline box in anonymous block for inline formatting context" <|
+            \() ->
+                Expect.equal
+                    (getBoxType <|
+                        layoutTreeOrCrash
+                            (styledInlineNode
+                                [ styledBlockNode []
+                                , styledInlineNode []
+                                ]
+                            )
+                    )
+                    (getBoxType <|
+                        anonymousInlineRootLayoutBox
+                            [ anonymousLayoutBox [ inlineLayoutBox [] ]
+                            , blockLayoutBox []
+                            , anonymousLayoutBox
+                                [ inlineLayoutBox []
+                                ]
+                            ]
+                    )
+        , test "wrap deep inline box in anonymous block for inline formatting context" <|
+            \() ->
+                Expect.equal
+                    (getBoxType <|
+                        layoutTreeOrCrash
+                            (styledInlineNode
+                                [ styledBlockNode
+                                    [ styledInlineNode []
+                                    , styledBlockNode []
+                                    ]
+                                , styledInlineNode [ styledBlockNode [] ]
+                                ]
+                            )
+                    )
+                    (getBoxType <|
+                        anonymousInlineRootLayoutBox
+                            [ anonymousLayoutBox
+                                [ inlineLayoutBox []
+                                ]
+                            , blockLayoutBox
+                                [ anonymousLayoutBox
+                                    [ inlineLayoutBox []
+                                    ]
+                                , blockLayoutBox []
+                                ]
+                            , anonymousInlineRootLayoutBox
+                                [ anonymousLayoutBox
+                                    [ inlineLayoutBox [] ]
+                                , blockLayoutBox []
+                                ]
+                            ]
+                    )
         ]

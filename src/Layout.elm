@@ -4,53 +4,74 @@ import Style exposing (..)
 import CSSOM exposing (..)
 import DOM exposing (..)
 import BoxModel
+import AnonymousBox
 import LayoutBox exposing (..)
 import CSSBasicTypes exposing (..)
 
 
-startLayout : StyledNode -> BoxModel.BoxModel -> LayoutBox
+startLayout : StyledNode -> BoxModel.BoxModel -> Result String LayoutBox
 startLayout node containingBoxModel =
-    layout (layoutTree node) containingBoxModel
+    case layoutTree node of
+        Nothing ->
+            Err "no tree to layout"
+
+        Just tree ->
+            Ok <| layout tree containingBoxModel
 
 
-layoutTree : StyledNode -> LayoutBox
+layoutTree : StyledNode -> Maybe LayoutBox
 layoutTree node =
     case node of
         StyledElement { styles, children } ->
-            BlockBox
-                { styles = styles
-                , boxModel = BoxModel.initBoxModel
-                , children = layoutTreeChildren children
-                }
+            case styles.display of
+                Block ->
+                    Just <|
+                        BlockBox
+                            { styles = styles
+                            , boxModel = BoxModel.initBoxModel
+                            , children =
+                                AnonymousBox.fixAnonymousChildrenForBlockContainer <|
+                                    layoutTreeChildren children
+                            }
+
+                Inline ->
+                    Just <|
+                        let
+                            laidoutChildren =
+                                layoutTreeChildren children
+
+                            anonymousInlineBox =
+                                AnonymousBox.fixAnonymousChildrenForInlineContainer
+                                    { styles = styles
+                                    , boxModel = BoxModel.initBoxModel
+                                    , children = laidoutChildren
+                                    }
+                        in
+                            case anonymousInlineBox of
+                                Nothing ->
+                                    InlineBox
+                                        { styles = styles
+                                        , boxModel = BoxModel.initBoxModel
+                                        , children = laidoutChildren
+                                        }
+
+                                Just wrappedChildren ->
+                                    AnonymousBoxInlineRoot
+                                        { styles = styles
+                                        , boxModel = BoxModel.initBoxModel
+                                        , children = wrappedChildren
+                                        }
+
+                None ->
+                    Nothing
 
         StyledText text ->
-            TextBox text
+            Just <| TextBox text
 
 
 layoutTreeChildren : List StyledNode -> List LayoutBox
 layoutTreeChildren =
-    List.foldl
-        (\child children ->
-            case child of
-                StyledElement { styles } ->
-                    case styles.display of
-                        Block ->
-                            List.append children <|
-                                List.singleton <|
-                                    layoutTree child
-
-                        Inline ->
-                            List.append children <|
-                                List.singleton <|
-                                    layoutTree child
-
-                        _ ->
-                            children
-
-                StyledText _ ->
-                    children
-        )
-        []
+    List.filterMap layoutTree
 
 
 layout : LayoutBox -> BoxModel.BoxModel -> LayoutBox
@@ -151,6 +172,9 @@ layoutBlockChildren children boxModel containingBoxModel =
                         addChild boxModel
 
                     AnonymousBox { boxModel } ->
+                        addChild boxModel
+
+                    AnonymousBoxInlineRoot { boxModel } ->
                         addChild boxModel
 
                     TextBox _ ->

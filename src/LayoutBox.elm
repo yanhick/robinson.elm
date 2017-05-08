@@ -14,5 +14,6 @@ type alias Box =
 type LayoutBox
     = BlockBox Box
     | InlineBox Box
+    | AnonymousBoxInlineRoot Box
     | AnonymousBox Box
     | TextBox String

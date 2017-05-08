@@ -113,13 +113,13 @@ render html css =
             Result.map2 Layout.startLayout style (Ok containingBlock)
 
         displayCommand =
-            Result.map Painting.buildDisplayList layout
+            Result.map (Result.map Painting.buildDisplayList) layout
     in
         case displayCommand of
-            Ok dc ->
+            Ok (Ok dc) ->
                 dc
 
-            Err _ ->
+            _ ->
                 []
 
 
