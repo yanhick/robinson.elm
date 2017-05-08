@@ -4,6 +4,7 @@ import Dict
 import CSSOM
 import Style
 import Painting
+import AnonymousBox
 import Layout
 import LayoutBox
 import Test exposing (..)
@@ -20,7 +21,6 @@ layout =
         , calculateBlockPosition
         , layoutBlockChildren
         , startLayout
-        , fixAnonymousChildrenForBlockContainer
         ]
 
 
@@ -33,14 +33,6 @@ element =
     , attributes = Dict.fromList [ ( "foo", "bar" ) ]
     , children = []
     }
-
-
-dimensions =
-    BoxModel.boxModel
-        { x = 0, y = 0, width = 0, height = 0 }
-        edgeSize
-        edgeSize
-        edgeSize
 
 
 testCSSLength length =
@@ -95,7 +87,7 @@ calculateBlockWidth =
                                     | display = CSSOM.Block
                                     , width = CSSOM.widthLength <| testCSSLength 50
                                 }
-                                dimensions
+                                BoxModel.initBoxModel
                                 containingDimensions
                 in
                     Expect.equal boxModelContent.width 50
@@ -115,7 +107,7 @@ calculateBlockWidth =
                                 { styles
                                     | display = CSSOM.Block
                                 }
-                                dimensions
+                                BoxModel.initBoxModel
                                 containingDimensions
                 in
                     Expect.equal boxModelContent.width 200
@@ -137,7 +129,7 @@ calculateBlockWidth =
                                 , marginLeft = CSSOM.marginAuto
                                 , marginRight = CSSOM.marginAuto
                             }
-                            dimensions
+                            BoxModel.initBoxModel
                             containingDimensions
 
                     boxModelContent =
@@ -172,7 +164,7 @@ calculateBlockWidth =
                                 , marginLeft = CSSOM.marginAuto
                                 , marginRight = CSSOM.marginAuto
                             }
-                            dimensions
+                            BoxModel.initBoxModel
                             containingDimensions
 
                     boxModelContent =
@@ -207,7 +199,7 @@ calculateBlockWidth =
                                 , marginLeft = CSSOM.marginLength <| testCSSLength 50
                                 , marginRight = CSSOM.marginAuto
                             }
-                            dimensions
+                            BoxModel.initBoxModel
                             containingDimensions
 
                     boxModelContent =
@@ -242,7 +234,7 @@ calculateBlockWidth =
                                 , marginRight = CSSOM.marginLength <| testCSSLength 50
                                 , marginLeft = CSSOM.marginAuto
                             }
-                            dimensions
+                            BoxModel.initBoxModel
                             containingDimensions
 
                     boxModelContent =
@@ -277,7 +269,7 @@ calculateBlockWidth =
                                 , marginRight = CSSOM.marginAuto
                                 , marginLeft = CSSOM.marginAuto
                             }
-                            dimensions
+                            BoxModel.initBoxModel
                             containingDimensions
 
                     boxModelContent =
@@ -312,7 +304,7 @@ calculateBlockWidth =
                                 , marginRight = CSSOM.marginLength <| testCSSLength 100
                                 , marginLeft = CSSOM.marginLength <| testCSSLength 200
                             }
-                            dimensions
+                            BoxModel.initBoxModel
                             containingDimensions
 
                     boxModelContent =
@@ -348,7 +340,7 @@ calculateBlockHeight =
                         BoxModel.content <|
                             Layout.calculateBlockHeight
                                 newStyles
-                                dimensions
+                                BoxModel.initBoxModel
                 in
                     Expect.equal boxModel.height 50
         , test "do nothing if auto height" <|
@@ -358,7 +350,7 @@ calculateBlockHeight =
                         BoxModel.content <|
                             Layout.calculateBlockHeight
                                 Style.initialStyles
-                                dimensions
+                                BoxModel.initBoxModel
                 in
                     Expect.equal boxModelContent.height 0
         ]
@@ -381,7 +373,7 @@ calculateBlockPosition =
                         BoxModel.content <|
                             Layout.calculateBlockPosition
                                 Style.initialStyles
-                                dimensions
+                                BoxModel.initBoxModel
                                 containingDimensions
                 in
                     Expect.true ""
@@ -408,7 +400,7 @@ layoutBlockChildren =
 
                     getBlockBox children height =
                         LayoutBox.BlockBox
-                            { boxModel = dimensions
+                            { boxModel = BoxModel.initBoxModel
                             , styles =
                                 { styles
                                     | display = CSSOM.Block
@@ -422,7 +414,7 @@ layoutBlockChildren =
                             [ (getBlockBox [] <| CSSOM.heightLength exampleLength)
                             , (getBlockBox [] <| CSSOM.heightLength exampleLength)
                             ]
-                            dimensions
+                            BoxModel.initBoxModel
                             containingDimensions
                 in
                     Expect.equal
@@ -598,163 +590,4 @@ startLayout =
                     Expect.equal
                         (Maybe.map .height boxModelMargin)
                         (Just 220)
-        ]
-
-
-blockBox =
-    LayoutBox.BlockBox
-        { styles = Style.initialStyles
-        , boxModel = dimensions
-        , children = []
-        }
-
-
-inlineBox children =
-    LayoutBox.InlineBox
-        { styles = Style.initialStyles
-        , boxModel = dimensions
-        , children = children
-        }
-
-
-anonymousBox children =
-    LayoutBox.AnonymousBox
-        { styles = Style.initialStyles
-        , boxModel = dimensions
-        , children = children
-        }
-
-
-box children =
-    { styles = Style.initialStyles
-    , boxModel = dimensions
-    , children = children
-    }
-
-
-fixAnonymousChildrenForBlockContainer =
-    describe "wrap inline children in anonymous block"
-        [ test "wrap inline children in anonymous block for block container with inline element at the end" <|
-            \() ->
-                Expect.equal
-                    (Layout.wrapInlineBoxInAnonymousBlockForBlockContainer
-                        [ inlineBox [], blockBox, inlineBox [] ]
-                    )
-                    [ anonymousBox [ inlineBox [] ]
-                    , blockBox
-                    , anonymousBox [ inlineBox [] ]
-                    ]
-        , test "wrap inline children in anonymous block for block container" <|
-            \() ->
-                Expect.equal
-                    (Layout.wrapInlineBoxInAnonymousBlockForBlockContainer
-                        [ inlineBox [], blockBox ]
-                    )
-                    [ anonymousBox [ inlineBox [] ]
-                    , blockBox
-                    ]
-        , test "wrap contiguous inline children in same anonymous block" <|
-            \() ->
-                Expect.equal
-                    (Layout.wrapInlineBoxInAnonymousBlockForBlockContainer
-                        [ blockBox, inlineBox [], inlineBox [], blockBox ]
-                    )
-                    [ blockBox
-                    , anonymousBox [ inlineBox [], inlineBox [] ]
-                    , blockBox
-                    ]
-        , test "do nothing if single block" <|
-            \() ->
-                Expect.equal
-                    (Layout.wrapInlineBoxInAnonymousBlockForBlockContainer
-                        [ blockBox ]
-                    )
-                    [ blockBox ]
-        , test "do nothing if single block" <|
-            \() ->
-                Expect.equal
-                    (Layout.wrapInlineBoxInAnonymousBlockForBlockContainer
-                        [ blockBox ]
-                    )
-                    [ blockBox ]
-        , test "do nothing if all children inline for inline container" <|
-            \() ->
-                Expect.equal
-                    (Layout.fixAnonymousChildrenForInlineContainer
-                        (box [ inlineBox [] ])
-                        (box [])
-                    )
-                    (box [ inlineBox [] ])
-        , test "do nothing if no children" <|
-            \() ->
-                Expect.equal
-                    (Layout.fixAnonymousChildrenForInlineContainer
-                        (box [])
-                        (box [])
-                    )
-                    (box [])
-        , test "wrap contiguous inline children in same anonymous block for inline container" <|
-            \() ->
-                Expect.equal
-                    (Layout.fixAnonymousChildrenForInlineContainer
-                        (box [ inlineBox [], blockBox, inlineBox [], inlineBox [] ])
-                        (box [])
-                    )
-                    (box
-                        [ anonymousBox [ inlineBox [], inlineBox [] ]
-                        , blockBox
-                        , anonymousBox [ inlineBox [], inlineBox [] ]
-                        ]
-                    )
-        , test "attach children to parent container if need to wrap the inline container" <|
-            \() ->
-                Expect.equal
-                    (Layout.fixAnonymousChildrenForInlineContainer
-                        (box [ blockBox ])
-                        (box [])
-                    )
-                    (box [ anonymousBox [ inlineBox [] ], blockBox ])
-        , test "do nothing if all children block for block container" <|
-            \() ->
-                Expect.equal
-                    (Layout.fixAnonymousChildrenForBlockContainer
-                        [ blockBox, blockBox ]
-                    )
-                    [ blockBox, blockBox ]
-        , test "do nothing if all children inline for block container" <|
-            \() ->
-                Expect.equal
-                    (Layout.fixAnonymousChildrenForBlockContainer
-                        [ inlineBox [], inlineBox [] ]
-                    )
-                    [ inlineBox [], inlineBox [] ]
-        , test "wrap inline children in anonymous block for inline container" <|
-            \() ->
-                Expect.equal
-                    (Layout.wrapInlineBoxInAnonymousBlockForInlineContainer
-                        (box [ blockBox ])
-                    )
-                    [ anonymousBox [ inlineBox [] ]
-                    , blockBox
-                    ]
-        , test "wrap inline children in anonymous block for inline container with inline element last" <|
-            \() ->
-                Expect.equal
-                    (Layout.wrapInlineBoxInAnonymousBlockForInlineContainer
-                        (box [ blockBox, inlineBox [] ])
-                    )
-                    [ anonymousBox [ inlineBox [] ]
-                    , blockBox
-                    , anonymousBox [ inlineBox [] ]
-                    ]
-        , test "wrap inline children in anonymous block for inline container with inline element last" <|
-            \() ->
-                Expect.equal
-                    (Layout.wrapInlineBoxInAnonymousBlockForInlineContainer
-                        (box [ blockBox, inlineBox [] ])
-                    )
-                    [ anonymousBox [ inlineBox [] ]
-                    , blockBox
-                    , anonymousBox [ inlineBox [] ]
-                    ]
         ]

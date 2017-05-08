@@ -17,6 +17,7 @@ import CSSOM
 import Expect
 import Fuzz exposing (list, int, tuple, string)
 import String
+import AnonymousBoxTests
 
 
 htmlExample : String
@@ -45,6 +46,7 @@ all =
         , CSSTests.cssTest
         , CSSBasicTypesTests.cssBasicTypes
         , BoxModelTests.boxModelTests
+        , AnonymousBoxTests.anonymousBoxTests
         ]
 
 
