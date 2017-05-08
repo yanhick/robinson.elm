@@ -90,25 +90,22 @@ anonymousBoxTests =
                 Expect.equal
                     (AnonymousBox.fixAnonymousChildrenForInlineContainer
                         (box [ inlineBox [] ])
-                        (box [])
                     )
-                    (box [ inlineBox [] ])
+                    Nothing
         , test "do nothing if no children" <|
             \() ->
                 Expect.equal
                     (AnonymousBox.fixAnonymousChildrenForInlineContainer
                         (box [])
-                        (box [])
                     )
-                    (box [])
+                    Nothing
         , test "wrap contiguous inline children in same anonymous block for inline container" <|
             \() ->
                 Expect.equal
                     (AnonymousBox.fixAnonymousChildrenForInlineContainer
                         (box [ inlineBox [], blockBox, inlineBox [], inlineBox [] ])
-                        (box [])
                     )
-                    (box
+                    (Just
                         [ anonymousBox [ inlineBox [], inlineBox [] ]
                         , blockBox
                         , anonymousBox [ inlineBox [], inlineBox [] ]
@@ -119,9 +116,8 @@ anonymousBoxTests =
                 Expect.equal
                     (AnonymousBox.fixAnonymousChildrenForInlineContainer
                         (box [ blockBox ])
-                        (box [])
                     )
-                    (box [ anonymousBox [ inlineBox [] ], blockBox ])
+                    (Just [ anonymousBox [ inlineBox [] ], blockBox ])
         , test "do nothing if all children block for block container" <|
             \() ->
                 Expect.equal

@@ -31,17 +31,13 @@ allInlineChildren =
         )
 
 
-fixAnonymousChildrenForInlineContainer : Box -> Box -> Box
-fixAnonymousChildrenForInlineContainer inlineContainerBox parentBox =
+fixAnonymousChildrenForInlineContainer : Box -> Maybe (List LayoutBox)
+fixAnonymousChildrenForInlineContainer inlineContainerBox =
     if allInlineChildren inlineContainerBox.children then
-        inlineContainerBox
+        Nothing
     else
-        { boxModel = parentBox.boxModel
-        , styles = parentBox.styles
-        , children =
-            parentBox.children
-                ++ wrapInlineBoxInAnonymousBlockForInlineContainer inlineContainerBox
-        }
+        Just
+            (wrapInlineBoxInAnonymousBlockForInlineContainer inlineContainerBox)
 
 
 fixAnonymousChildrenForBlockContainer : List LayoutBox -> List LayoutBox
