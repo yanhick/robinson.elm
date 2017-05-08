@@ -5,6 +5,7 @@ import CSSOM
 import Style
 import Painting
 import Layout
+import LayoutBox
 import Test exposing (..)
 import Expect
 import BoxModel
@@ -57,16 +58,16 @@ styles =
 
 getBoxModel layoutBox =
     case layoutBox of
-        Layout.BlockBox { boxModel } ->
+        LayoutBox.BlockBox { boxModel } ->
             Just boxModel
 
-        Layout.InlineBox { boxModel } ->
+        LayoutBox.InlineBox { boxModel } ->
             Just boxModel
 
-        Layout.AnonymousBox { boxModel } ->
+        LayoutBox.AnonymousBox { boxModel } ->
             Just boxModel
 
-        Layout.TextBox _ ->
+        LayoutBox.TextBox _ ->
             Nothing
 
 
@@ -406,7 +407,7 @@ layoutBlockChildren =
                             edgeSize
 
                     getBlockBox children height =
-                        Layout.BlockBox
+                        LayoutBox.BlockBox
                             { boxModel = dimensions
                             , styles =
                                 { styles
@@ -601,7 +602,7 @@ startLayout =
 
 
 blockBox =
-    Layout.BlockBox
+    LayoutBox.BlockBox
         { styles = Style.initialStyles
         , boxModel = dimensions
         , children = []
@@ -609,7 +610,7 @@ blockBox =
 
 
 inlineBox children =
-    Layout.InlineBox
+    LayoutBox.InlineBox
         { styles = Style.initialStyles
         , boxModel = dimensions
         , children = children
@@ -617,7 +618,7 @@ inlineBox children =
 
 
 anonymousBox children =
-    Layout.AnonymousBox
+    LayoutBox.AnonymousBox
         { styles = Style.initialStyles
         , boxModel = dimensions
         , children = children

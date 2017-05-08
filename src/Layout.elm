@@ -4,21 +4,8 @@ import Style exposing (..)
 import CSSOM exposing (..)
 import DOM exposing (..)
 import BoxModel
+import LayoutBox exposing (..)
 import CSSBasicTypes exposing (..)
-
-
-type alias Box =
-    { boxModel : BoxModel.BoxModel
-    , styles : Styles
-    , children : List LayoutBox
-    }
-
-
-type LayoutBox
-    = BlockBox Box
-    | InlineBox Box
-    | AnonymousBox Box
-    | TextBox String
 
 
 startLayout : StyledNode -> BoxModel.BoxModel -> LayoutBox

@@ -4,6 +4,7 @@ import Style
 import Color exposing (..)
 import CSSOM
 import Layout exposing (..)
+import LayoutBox exposing (..)
 import Style exposing (..)
 import BoxModel
 import CSSBasicTypes
