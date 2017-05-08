@@ -675,7 +675,6 @@ fixAnonymousChildrenForBlockContainer =
                     (Layout.fixAnonymousChildrenForInlineContainer
                         (box [ inlineBox [] ])
                         (box [])
-                        [ inlineBox [] ]
                     )
                     (box [ inlineBox [] ])
         , test "wrap contiguous inline children in same anonymous block for inline container" <|
@@ -684,11 +683,6 @@ fixAnonymousChildrenForBlockContainer =
                     (Layout.fixAnonymousChildrenForInlineContainer
                         (box [ inlineBox [], blockBox, inlineBox [], inlineBox [] ])
                         (box [])
-                        [ inlineBox []
-                        , blockBox
-                        , inlineBox []
-                        , inlineBox []
-                        ]
                     )
                     (box
                         [ anonymousBox [ inlineBox [], inlineBox [] ]
@@ -702,7 +696,6 @@ fixAnonymousChildrenForBlockContainer =
                     (Layout.fixAnonymousChildrenForInlineContainer
                         (box [ blockBox ])
                         (box [])
-                        [ blockBox ]
                     )
                     (box [ anonymousBox [ inlineBox [] ], blockBox ])
         , test "do nothing if all children block for block container" <|
@@ -724,7 +717,6 @@ fixAnonymousChildrenForBlockContainer =
                 Expect.equal
                     (Layout.wrapInlineBoxInAnonymousBlockForInlineContainer
                         (box [ blockBox ])
-                        [ blockBox ]
                     )
                     [ anonymousBox [ inlineBox [] ]
                     , blockBox
@@ -734,7 +726,6 @@ fixAnonymousChildrenForBlockContainer =
                 Expect.equal
                     (Layout.wrapInlineBoxInAnonymousBlockForInlineContainer
                         (box [ blockBox, inlineBox [] ])
-                        [ blockBox, inlineBox [] ]
                     )
                     [ anonymousBox [ inlineBox [] ]
                     , blockBox
@@ -744,8 +735,7 @@ fixAnonymousChildrenForBlockContainer =
             \() ->
                 Expect.equal
                     (Layout.wrapInlineBoxInAnonymousBlockForInlineContainer
-                        (box [])
-                        [ blockBox, inlineBox [] ]
+                        (box [ blockBox, inlineBox [] ])
                     )
                     [ anonymousBox [ inlineBox [] ]
                     , blockBox

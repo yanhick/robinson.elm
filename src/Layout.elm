@@ -92,16 +92,16 @@ allInlineChildren =
         )
 
 
-fixAnonymousChildrenForInlineContainer : Box -> Box -> List LayoutBox -> Box
-fixAnonymousChildrenForInlineContainer inlineContainerBox parentBox children =
-    if allInlineChildren children then
+fixAnonymousChildrenForInlineContainer : Box -> Box -> Box
+fixAnonymousChildrenForInlineContainer inlineContainerBox parentBox =
+    if allInlineChildren inlineContainerBox.children then
         inlineContainerBox
     else
         { boxModel = parentBox.boxModel
         , styles = parentBox.styles
         , children =
             parentBox.children
-                ++ wrapInlineBoxInAnonymousBlockForInlineContainer inlineContainerBox children
+                ++ wrapInlineBoxInAnonymousBlockForInlineContainer inlineContainerBox
         }
 
 
@@ -158,8 +158,8 @@ wrapInlineBoxInAnonymousBlockForBlockContainer children =
             wrappedChildren
 
 
-wrapInlineBoxInAnonymousBlockForInlineContainer : Box -> List LayoutBox -> List LayoutBox
-wrapInlineBoxInAnonymousBlockForInlineContainer { styles, boxModel } children =
+wrapInlineBoxInAnonymousBlockForInlineContainer : Box -> List LayoutBox
+wrapInlineBoxInAnonymousBlockForInlineContainer { styles, boxModel, children } =
     wrapInlineBoxInAnonymousBlockForBlockContainer
         ([ InlineBox
             { boxModel = boxModel
