@@ -669,6 +669,13 @@ fixAnonymousChildrenForBlockContainer =
                         [ blockBox ]
                     )
                     [ blockBox ]
+        , test "do nothing if single block" <|
+            \() ->
+                Expect.equal
+                    (Layout.wrapInlineBoxInAnonymousBlockForBlockContainer
+                        [ blockBox ]
+                    )
+                    [ blockBox ]
         , test "do nothing if all children inline for inline container" <|
             \() ->
                 Expect.equal
@@ -677,6 +684,14 @@ fixAnonymousChildrenForBlockContainer =
                         (box [])
                     )
                     (box [ inlineBox [] ])
+        , test "do nothing if no children" <|
+            \() ->
+                Expect.equal
+                    (Layout.fixAnonymousChildrenForInlineContainer
+                        (box [])
+                        (box [])
+                    )
+                    (box [])
         , test "wrap contiguous inline children in same anonymous block for inline container" <|
             \() ->
                 Expect.equal
