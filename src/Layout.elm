@@ -5,13 +5,27 @@ import CSSOM exposing (..)
 import DOM exposing (..)
 import BoxModel
 import AnonymousBox
-import LayoutBox exposing (..)
 import CSSBasicTypes exposing (..)
+
+
+type alias Box =
+    { boxModel : BoxModel.BoxModel
+    , styles : Styles
+    , children : List LayoutBox
+    }
+
+
+type LayoutBox
+    = BlockBox Box
+    | InlineBox Box
+    | AnonymousBoxInlineRoot Box
+    | AnonymousBox Box
+    | TextBox String
 
 
 startLayout : StyledNode -> BoxModel.BoxModel -> Result String LayoutBox
 startLayout node containingBoxModel =
-    case layoutTree node of
+    case AnonymousBox.anonymizedTree node of
         Nothing ->
             Err "no tree to layout"
 
@@ -19,56 +33,10 @@ startLayout node containingBoxModel =
             Ok <| layout tree containingBoxModel
 
 
-layoutTree : StyledNode -> Maybe AnonymizedBox
-layoutTree node =
-    case node of
-        StyledElement { styles, children } ->
-            case styles.display of
-                Block ->
-                    Just <|
-                        BlockLevel
-                            (BlockContainer
-                                styles
-                                (AnonymousBox.fixAnonymousChildrenForBlockContainer <|
-                                    layoutTreeChildren children
-                                )
-                            )
-
-                Inline ->
-                    Just <|
-                        let
-                            laidoutChildren =
-                                layoutTreeChildren children
-
-                            anonymousInlineBox =
-                                AnonymousBox.fixAnonymousChildrenForInlineContainer
-                                    styles
-                                    laidoutChildren
-                        in
-                            case anonymousInlineBox of
-                                Nothing ->
-                                    InlineLevel <|
-                                        InlineContainer styles laidoutChildren
-
-                                Just wrappedChildren ->
-                                    InlineLevel <| AnonymousInlineRoot wrappedChildren
-
-                None ->
-                    Nothing
-
-        StyledText text ->
-            Just <| InlineLevel <| InlineText text
-
-
-layoutTreeChildren : List StyledNode -> List AnonymizedBox
-layoutTreeChildren =
-    List.filterMap layoutTree
-
-
-layout : AnonymizedBox -> BoxModel.BoxModel -> LayoutBox
+layout : AnonymousBox.AnonymizedBox -> BoxModel.BoxModel -> LayoutBox
 layout anonymizedBox containingBlockDimensions =
     case anonymizedBox of
-        BlockLevel (BlockContainer styles children) ->
+        AnonymousBox.BlockLevel (AnonymousBox.BlockContainer styles children) ->
             BlockBox <| layoutBlock styles children containingBlockDimensions
 
         _ ->
@@ -77,7 +45,7 @@ layout anonymizedBox containingBlockDimensions =
 
 layoutBlock :
     Styles
-    -> List AnonymizedBox
+    -> List AnonymousBox.AnonymizedBox
     -> BoxModel.BoxModel
     -> Box
 layoutBlock styles children containingBoxModel =
@@ -121,7 +89,7 @@ layoutBlock styles children containingBoxModel =
 
 
 layoutBlockChildren :
-    List AnonymizedBox
+    List AnonymousBox.AnonymizedBox
     -> BoxModel.BoxModel
     -> BoxModel.BoxModel
     -> ( List LayoutBox, BoxModel.BoxModel )

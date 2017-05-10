@@ -2,29 +2,41 @@ module AnonymousBoxTests exposing (..)
 
 import Test exposing (..)
 import Expect
-import LayoutBox
+import Dict
 import AnonymousBox
 import BoxModel
 import Style
+import CSSOM
+
+
+styles =
+    Style.initialStyles
+
+
+element =
+    { tagName = "div"
+    , attributes = Dict.fromList [ ( "foo", "bar" ) ]
+    , children = []
+    }
 
 
 blockBox =
-    LayoutBox.BlockLevel <|
-        LayoutBox.BlockContainer
+    AnonymousBox.BlockLevel <|
+        AnonymousBox.BlockContainer
             Style.initialStyles
             []
 
 
 inlineBox children =
-    LayoutBox.InlineLevel <|
-        LayoutBox.InlineContainer
+    AnonymousBox.InlineLevel <|
+        AnonymousBox.InlineContainer
             Style.initialStyles
             children
 
 
 anonymousBox children =
-    LayoutBox.BlockLevel <|
-        LayoutBox.AnonymousBlock
+    AnonymousBox.BlockLevel <|
+        AnonymousBox.AnonymousBlock
             children
 
 
@@ -157,4 +169,154 @@ anonymousBoxTests =
                     , blockBox
                     , anonymousBox [ inlineBox [] ]
                     ]
+        , anonymizedTree
+        ]
+
+
+styledBlockNode children =
+    Style.StyledElement
+        { styles =
+            { styles
+                | display = CSSOM.Block
+            }
+        , node = element
+        , children = children
+        }
+
+
+styledInlineNode children =
+    Style.StyledElement
+        { styles =
+            { styles
+                | display = CSSOM.Inline
+            }
+        , node = element
+        , children = children
+        }
+
+
+blockLayoutBox children =
+    AnonymousBox.BlockLevel <|
+        AnonymousBox.BlockContainer
+            { styles
+                | display = CSSOM.Block
+            }
+            children
+
+
+inlineLayoutBox children =
+    AnonymousBox.InlineLevel <|
+        AnonymousBox.InlineContainer
+            { styles
+                | display = CSSOM.Inline
+            }
+            children
+
+
+anonymousLayoutBox children =
+    AnonymousBox.BlockLevel <|
+        AnonymousBox.AnonymousBlock
+            children
+
+
+anonymousInlineRootLayoutBox children =
+    AnonymousBox.InlineLevel <|
+        AnonymousBox.AnonymousInlineRoot
+            children
+
+
+anonymizedTreeOrCrash styledNode =
+    case AnonymousBox.anonymizedTree styledNode of
+        Nothing ->
+            Debug.crash "anonymized tree should not be nothing"
+
+        Just tree ->
+            tree
+
+
+anonymizedTree : Test
+anonymizedTree =
+    describe "layout tree"
+        [ test "wrap inline box in anonymous block for block formatting context" <|
+            \() ->
+                Expect.equal
+                    (anonymizedTreeOrCrash
+                        (styledBlockNode [ styledInlineNode [], styledBlockNode [] ])
+                    )
+                    (blockLayoutBox [ anonymousLayoutBox [ inlineLayoutBox [] ], blockLayoutBox [] ])
+        , test "wrap deep inline box in anonymous block for block formatting context" <|
+            \() ->
+                Expect.equal
+                    (anonymizedTreeOrCrash
+                        (styledBlockNode
+                            [ styledInlineNode [ styledInlineNode [] ]
+                            , styledBlockNode []
+                            , styledInlineNode []
+                            , styledBlockNode []
+                            , styledInlineNode []
+                            ]
+                        )
+                    )
+                    (blockLayoutBox
+                        [ anonymousLayoutBox
+                            [ inlineLayoutBox [ inlineLayoutBox [] ]
+                            ]
+                        , blockLayoutBox []
+                        , anonymousLayoutBox
+                            [ inlineLayoutBox [] ]
+                        , blockLayoutBox []
+                        , anonymousLayoutBox
+                            [ inlineLayoutBox [] ]
+                        ]
+                    )
+        , test "wrap inline box in anonymous block for inline formatting context" <|
+            \() ->
+                Expect.equal
+                    (anonymizedTreeOrCrash
+                        (styledInlineNode
+                            [ styledBlockNode []
+                            , styledInlineNode []
+                            ]
+                        )
+                    )
+                    (anonymousInlineRootLayoutBox
+                        [ anonymousLayoutBox [ inlineLayoutBox [] ]
+                        , blockLayoutBox []
+                        , anonymousLayoutBox
+                            [ inlineLayoutBox []
+                            ]
+                        ]
+                    )
+        , test "wrap deep inline box in anonymous block for inline formatting context" <|
+            \() ->
+                Expect.equal
+                    (anonymizedTreeOrCrash
+                        (styledInlineNode
+                            [ styledBlockNode
+                                [ styledInlineNode []
+                                , styledBlockNode []
+                                ]
+                            , styledInlineNode [ styledBlockNode [] ]
+                            ]
+                        )
+                    )
+                    (anonymousInlineRootLayoutBox
+                        [ anonymousLayoutBox
+                            [ inlineLayoutBox []
+                            ]
+                        , blockLayoutBox
+                            [ anonymousLayoutBox
+                                [ inlineLayoutBox []
+                                ]
+                            , blockLayoutBox []
+                            ]
+                        , anonymousLayoutBox
+                            [ anonymousInlineRootLayoutBox
+                                [ anonymousLayoutBox
+                                    [ inlineLayoutBox [] ]
+                                , blockLayoutBox []
+                                ]
+                            ]
+                        ]
+                    )
         ]

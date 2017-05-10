@@ -6,7 +6,6 @@ import Style
 import Painting
 import AnonymousBox
 import Layout
-import LayoutBox
 import Test exposing (..)
 import Expect
 import BoxModel
@@ -21,7 +20,6 @@ layout =
         , calculateBlockPosition
         , layoutBlockChildren
         , startLayout
-        , layoutTree
         ]
 
 
@@ -51,19 +49,19 @@ styles =
 
 getBoxModel layoutBox =
     case layoutBox of
-        LayoutBox.BlockBox { boxModel } ->
+        Layout.BlockBox { boxModel } ->
             Just boxModel
 
-        LayoutBox.InlineBox { boxModel } ->
+        Layout.InlineBox { boxModel } ->
             Just boxModel
 
-        LayoutBox.AnonymousBox { boxModel } ->
+        Layout.AnonymousBox { boxModel } ->
             Just boxModel
 
-        LayoutBox.AnonymousBoxInlineRoot { boxModel } ->
+        Layout.AnonymousBoxInlineRoot { boxModel } ->
             Just boxModel
 
-        LayoutBox.TextBox _ ->
+        Layout.TextBox _ ->
             Nothing
 
 
@@ -411,8 +409,8 @@ layoutBlockChildren =
                             edgeSize
 
                     getBlockBox children height =
-                        LayoutBox.BlockLevel <|
-                            LayoutBox.BlockContainer
+                        AnonymousBox.BlockLevel <|
+                            AnonymousBox.BlockContainer
                                 { styles
                                     | display = CSSOM.Block
                                     , height = height
@@ -628,153 +626,4 @@ startLayout =
                     Expect.equal
                         (Maybe.map .height boxModelMargin)
                         (Just 220)
-        ]
-
-
-styledBlockNode children =
-    Style.StyledElement
-        { styles =
-            { styles
-                | display = CSSOM.Block
-            }
-        , node = element
-        , children = children
-        }
-
-
-styledInlineNode children =
-    Style.StyledElement
-        { styles =
-            { styles
-                | display = CSSOM.Inline
-            }
-        , node = element
-        , children = children
-        }
-
-
-blockLayoutBox children =
-    LayoutBox.BlockLevel <|
-        LayoutBox.BlockContainer
-            { styles
-                | display = CSSOM.Block
-            }
-            children
-
-
-inlineLayoutBox children =
-    LayoutBox.InlineLevel <|
-        LayoutBox.InlineContainer
-            { styles
-                | display = CSSOM.Inline
-            }
-            children
-
-
-anonymousLayoutBox children =
-    LayoutBox.BlockLevel <|
-        LayoutBox.AnonymousBlock
-            children
-
-
-anonymousInlineRootLayoutBox children =
-    LayoutBox.InlineLevel <|
-        LayoutBox.AnonymousInlineRoot
-            children
-
-
-layoutTreeOrCrash styledNode =
-    case Layout.layoutTree styledNode of
-        Nothing ->
-            Debug.crash "layout tree should not be nothing"
-
-        Just tree ->
-            tree
-
-
-layoutTree : Test
-layoutTree =
-    describe "layout tree"
-        [ test "wrap inline box in anonymous block for block formatting context" <|
-            \() ->
-                Expect.equal
-                    (layoutTreeOrCrash
-                        (styledBlockNode [ styledInlineNode [], styledBlockNode [] ])
-                    )
-                    (blockLayoutBox [ anonymousLayoutBox [ inlineLayoutBox [] ], blockLayoutBox [] ])
-        , test "wrap deep inline box in anonymous block for block formatting context" <|
-            \() ->
-                Expect.equal
-                    (layoutTreeOrCrash
-                        (styledBlockNode
-                            [ styledInlineNode [ styledInlineNode [] ]
-                            , styledBlockNode []
-                            , styledInlineNode []
-                            , styledBlockNode []
-                            , styledInlineNode []
-                            ]
-                        )
-                    )
-                    (blockLayoutBox
-                        [ anonymousLayoutBox
-                            [ inlineLayoutBox [ inlineLayoutBox [] ]
-                            ]
-                        , blockLayoutBox []
-                        , anonymousLayoutBox
-                            [ inlineLayoutBox [] ]
-                        , blockLayoutBox []
-                        , anonymousLayoutBox
-                            [ inlineLayoutBox [] ]
-                        ]
-                    )
-        , test "wrap inline box in anonymous block for inline formatting context" <|
-            \() ->
-                Expect.equal
-                    (layoutTreeOrCrash
-                        (styledInlineNode
-                            [ styledBlockNode []
-                            , styledInlineNode []
-                            ]
-                        )
-                    )
-                    (anonymousInlineRootLayoutBox
-                        [ anonymousLayoutBox [ inlineLayoutBox [] ]
-                        , blockLayoutBox []
-                        , anonymousLayoutBox
-                            [ inlineLayoutBox []
-                            ]
-                        ]
-                    )
-        , test "wrap deep inline box in anonymous block for inline formatting context" <|
-            \() ->
-                Expect.equal
-                    (layoutTreeOrCrash
-                        (styledInlineNode
-                            [ styledBlockNode
-                                [ styledInlineNode []
-                                , styledBlockNode []
-                                ]
-                            , styledInlineNode [ styledBlockNode [] ]
-                            ]
-                        )
-                    )
-                    (anonymousInlineRootLayoutBox
-                        [ anonymousLayoutBox
-                            [ inlineLayoutBox []
-                            ]
-                        , blockLayoutBox
-                            [ anonymousLayoutBox
-                                [ inlineLayoutBox []
-                                ]
-                            , blockLayoutBox []
-                            ]
-                        , anonymousLayoutBox
-                            [ anonymousInlineRootLayoutBox
-                                [ anonymousLayoutBox
-                                    [ inlineLayoutBox [] ]
-                                , blockLayoutBox []
-                                ]
-                            ]
-                        ]
-                    )
         ]

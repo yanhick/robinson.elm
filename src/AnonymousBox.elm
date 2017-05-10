@@ -1,8 +1,69 @@
 module AnonymousBox exposing (..)
 
-import LayoutBox exposing (..)
 import Style exposing (..)
 import BoxModel exposing (..)
+import CSSOM
+
+
+type InlineLevelElement
+    = InlineContainer Styles (List AnonymizedBox)
+    | InlineText String
+    | AnonymousInlineRoot (List AnonymizedBox)
+
+
+type BlockLevelElement
+    = BlockContainer Styles (List AnonymizedBox)
+    | AnonymousBlock (List AnonymizedBox)
+
+
+type AnonymizedBox
+    = BlockLevel BlockLevelElement
+    | InlineLevel InlineLevelElement
+
+
+anonymizedTree : StyledNode -> Maybe AnonymizedBox
+anonymizedTree node =
+    let
+        anonymizedChildren =
+            List.filterMap anonymizedTree
+    in
+        case node of
+            StyledElement { styles, children } ->
+                case styles.display of
+                    CSSOM.Block ->
+                        Just <|
+                            BlockLevel
+                                (BlockContainer
+                                    styles
+                                    (fixAnonymousChildrenForBlockContainer <|
+                                        anonymizedChildren children
+                                    )
+                                )
+
+                    CSSOM.Inline ->
+                        Just <|
+                            let
+                                laidoutChildren =
+                                    anonymizedChildren children
+
+                                anonymousInlineBox =
+                                    fixAnonymousChildrenForInlineContainer
+                                        styles
+                                        laidoutChildren
+                            in
+                                case anonymousInlineBox of
+                                    Nothing ->
+                                        InlineLevel <|
+                                            InlineContainer styles laidoutChildren
+
+                                    Just wrappedChildren ->
+                                        InlineLevel <| AnonymousInlineRoot wrappedChildren
+
+                    CSSOM.None ->
+                        Nothing
+
+            StyledText text ->
+                Just <| InlineLevel <| InlineText text
 
 
 allBlockChildren : List AnonymizedBox -> Bool
