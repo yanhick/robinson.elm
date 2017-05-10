@@ -19,20 +19,20 @@ startLayout node containingBoxModel =
             Ok <| layout tree containingBoxModel
 
 
-layoutTree : StyledNode -> Maybe LayoutBox
+layoutTree : StyledNode -> Maybe AnonymizedBox
 layoutTree node =
     case node of
         StyledElement { styles, children } ->
             case styles.display of
                 Block ->
                     Just <|
-                        BlockBox
-                            { styles = styles
-                            , boxModel = BoxModel.initBoxModel
-                            , children =
-                                AnonymousBox.fixAnonymousChildrenForBlockContainer <|
+                        BlockLevel
+                            (BlockContainer
+                                styles
+                                (AnonymousBox.fixAnonymousChildrenForBlockContainer <|
                                     layoutTreeChildren children
-                            }
+                                )
+                            )
 
                 Inline ->
                     Just <|
@@ -42,56 +42,48 @@ layoutTree node =
 
                             anonymousInlineBox =
                                 AnonymousBox.fixAnonymousChildrenForInlineContainer
-                                    { styles = styles
-                                    , boxModel = BoxModel.initBoxModel
-                                    , children = laidoutChildren
-                                    }
+                                    styles
+                                    laidoutChildren
                         in
                             case anonymousInlineBox of
                                 Nothing ->
-                                    InlineBox
-                                        { styles = styles
-                                        , boxModel = BoxModel.initBoxModel
-                                        , children = laidoutChildren
-                                        }
+                                    InlineLevel <|
+                                        InlineContainer styles laidoutChildren
 
                                 Just wrappedChildren ->
-                                    AnonymousBoxInlineRoot
-                                        { styles = styles
-                                        , boxModel = BoxModel.initBoxModel
-                                        , children = wrappedChildren
-                                        }
+                                    InlineLevel <| AnonymousInlineRoot wrappedChildren
 
                 None ->
                     Nothing
 
         StyledText text ->
-            Just <| TextBox text
+            Just <| InlineLevel <| InlineText text
 
 
-layoutTreeChildren : List StyledNode -> List LayoutBox
+layoutTreeChildren : List StyledNode -> List AnonymizedBox
 layoutTreeChildren =
     List.filterMap layoutTree
 
 
-layout : LayoutBox -> BoxModel.BoxModel -> LayoutBox
-layout layoutBox containingBlockDimensions =
-    case layoutBox of
-        BlockBox box ->
-            BlockBox <| layoutBlock box containingBlockDimensions
+layout : AnonymizedBox -> BoxModel.BoxModel -> LayoutBox
+layout anonymizedBox containingBlockDimensions =
+    case anonymizedBox of
+        BlockLevel (BlockContainer styles children) ->
+            BlockBox <| layoutBlock styles children containingBlockDimensions
 
         _ ->
-            layoutBox
+            TextBox "todo"
 
 
 layoutBlock :
-    Box
+    Styles
+    -> List AnonymizedBox
     -> BoxModel.BoxModel
     -> Box
-layoutBlock { boxModel, styles, children } containingBoxModel =
+layoutBlock styles children containingBoxModel =
     let
         boxModelWithCorrectWidth =
-            calculateBlockWidth styles boxModel containingBoxModel
+            calculateBlockWidth styles BoxModel.initBoxModel containingBoxModel
 
         boxModelWithCorrectPosition =
             calculateBlockPosition styles boxModelWithCorrectWidth containingBoxModel
@@ -129,7 +121,7 @@ layoutBlock { boxModel, styles, children } containingBoxModel =
 
 
 layoutBlockChildren :
-    List LayoutBox
+    List AnonymizedBox
     -> BoxModel.BoxModel
     -> BoxModel.BoxModel
     -> ( List LayoutBox, BoxModel.BoxModel )

@@ -5,42 +5,26 @@ import Style exposing (..)
 import BoxModel exposing (..)
 
 
-allBlockChildren : List LayoutBox -> Bool
+allBlockChildren : List AnonymizedBox -> Bool
 allBlockChildren =
-    List.all
-        (\child ->
-            case child of
-                BlockBox _ ->
-                    True
-
-                _ ->
-                    False
-        )
+    List.all (not << isInline)
 
 
-allInlineChildren : List LayoutBox -> Bool
+allInlineChildren : List AnonymizedBox -> Bool
 allInlineChildren =
-    List.all
-        (\child ->
-            case child of
-                InlineBox _ ->
-                    True
-
-                _ ->
-                    False
-        )
+    List.all isInline
 
 
-fixAnonymousChildrenForInlineContainer : Box -> Maybe (List LayoutBox)
-fixAnonymousChildrenForInlineContainer inlineContainerBox =
-    if allInlineChildren inlineContainerBox.children then
+fixAnonymousChildrenForInlineContainer : Styles -> List AnonymizedBox -> Maybe (List AnonymizedBox)
+fixAnonymousChildrenForInlineContainer styles children =
+    if allInlineChildren children then
         Nothing
     else
         Just
-            (wrapInlineBoxInAnonymousBlockForInlineContainer inlineContainerBox)
+            (wrapInlineBoxInAnonymousBlockForInlineContainer styles children)
 
 
-fixAnonymousChildrenForBlockContainer : List LayoutBox -> List LayoutBox
+fixAnonymousChildrenForBlockContainer : List AnonymizedBox -> List AnonymizedBox
 fixAnonymousChildrenForBlockContainer children =
     if allBlockChildren children || allInlineChildren children then
         children
@@ -48,26 +32,21 @@ fixAnonymousChildrenForBlockContainer children =
         wrapInlineBoxInAnonymousBlockForBlockContainer children
 
 
-isInline : LayoutBox -> Bool
+isInline : AnonymizedBox -> Bool
 isInline child =
     case child of
-        InlineBox _ ->
+        InlineLevel _ ->
             True
 
-        _ ->
+        BlockLevel _ ->
             False
 
 
-wrapInlineBoxInAnonymousBlockForBlockContainer : List LayoutBox -> List LayoutBox
+wrapInlineBoxInAnonymousBlockForBlockContainer : List AnonymizedBox -> List AnonymizedBox
 wrapInlineBoxInAnonymousBlockForBlockContainer children =
     let
         wrapInAnonymousBlock children =
-            AnonymousBox
-                { boxModel =
-                    initBoxModel
-                , styles = initialStyles
-                , children = children
-                }
+            BlockLevel <| AnonymousBlock children
 
         ( wrappedChildren, remainingInlineChildren ) =
             List.foldl
@@ -93,14 +72,10 @@ wrapInlineBoxInAnonymousBlockForBlockContainer children =
             wrappedChildren
 
 
-wrapInlineBoxInAnonymousBlockForInlineContainer : Box -> List LayoutBox
-wrapInlineBoxInAnonymousBlockForInlineContainer { styles, boxModel, children } =
+wrapInlineBoxInAnonymousBlockForInlineContainer : Styles -> List AnonymizedBox -> List AnonymizedBox
+wrapInlineBoxInAnonymousBlockForInlineContainer styles children =
     wrapInlineBoxInAnonymousBlockForBlockContainer
-        ([ InlineBox
-            { boxModel = boxModel
-            , styles = styles
-            , children = []
-            }
+        ([ InlineLevel <| InlineContainer styles []
          ]
             ++ children
         )

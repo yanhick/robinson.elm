@@ -9,34 +9,23 @@ import Style
 
 
 blockBox =
-    LayoutBox.BlockBox
-        { styles = Style.initialStyles
-        , boxModel = BoxModel.initBoxModel
-        , children = []
-        }
+    LayoutBox.BlockLevel <|
+        LayoutBox.BlockContainer
+            Style.initialStyles
+            []
 
 
 inlineBox children =
-    LayoutBox.InlineBox
-        { styles = Style.initialStyles
-        , boxModel = BoxModel.initBoxModel
-        , children = children
-        }
+    LayoutBox.InlineLevel <|
+        LayoutBox.InlineContainer
+            Style.initialStyles
+            children
 
 
 anonymousBox children =
-    LayoutBox.AnonymousBox
-        { styles = Style.initialStyles
-        , boxModel = BoxModel.initBoxModel
-        , children = children
-        }
-
-
-box children =
-    { styles = Style.initialStyles
-    , boxModel = BoxModel.initBoxModel
-    , children = children
-    }
+    LayoutBox.BlockLevel <|
+        LayoutBox.AnonymousBlock
+            children
 
 
 anonymousBoxTests : Test
@@ -89,21 +78,24 @@ anonymousBoxTests =
             \() ->
                 Expect.equal
                     (AnonymousBox.fixAnonymousChildrenForInlineContainer
-                        (box [ inlineBox [] ])
+                        Style.initialStyles
+                        [ inlineBox [] ]
                     )
                     Nothing
         , test "do nothing if no children" <|
             \() ->
                 Expect.equal
                     (AnonymousBox.fixAnonymousChildrenForInlineContainer
-                        (box [])
+                        Style.initialStyles
+                        []
                     )
                     Nothing
         , test "wrap contiguous inline children in same anonymous block for inline container" <|
             \() ->
                 Expect.equal
                     (AnonymousBox.fixAnonymousChildrenForInlineContainer
-                        (box [ inlineBox [], blockBox, inlineBox [], inlineBox [] ])
+                        Style.initialStyles
+                        [ inlineBox [], blockBox, inlineBox [], inlineBox [] ]
                     )
                     (Just
                         [ anonymousBox [ inlineBox [], inlineBox [] ]
@@ -115,7 +107,8 @@ anonymousBoxTests =
             \() ->
                 Expect.equal
                     (AnonymousBox.fixAnonymousChildrenForInlineContainer
-                        (box [ blockBox ])
+                        Style.initialStyles
+                        [ blockBox ]
                     )
                     (Just [ anonymousBox [ inlineBox [] ], blockBox ])
         , test "do nothing if all children block for block container" <|
@@ -136,7 +129,8 @@ anonymousBoxTests =
             \() ->
                 Expect.equal
                     (AnonymousBox.wrapInlineBoxInAnonymousBlockForInlineContainer
-                        (box [ blockBox ])
+                        Style.initialStyles
+                        [ blockBox ]
                     )
                     [ anonymousBox [ inlineBox [] ]
                     , blockBox
@@ -145,7 +139,8 @@ anonymousBoxTests =
             \() ->
                 Expect.equal
                     (AnonymousBox.wrapInlineBoxInAnonymousBlockForInlineContainer
-                        (box [ blockBox, inlineBox [] ])
+                        Style.initialStyles
+                        [ blockBox, inlineBox [] ]
                     )
                     [ anonymousBox [ inlineBox [] ]
                     , blockBox
@@ -155,7 +150,8 @@ anonymousBoxTests =
             \() ->
                 Expect.equal
                     (AnonymousBox.wrapInlineBoxInAnonymousBlockForInlineContainer
-                        (box [ blockBox, inlineBox [] ])
+                        Style.initialStyles
+                        [ blockBox, inlineBox [] ]
                     )
                     [ anonymousBox [ inlineBox [] ]
                     , blockBox

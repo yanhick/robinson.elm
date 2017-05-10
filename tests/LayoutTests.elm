@@ -79,24 +79,6 @@ type BoxType
     | Text
 
 
-getBoxType layoutBox =
-    case layoutBox of
-        LayoutBox.BlockBox { children } ->
-            Block (List.map getBoxType children)
-
-        LayoutBox.InlineBox { children } ->
-            Inline (List.map getBoxType children)
-
-        LayoutBox.AnonymousBox { children } ->
-            Anonymous (List.map getBoxType children)
-
-        LayoutBox.AnonymousBoxInlineRoot { children } ->
-            AnonymousInlineRoot (List.map getBoxType children)
-
-        LayoutBox.TextBox _ ->
-            Text
-
-
 calculateBlockWidth : Test
 calculateBlockWidth =
     describe "calculate block width"
@@ -429,15 +411,13 @@ layoutBlockChildren =
                             edgeSize
 
                     getBlockBox children height =
-                        LayoutBox.BlockBox
-                            { boxModel = BoxModel.initBoxModel
-                            , styles =
+                        LayoutBox.BlockLevel <|
+                            LayoutBox.BlockContainer
                                 { styles
                                     | display = CSSOM.Block
                                     , height = height
                                 }
-                            , children = children
-                            }
+                                children
 
                     ( laidoutChildren, childrenBoxModel ) =
                         Layout.layoutBlockChildren
@@ -674,47 +654,33 @@ styledInlineNode children =
 
 
 blockLayoutBox children =
-    LayoutBox.BlockBox
-        { styles =
+    LayoutBox.BlockLevel <|
+        LayoutBox.BlockContainer
             { styles
                 | display = CSSOM.Block
             }
-        , boxModel = BoxModel.initBoxModel
-        , children = children
-        }
+            children
 
 
 inlineLayoutBox children =
-    LayoutBox.InlineBox
-        { styles =
+    LayoutBox.InlineLevel <|
+        LayoutBox.InlineContainer
             { styles
                 | display = CSSOM.Inline
             }
-        , boxModel = BoxModel.initBoxModel
-        , children = children
-        }
+            children
 
 
 anonymousLayoutBox children =
-    LayoutBox.AnonymousBox
-        { styles =
-            { styles
-                | display = CSSOM.Block
-            }
-        , boxModel = BoxModel.initBoxModel
-        , children = children
-        }
+    LayoutBox.BlockLevel <|
+        LayoutBox.AnonymousBlock
+            children
 
 
 anonymousInlineRootLayoutBox children =
-    LayoutBox.AnonymousBoxInlineRoot
-        { styles =
-            { styles
-                | display = CSSOM.Block
-            }
-        , boxModel = BoxModel.initBoxModel
-        , children = children
-        }
+    LayoutBox.InlineLevel <|
+        LayoutBox.AnonymousInlineRoot
+            children
 
 
 layoutTreeOrCrash styledNode =
@@ -732,90 +698,83 @@ layoutTree =
         [ test "wrap inline box in anonymous block for block formatting context" <|
             \() ->
                 Expect.equal
-                    (getBoxType <|
-                        layoutTreeOrCrash
-                            (styledBlockNode [ styledInlineNode [], styledBlockNode [] ])
+                    (layoutTreeOrCrash
+                        (styledBlockNode [ styledInlineNode [], styledBlockNode [] ])
                     )
-                    (getBoxType <|
-                        blockLayoutBox [ anonymousLayoutBox [ inlineLayoutBox [] ], blockLayoutBox [] ]
-                    )
+                    (blockLayoutBox [ anonymousLayoutBox [ inlineLayoutBox [] ], blockLayoutBox [] ])
         , test "wrap deep inline box in anonymous block for block formatting context" <|
             \() ->
                 Expect.equal
-                    (getBoxType <|
-                        layoutTreeOrCrash
-                            (styledBlockNode
-                                [ styledInlineNode [ styledInlineNode [] ]
-                                , styledBlockNode []
-                                , styledInlineNode []
-                                , styledBlockNode []
-                                , styledInlineNode []
-                                ]
-                            )
-                    )
-                    (getBoxType <|
-                        blockLayoutBox
-                            [ anonymousLayoutBox
-                                [ inlineLayoutBox [ inlineLayoutBox [] ]
-                                ]
-                            , blockLayoutBox []
-                            , anonymousLayoutBox
-                                [ inlineLayoutBox [] ]
-                            , blockLayoutBox []
-                            , anonymousLayoutBox
-                                [ inlineLayoutBox [] ]
+                    (layoutTreeOrCrash
+                        (styledBlockNode
+                            [ styledInlineNode [ styledInlineNode [] ]
+                            , styledBlockNode []
+                            , styledInlineNode []
+                            , styledBlockNode []
+                            , styledInlineNode []
                             ]
+                        )
+                    )
+                    (blockLayoutBox
+                        [ anonymousLayoutBox
+                            [ inlineLayoutBox [ inlineLayoutBox [] ]
+                            ]
+                        , blockLayoutBox []
+                        , anonymousLayoutBox
+                            [ inlineLayoutBox [] ]
+                        , blockLayoutBox []
+                        , anonymousLayoutBox
+                            [ inlineLayoutBox [] ]
+                        ]
                     )
         , test "wrap inline box in anonymous block for inline formatting context" <|
             \() ->
                 Expect.equal
-                    (getBoxType <|
-                        layoutTreeOrCrash
-                            (styledInlineNode
-                                [ styledBlockNode []
-                                , styledInlineNode []
-                                ]
-                            )
-                    )
-                    (getBoxType <|
-                        anonymousInlineRootLayoutBox
-                            [ anonymousLayoutBox [ inlineLayoutBox [] ]
-                            , blockLayoutBox []
-                            , anonymousLayoutBox
-                                [ inlineLayoutBox []
-                                ]
+                    (layoutTreeOrCrash
+                        (styledInlineNode
+                            [ styledBlockNode []
+                            , styledInlineNode []
                             ]
+                        )
+                    )
+                    (anonymousInlineRootLayoutBox
+                        [ anonymousLayoutBox [ inlineLayoutBox [] ]
+                        , blockLayoutBox []
+                        , anonymousLayoutBox
+                            [ inlineLayoutBox []
+                            ]
+                        ]
                     )
         , test "wrap deep inline box in anonymous block for inline formatting context" <|
             \() ->
                 Expect.equal
-                    (getBoxType <|
-                        layoutTreeOrCrash
-                            (styledInlineNode
-                                [ styledBlockNode
-                                    [ styledInlineNode []
-                                    , styledBlockNode []
-                                    ]
-                                , styledInlineNode [ styledBlockNode [] ]
+                    (layoutTreeOrCrash
+                        (styledInlineNode
+                            [ styledBlockNode
+                                [ styledInlineNode []
+                                , styledBlockNode []
                                 ]
-                            )
+                            , styledInlineNode [ styledBlockNode [] ]
+                            ]
+                        )
                     )
-                    (getBoxType <|
-                        anonymousInlineRootLayoutBox
+                    (anonymousInlineRootLayoutBox
+                        [ anonymousLayoutBox
+                            [ inlineLayoutBox []
+                            ]
+                        , blockLayoutBox
                             [ anonymousLayoutBox
                                 [ inlineLayoutBox []
                                 ]
-                            , blockLayoutBox
-                                [ anonymousLayoutBox
-                                    [ inlineLayoutBox []
-                                    ]
-                                , blockLayoutBox []
-                                ]
-                            , anonymousInlineRootLayoutBox
+                            , blockLayoutBox []
+                            ]
+                        , anonymousLayoutBox
+                            [ anonymousInlineRootLayoutBox
                                 [ anonymousLayoutBox
                                     [ inlineLayoutBox [] ]
                                 , blockLayoutBox []
                                 ]
                             ]
+                        ]
                     )
         ]
