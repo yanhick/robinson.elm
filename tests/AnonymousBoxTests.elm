@@ -319,4 +319,35 @@ anonymizedTree =
                             ]
                         ]
                     )
+        , test "fix anonymous inline root by attaching to their parent" <|
+            \() ->
+                Expect.equal
+                    (AnonymousBox.anonymizedTreeFinalStep <|
+                        anonymizedTreeOrCrash
+                            (styledInlineNode
+                                [ styledBlockNode
+                                    [ styledInlineNode []
+                                    , styledBlockNode []
+                                    ]
+                                , styledInlineNode [ styledBlockNode [] ]
+                                ]
+                            )
+                    )
+                    (anonymousInlineRootLayoutBox
+                        [ anonymousLayoutBox
+                            [ inlineLayoutBox []
+                            ]
+                        , blockLayoutBox
+                            [ anonymousLayoutBox
+                                [ inlineLayoutBox []
+                                ]
+                            , blockLayoutBox []
+                            ]
+                        , anonymousLayoutBox
+                            [ anonymousLayoutBox
+                                [ inlineLayoutBox [] ]
+                            , blockLayoutBox []
+                            ]
+                        ]
+                    )
         ]

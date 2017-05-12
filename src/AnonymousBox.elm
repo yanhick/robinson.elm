@@ -66,6 +66,53 @@ anonymizedTree node =
                 Just <| InlineLevel <| InlineText text
 
 
+type AnoFinal
+    = Root AnonymizedBox
+    | Children (List AnonymizedBox)
+
+
+anonymizedTreeFinalStep : AnonymizedBox -> AnonymizedBox
+anonymizedTreeFinalStep anonymousBox =
+    case anonymousBox of
+        BlockLevel blockLevel ->
+            let
+                anoChildren =
+                    List.map anonymizedTreeFinalStep
+
+                finalChildren children =
+                    List.foldl
+                        (\child children ->
+                            case child of
+                                InlineLevel (AnonymousInlineRoot list) ->
+                                    List.append children list
+
+                                _ ->
+                                    List.append children [ child ]
+                        )
+                        []
+                        (anoChildren children)
+            in
+                case blockLevel of
+                    BlockContainer styles children ->
+                        BlockLevel <| BlockContainer styles (finalChildren children)
+
+                    AnonymousBlock children ->
+                        BlockLevel <|
+                            AnonymousBlock (finalChildren children)
+
+        InlineLevel inlineLevel ->
+            case inlineLevel of
+                InlineContainer styles children ->
+                    InlineLevel <| InlineContainer styles children
+
+                InlineText text ->
+                    InlineLevel <| InlineText text
+
+                AnonymousInlineRoot children ->
+                    InlineLevel <|
+                        AnonymousInlineRoot (List.map anonymizedTreeFinalStep children)
+
+
 allBlockChildren : List AnonymizedBox -> Bool
 allBlockChildren =
     List.all (not << isInline)
