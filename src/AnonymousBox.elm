@@ -23,7 +23,7 @@ import CSSOM
 
 
 type InlineLevelElement
-    = InlineContainer Styles (List AnonymizedBox)
+    = InlineContainer Styles (List InlineLevelElement)
     | InlineText String
 
 
@@ -116,6 +116,23 @@ anonymizedTreeFinalStep intermediateBox =
                 )
                 []
                 children
+
+        getInlineChildren children =
+            List.filterMap
+                (\child ->
+                    case child of
+                        IntermediateInlineContainer styles list ->
+                            Just <|
+                                InlineContainer styles
+                                    (getInlineChildren list)
+
+                        IntermediateInlineText text ->
+                            Just <| InlineText text
+
+                        _ ->
+                            Nothing
+                )
+                children
     in
         case intermediateBox of
             IntermediateBlockContainer styles children ->
@@ -127,7 +144,10 @@ anonymizedTreeFinalStep intermediateBox =
                         AnonymousBlock (flattenChildren children)
 
             IntermediateInlineContainer styles children ->
-                Just <| InlineLevel <| InlineContainer styles (flattenChildren children)
+                Just <|
+                    InlineLevel <|
+                        InlineContainer styles
+                            (getInlineChildren children)
 
             IntermediateInlineText text ->
                 Just <| InlineLevel <| InlineText text

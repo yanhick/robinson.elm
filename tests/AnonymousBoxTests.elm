@@ -244,13 +244,21 @@ blockLayoutBox children =
             children
 
 
-inlineLayoutBox children =
+inlineLevelLayoutBox children =
     AnonymousBox.InlineLevel <|
         AnonymousBox.InlineContainer
             { styles
                 | display = CSSOM.Inline
             }
             children
+
+
+inlineLayoutBox children =
+    AnonymousBox.InlineContainer
+        { styles
+            | display = CSSOM.Inline
+        }
+        children
 
 
 anonymousLayoutBox children =
@@ -277,7 +285,7 @@ anonymizedTree =
                     (anonymizedTreeOrCrash
                         (styledBlockNode [ styledInlineNode [], styledBlockNode [] ])
                     )
-                    (blockLayoutBox [ anonymousLayoutBox [ inlineLayoutBox [] ], blockLayoutBox [] ])
+                    (blockLayoutBox [ anonymousLayoutBox [ inlineLevelLayoutBox [] ], blockLayoutBox [] ])
         , test "wrap deep inline box in anonymous block for block formatting context" <|
             \() ->
                 Expect.equal
@@ -293,14 +301,14 @@ anonymizedTree =
                     )
                     (blockLayoutBox
                         [ anonymousLayoutBox
-                            [ inlineLayoutBox [ inlineLayoutBox [] ]
+                            [ inlineLevelLayoutBox [ inlineLayoutBox [] ]
                             ]
                         , blockLayoutBox []
                         , anonymousLayoutBox
-                            [ inlineLayoutBox [] ]
+                            [ inlineLevelLayoutBox [] ]
                         , blockLayoutBox []
                         , anonymousLayoutBox
-                            [ inlineLayoutBox [] ]
+                            [ inlineLevelLayoutBox [] ]
                         ]
                     )
         , test "wrap inline box in anonymous block for inline formatting context" <|
@@ -316,10 +324,10 @@ anonymizedTree =
                         )
                     )
                     (blockLayoutBox
-                        [ anonymousLayoutBox [ inlineLayoutBox [] ]
+                        [ anonymousLayoutBox [ inlineLevelLayoutBox [] ]
                         , blockLayoutBox []
                         , anonymousLayoutBox
-                            [ inlineLayoutBox []
+                            [ inlineLevelLayoutBox []
                             ]
                         ]
                     )
@@ -330,7 +338,7 @@ anonymizedTree =
                         (styledBlockNode
                             [ styledInlineNode
                                 [ styledBlockNode
-                                    [ styledInlineNode []
+                                    [ styledInlineNode [ styledInlineNode [] ]
                                     , styledBlockNode []
                                     ]
                                 , styledInlineNode [ styledBlockNode [] ]
@@ -340,17 +348,17 @@ anonymizedTree =
                     )
                     (blockLayoutBox
                         [ anonymousLayoutBox
-                            [ inlineLayoutBox []
+                            [ inlineLevelLayoutBox []
                             ]
                         , blockLayoutBox
                             [ anonymousLayoutBox
-                                [ inlineLayoutBox []
+                                [ inlineLevelLayoutBox [ inlineLayoutBox [] ]
                                 ]
                             , blockLayoutBox []
                             ]
                         , anonymousLayoutBox
                             [ anonymousLayoutBox
-                                [ inlineLayoutBox [] ]
+                                [ inlineLevelLayoutBox [] ]
                             , blockLayoutBox []
                             ]
                         ]
