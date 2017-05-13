@@ -33,7 +33,7 @@ startLayout node containingBoxModel =
             Ok <| layout tree containingBoxModel
 
 
-layout : AnonymousBox.AnonymizedBox -> BoxModel.BoxModel -> LayoutBox
+layout : AnonymousBox.Box -> BoxModel.BoxModel -> LayoutBox
 layout anonymizedBox containingBlockDimensions =
     case anonymizedBox of
         AnonymousBox.BlockLevel (AnonymousBox.BlockContainer styles children) ->
@@ -45,7 +45,7 @@ layout anonymizedBox containingBlockDimensions =
 
 layoutBlock :
     Styles
-    -> List AnonymousBox.AnonymizedBox
+    -> List AnonymousBox.Box
     -> BoxModel.BoxModel
     -> Box
 layoutBlock styles children containingBoxModel =
@@ -89,7 +89,7 @@ layoutBlock styles children containingBoxModel =
 
 
 layoutBlockChildren :
-    List AnonymousBox.AnonymizedBox
+    List AnonymousBox.Box
     -> BoxModel.BoxModel
     -> BoxModel.BoxModel
     -> ( List LayoutBox, BoxModel.BoxModel )

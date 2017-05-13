@@ -28,11 +28,11 @@ type InlineLevelElement
 
 
 type BlockLevelElement
-    = BlockContainer Styles (List AnonymizedBox)
-    | AnonymousBlock (List AnonymizedBox)
+    = BlockContainer Styles (List Box)
+    | AnonymousBlock (List Box)
 
 
-type AnonymizedBox
+type Box
     = BlockLevel BlockLevelElement
     | InlineLevel InlineLevelElement
 
@@ -45,9 +45,9 @@ type IntermediateBox
     | IntermediateAnonymousBlock (List IntermediateBox)
 
 
-boxTree : StyledNode -> Maybe AnonymizedBox
+boxTree : StyledNode -> Maybe Box
 boxTree node =
-    Maybe.andThen anonymizedTreeFinalStep (intermediateBoxTree node)
+    Maybe.andThen boxTreeFinalStep (intermediateBoxTree node)
 
 
 intermediateBoxTree : StyledNode -> Maybe IntermediateBox
@@ -93,16 +93,11 @@ intermediateBoxTree node =
                 Just <| IntermediateInlineText text
 
 
-type AnoFinal
-    = Root AnonymizedBox
-    | Children (List AnonymizedBox)
-
-
-anonymizedTreeFinalStep : IntermediateBox -> Maybe AnonymizedBox
-anonymizedTreeFinalStep intermediateBox =
+boxTreeFinalStep : IntermediateBox -> Maybe Box
+boxTreeFinalStep intermediateBox =
     let
         anoChildren =
-            List.filterMap anonymizedTreeFinalStep
+            List.filterMap boxTreeFinalStep
 
         flattenChildren children =
             List.foldl
