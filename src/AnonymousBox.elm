@@ -29,7 +29,6 @@ type InlineLevelElement
 
 type BlockLevelElement
     = BlockContainer Styles (List Box)
-    | AnonymousBlock (List Box)
 
 
 type Box
@@ -47,7 +46,7 @@ type IntermediateBox
 
 boxTree : StyledNode -> Maybe Box
 boxTree node =
-    Maybe.andThen boxTreeFinalStep (intermediateBoxTree node)
+    Maybe.andThen (boxTreeFinalStep Style.initialStyles) (intermediateBoxTree node)
 
 
 intermediateBoxTree : StyledNode -> Maybe IntermediateBox
@@ -93,21 +92,21 @@ intermediateBoxTree node =
                 Just <| IntermediateInlineText text
 
 
-boxTreeFinalStep : IntermediateBox -> Maybe Box
-boxTreeFinalStep intermediateBox =
+boxTreeFinalStep : Styles -> IntermediateBox -> Maybe Box
+boxTreeFinalStep parentStyles intermediateBox =
     let
-        anoChildren =
-            List.filterMap boxTreeFinalStep
+        anoChildren styles =
+            List.filterMap (boxTreeFinalStep styles)
 
-        flattenChildren children =
+        flattenChildren styles children =
             List.foldl
                 (\child children ->
                     case child of
                         IntermediateAnonymousInlineRoot list ->
-                            List.append children (anoChildren list)
+                            List.append children (anoChildren styles list)
 
                         _ ->
-                            List.append children (anoChildren [ child ])
+                            List.append children (anoChildren styles [ child ])
                 )
                 []
                 children
@@ -131,12 +130,12 @@ boxTreeFinalStep intermediateBox =
     in
         case intermediateBox of
             IntermediateBlockContainer styles children ->
-                Just <| BlockLevel <| BlockContainer styles (flattenChildren children)
+                Just <| BlockLevel <| BlockContainer styles (flattenChildren styles children)
 
             IntermediateAnonymousBlock children ->
                 Just <|
                     BlockLevel <|
-                        AnonymousBlock (flattenChildren children)
+                        BlockContainer parentStyles (flattenChildren parentStyles children)
 
             IntermediateInlineContainer styles children ->
                 Just <|
