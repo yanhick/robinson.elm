@@ -25,7 +25,7 @@ type LayoutBox
 
 startLayout : StyledNode -> BoxModel.BoxModel -> Result String LayoutBox
 startLayout node containingBoxModel =
-    case AnonymousBox.anonymizedTree node of
+    case AnonymousBox.boxTree node of
         Nothing ->
             Err "no tree to layout"
 

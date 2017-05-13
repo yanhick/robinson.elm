@@ -5,10 +5,26 @@ import BoxModel exposing (..)
 import CSSOM
 
 
+{- TODO, should expose final layout boxes (block container, block container
+   establishing formatting context, block container establishing inlilne inline formatting context,
+   inline container, text container)
+
+   block container establishing inline context and inline container should only be allowed
+   inline container children and text container children
+
+   later: add in-flow and out-of-flow (fixed , absolute and floater box)box generation
+   generated content also? and table?
+
+   call it normalized tree? or box generated tree? Box tree? and layout tree?
+
+   all those tree should have a root, then root children, no maybe?
+
+-}
+
+
 type InlineLevelElement
     = InlineContainer Styles (List AnonymizedBox)
     | InlineText String
-    | AnonymousInlineRoot (List AnonymizedBox)
 
 
 type BlockLevelElement
@@ -21,30 +37,42 @@ type AnonymizedBox
     | InlineLevel InlineLevelElement
 
 
-anonymizedTree : StyledNode -> Maybe AnonymizedBox
-anonymizedTree node =
+type IntermediateBox
+    = IntermediateInlineContainer Styles (List IntermediateBox)
+    | IntermediateInlineText String
+    | IntermediateAnonymousInlineRoot (List IntermediateBox)
+    | IntermediateBlockContainer Styles (List IntermediateBox)
+    | IntermediateAnonymousBlock (List IntermediateBox)
+
+
+boxTree : StyledNode -> Maybe AnonymizedBox
+boxTree node =
+    Maybe.andThen anonymizedTreeFinalStep (intermediateBoxTree node)
+
+
+intermediateBoxTree : StyledNode -> Maybe IntermediateBox
+intermediateBoxTree node =
     let
-        anonymizedChildren =
-            List.filterMap anonymizedTree
+        intermediateBoxChildren =
+            List.filterMap intermediateBoxTree
     in
         case node of
             StyledElement { styles, children } ->
                 case styles.display of
                     CSSOM.Block ->
                         Just <|
-                            BlockLevel
-                                (BlockContainer
-                                    styles
-                                    (fixAnonymousChildrenForBlockContainer <|
-                                        anonymizedChildren children
-                                    )
+                            (IntermediateBlockContainer
+                                styles
+                                (fixAnonymousChildrenForBlockContainer <|
+                                    intermediateBoxChildren children
                                 )
+                            )
 
                     CSSOM.Inline ->
                         Just <|
                             let
                                 laidoutChildren =
-                                    anonymizedChildren children
+                                    intermediateBoxChildren children
 
                                 anonymousInlineBox =
                                     fixAnonymousChildrenForInlineContainer
@@ -53,17 +81,16 @@ anonymizedTree node =
                             in
                                 case anonymousInlineBox of
                                     Nothing ->
-                                        InlineLevel <|
-                                            InlineContainer styles laidoutChildren
+                                        IntermediateInlineContainer styles laidoutChildren
 
                                     Just wrappedChildren ->
-                                        InlineLevel <| AnonymousInlineRoot wrappedChildren
+                                        IntermediateAnonymousInlineRoot wrappedChildren
 
                     CSSOM.None ->
                         Nothing
 
             StyledText text ->
-                Just <| InlineLevel <| InlineText text
+                Just <| IntermediateInlineText text
 
 
 type AnoFinal
@@ -71,59 +98,55 @@ type AnoFinal
     | Children (List AnonymizedBox)
 
 
-anonymizedTreeFinalStep : AnonymizedBox -> AnonymizedBox
-anonymizedTreeFinalStep anonymousBox =
-    case anonymousBox of
-        BlockLevel blockLevel ->
-            let
-                anoChildren =
-                    List.map anonymizedTreeFinalStep
+anonymizedTreeFinalStep : IntermediateBox -> Maybe AnonymizedBox
+anonymizedTreeFinalStep intermediateBox =
+    let
+        anoChildren =
+            List.filterMap anonymizedTreeFinalStep
 
-                finalChildren children =
-                    List.foldl
-                        (\child children ->
-                            case child of
-                                InlineLevel (AnonymousInlineRoot list) ->
-                                    List.append children list
+        flattenChildren children =
+            List.foldl
+                (\child children ->
+                    case child of
+                        IntermediateAnonymousInlineRoot list ->
+                            List.append children (anoChildren list)
 
-                                _ ->
-                                    List.append children [ child ]
-                        )
-                        []
-                        (anoChildren children)
-            in
-                case blockLevel of
-                    BlockContainer styles children ->
-                        BlockLevel <| BlockContainer styles (finalChildren children)
+                        _ ->
+                            List.append children (anoChildren [ child ])
+                )
+                []
+                children
+    in
+        case intermediateBox of
+            IntermediateBlockContainer styles children ->
+                Just <| BlockLevel <| BlockContainer styles (flattenChildren children)
 
-                    AnonymousBlock children ->
-                        BlockLevel <|
-                            AnonymousBlock (finalChildren children)
+            IntermediateAnonymousBlock children ->
+                Just <|
+                    BlockLevel <|
+                        AnonymousBlock (flattenChildren children)
 
-        InlineLevel inlineLevel ->
-            case inlineLevel of
-                InlineContainer styles children ->
-                    InlineLevel <| InlineContainer styles children
+            IntermediateInlineContainer styles children ->
+                Just <| InlineLevel <| InlineContainer styles (flattenChildren children)
 
-                InlineText text ->
-                    InlineLevel <| InlineText text
+            IntermediateInlineText text ->
+                Just <| InlineLevel <| InlineText text
 
-                AnonymousInlineRoot children ->
-                    InlineLevel <|
-                        AnonymousInlineRoot (List.map anonymizedTreeFinalStep children)
+            IntermediateAnonymousInlineRoot children ->
+                Nothing
 
 
-allBlockChildren : List AnonymizedBox -> Bool
+allBlockChildren : List IntermediateBox -> Bool
 allBlockChildren =
     List.all (not << isInline)
 
 
-allInlineChildren : List AnonymizedBox -> Bool
+allInlineChildren : List IntermediateBox -> Bool
 allInlineChildren =
     List.all isInline
 
 
-fixAnonymousChildrenForInlineContainer : Styles -> List AnonymizedBox -> Maybe (List AnonymizedBox)
+fixAnonymousChildrenForInlineContainer : Styles -> List IntermediateBox -> Maybe (List IntermediateBox)
 fixAnonymousChildrenForInlineContainer styles children =
     if allInlineChildren children then
         Nothing
@@ -132,7 +155,7 @@ fixAnonymousChildrenForInlineContainer styles children =
             (wrapInlineBoxInAnonymousBlockForInlineContainer styles children)
 
 
-fixAnonymousChildrenForBlockContainer : List AnonymizedBox -> List AnonymizedBox
+fixAnonymousChildrenForBlockContainer : List IntermediateBox -> List IntermediateBox
 fixAnonymousChildrenForBlockContainer children =
     if allBlockChildren children || allInlineChildren children then
         children
@@ -140,21 +163,27 @@ fixAnonymousChildrenForBlockContainer children =
         wrapInlineBoxInAnonymousBlockForBlockContainer children
 
 
-isInline : AnonymizedBox -> Bool
+isInline : IntermediateBox -> Bool
 isInline child =
     case child of
-        InlineLevel _ ->
+        IntermediateInlineContainer _ _ ->
             True
 
-        BlockLevel _ ->
+        IntermediateInlineText _ ->
+            True
+
+        IntermediateAnonymousInlineRoot _ ->
+            True
+
+        _ ->
             False
 
 
-wrapInlineBoxInAnonymousBlockForBlockContainer : List AnonymizedBox -> List AnonymizedBox
+wrapInlineBoxInAnonymousBlockForBlockContainer : List IntermediateBox -> List IntermediateBox
 wrapInlineBoxInAnonymousBlockForBlockContainer children =
     let
         wrapInAnonymousBlock children =
-            BlockLevel <| AnonymousBlock children
+            IntermediateAnonymousBlock children
 
         ( wrappedChildren, remainingInlineChildren ) =
             List.foldl
@@ -180,10 +209,10 @@ wrapInlineBoxInAnonymousBlockForBlockContainer children =
             wrappedChildren
 
 
-wrapInlineBoxInAnonymousBlockForInlineContainer : Styles -> List AnonymizedBox -> List AnonymizedBox
+wrapInlineBoxInAnonymousBlockForInlineContainer : Styles -> List IntermediateBox -> List IntermediateBox
 wrapInlineBoxInAnonymousBlockForInlineContainer styles children =
     wrapInlineBoxInAnonymousBlockForBlockContainer
-        ([ InlineLevel <| InlineContainer styles []
+        ([ IntermediateInlineContainer styles []
          ]
             ++ children
         )

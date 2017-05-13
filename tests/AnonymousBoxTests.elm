@@ -40,6 +40,23 @@ anonymousBox children =
             children
 
 
+intermediateBlockBox =
+    AnonymousBox.IntermediateBlockContainer
+        Style.initialStyles
+        []
+
+
+intermediateInlineBox children =
+    AnonymousBox.IntermediateInlineContainer
+        Style.initialStyles
+        children
+
+
+intermediateAnonymousBox children =
+    AnonymousBox.IntermediateAnonymousBlock
+        children
+
+
 anonymousBoxTests : Test
 anonymousBoxTests =
     describe "wrap inline children in anonymous block"
@@ -47,51 +64,58 @@ anonymousBoxTests =
             \() ->
                 Expect.equal
                     (AnonymousBox.wrapInlineBoxInAnonymousBlockForBlockContainer
-                        [ inlineBox [], blockBox, inlineBox [] ]
+                        [ intermediateInlineBox [], intermediateBlockBox, intermediateInlineBox [] ]
                     )
-                    [ anonymousBox [ inlineBox [] ]
-                    , blockBox
-                    , anonymousBox [ inlineBox [] ]
+                    [ intermediateAnonymousBox [ intermediateInlineBox [] ]
+                    , intermediateBlockBox
+                    , intermediateAnonymousBox [ intermediateInlineBox [] ]
                     ]
         , test "wrap inline children in anonymous block for block container" <|
             \() ->
                 Expect.equal
                     (AnonymousBox.wrapInlineBoxInAnonymousBlockForBlockContainer
-                        [ inlineBox [], blockBox ]
+                        [ intermediateInlineBox [], intermediateBlockBox ]
                     )
-                    [ anonymousBox [ inlineBox [] ]
-                    , blockBox
+                    [ intermediateAnonymousBox [ intermediateInlineBox [] ]
+                    , intermediateBlockBox
                     ]
         , test "wrap contiguous inline children in same anonymous block" <|
             \() ->
                 Expect.equal
                     (AnonymousBox.wrapInlineBoxInAnonymousBlockForBlockContainer
-                        [ blockBox, inlineBox [], inlineBox [], blockBox ]
+                        [ intermediateBlockBox
+                        , intermediateInlineBox []
+                        , intermediateInlineBox []
+                        , intermediateBlockBox
+                        ]
                     )
-                    [ blockBox
-                    , anonymousBox [ inlineBox [], inlineBox [] ]
-                    , blockBox
+                    [ intermediateBlockBox
+                    , intermediateAnonymousBox
+                        [ intermediateInlineBox []
+                        , intermediateInlineBox []
+                        ]
+                    , intermediateBlockBox
                     ]
         , test "do nothing if single block" <|
             \() ->
                 Expect.equal
                     (AnonymousBox.wrapInlineBoxInAnonymousBlockForBlockContainer
-                        [ blockBox ]
+                        [ intermediateBlockBox ]
                     )
-                    [ blockBox ]
+                    [ intermediateBlockBox ]
         , test "do nothing if single block" <|
             \() ->
                 Expect.equal
                     (AnonymousBox.wrapInlineBoxInAnonymousBlockForBlockContainer
-                        [ blockBox ]
+                        [ intermediateBlockBox ]
                     )
-                    [ blockBox ]
+                    [ intermediateBlockBox ]
         , test "do nothing if all children inline for inline container" <|
             \() ->
                 Expect.equal
                     (AnonymousBox.fixAnonymousChildrenForInlineContainer
                         Style.initialStyles
-                        [ inlineBox [] ]
+                        [ intermediateInlineBox [] ]
                     )
                     Nothing
         , test "do nothing if no children" <|
@@ -107,12 +131,22 @@ anonymousBoxTests =
                 Expect.equal
                     (AnonymousBox.fixAnonymousChildrenForInlineContainer
                         Style.initialStyles
-                        [ inlineBox [], blockBox, inlineBox [], inlineBox [] ]
+                        [ intermediateInlineBox []
+                        , intermediateBlockBox
+                        , intermediateInlineBox []
+                        , intermediateInlineBox []
+                        ]
                     )
                     (Just
-                        [ anonymousBox [ inlineBox [], inlineBox [] ]
-                        , blockBox
-                        , anonymousBox [ inlineBox [], inlineBox [] ]
+                        [ intermediateAnonymousBox
+                            [ intermediateInlineBox []
+                            , intermediateInlineBox []
+                            ]
+                        , intermediateBlockBox
+                        , intermediateAnonymousBox
+                            [ intermediateInlineBox []
+                            , intermediateInlineBox []
+                            ]
                         ]
                     )
         , test "attach children to parent container if need to wrap the inline container" <|
@@ -120,54 +154,60 @@ anonymousBoxTests =
                 Expect.equal
                     (AnonymousBox.fixAnonymousChildrenForInlineContainer
                         Style.initialStyles
-                        [ blockBox ]
+                        [ intermediateBlockBox ]
                     )
-                    (Just [ anonymousBox [ inlineBox [] ], blockBox ])
+                    (Just
+                        [ intermediateAnonymousBox
+                            [ intermediateInlineBox []
+                            ]
+                        , intermediateBlockBox
+                        ]
+                    )
         , test "do nothing if all children block for block container" <|
             \() ->
                 Expect.equal
                     (AnonymousBox.fixAnonymousChildrenForBlockContainer
-                        [ blockBox, blockBox ]
+                        [ intermediateBlockBox, intermediateBlockBox ]
                     )
-                    [ blockBox, blockBox ]
+                    [ intermediateBlockBox, intermediateBlockBox ]
         , test "do nothing if all children inline for block container" <|
             \() ->
                 Expect.equal
                     (AnonymousBox.fixAnonymousChildrenForBlockContainer
-                        [ inlineBox [], inlineBox [] ]
+                        [ intermediateInlineBox [], intermediateInlineBox [] ]
                     )
-                    [ inlineBox [], inlineBox [] ]
+                    [ intermediateInlineBox [], intermediateInlineBox [] ]
         , test "wrap inline children in anonymous block for inline container" <|
             \() ->
                 Expect.equal
                     (AnonymousBox.wrapInlineBoxInAnonymousBlockForInlineContainer
                         Style.initialStyles
-                        [ blockBox ]
+                        [ intermediateBlockBox ]
                     )
-                    [ anonymousBox [ inlineBox [] ]
-                    , blockBox
+                    [ intermediateAnonymousBox [ intermediateInlineBox [] ]
+                    , intermediateBlockBox
                     ]
         , test "wrap inline children in anonymous block for inline container with inline element last" <|
             \() ->
                 Expect.equal
                     (AnonymousBox.wrapInlineBoxInAnonymousBlockForInlineContainer
                         Style.initialStyles
-                        [ blockBox, inlineBox [] ]
+                        [ intermediateBlockBox, intermediateInlineBox [] ]
                     )
-                    [ anonymousBox [ inlineBox [] ]
-                    , blockBox
-                    , anonymousBox [ inlineBox [] ]
+                    [ intermediateAnonymousBox [ intermediateInlineBox [] ]
+                    , intermediateBlockBox
+                    , intermediateAnonymousBox [ intermediateInlineBox [] ]
                     ]
         , test "wrap inline children in anonymous block for inline container with inline element last" <|
             \() ->
                 Expect.equal
                     (AnonymousBox.wrapInlineBoxInAnonymousBlockForInlineContainer
                         Style.initialStyles
-                        [ blockBox, inlineBox [] ]
+                        [ intermediateBlockBox, intermediateInlineBox [] ]
                     )
-                    [ anonymousBox [ inlineBox [] ]
-                    , blockBox
-                    , anonymousBox [ inlineBox [] ]
+                    [ intermediateAnonymousBox [ intermediateInlineBox [] ]
+                    , intermediateBlockBox
+                    , intermediateAnonymousBox [ intermediateInlineBox [] ]
                     ]
         , anonymizedTree
         ]
@@ -219,14 +259,8 @@ anonymousLayoutBox children =
             children
 
 
-anonymousInlineRootLayoutBox children =
-    AnonymousBox.InlineLevel <|
-        AnonymousBox.AnonymousInlineRoot
-            children
-
-
 anonymizedTreeOrCrash styledNode =
-    case AnonymousBox.anonymizedTree styledNode of
+    case AnonymousBox.boxTree styledNode of
         Nothing ->
             Debug.crash "anonymized tree should not be nothing"
 
@@ -273,13 +307,15 @@ anonymizedTree =
             \() ->
                 Expect.equal
                     (anonymizedTreeOrCrash
-                        (styledInlineNode
-                            [ styledBlockNode []
-                            , styledInlineNode []
+                        (styledBlockNode
+                            [ styledInlineNode
+                                [ styledBlockNode []
+                                , styledInlineNode []
+                                ]
                             ]
                         )
                     )
-                    (anonymousInlineRootLayoutBox
+                    (blockLayoutBox
                         [ anonymousLayoutBox [ inlineLayoutBox [] ]
                         , blockLayoutBox []
                         , anonymousLayoutBox
@@ -291,49 +327,18 @@ anonymizedTree =
             \() ->
                 Expect.equal
                     (anonymizedTreeOrCrash
-                        (styledInlineNode
-                            [ styledBlockNode
-                                [ styledInlineNode []
-                                , styledBlockNode []
-                                ]
-                            , styledInlineNode [ styledBlockNode [] ]
-                            ]
-                        )
-                    )
-                    (anonymousInlineRootLayoutBox
-                        [ anonymousLayoutBox
-                            [ inlineLayoutBox []
-                            ]
-                        , blockLayoutBox
-                            [ anonymousLayoutBox
-                                [ inlineLayoutBox []
-                                ]
-                            , blockLayoutBox []
-                            ]
-                        , anonymousLayoutBox
-                            [ anonymousInlineRootLayoutBox
-                                [ anonymousLayoutBox
-                                    [ inlineLayoutBox [] ]
-                                , blockLayoutBox []
-                                ]
-                            ]
-                        ]
-                    )
-        , test "fix anonymous inline root by attaching to their parent" <|
-            \() ->
-                Expect.equal
-                    (AnonymousBox.anonymizedTreeFinalStep <|
-                        anonymizedTreeOrCrash
-                            (styledInlineNode
+                        (styledBlockNode
+                            [ styledInlineNode
                                 [ styledBlockNode
                                     [ styledInlineNode []
                                     , styledBlockNode []
                                     ]
                                 , styledInlineNode [ styledBlockNode [] ]
                                 ]
-                            )
+                            ]
+                        )
                     )
-                    (anonymousInlineRootLayoutBox
+                    (blockLayoutBox
                         [ anonymousLayoutBox
                             [ inlineLayoutBox []
                             ]
