@@ -69,7 +69,7 @@ htmlParser =
             \() ->
                 Expect.true "Expect a dom node" <|
                     case (Parser.run HtmlParser.parse "<html></html>") of
-                        Ok (DOM.Element { children, tagName, attributes }) ->
+                        Ok (DOM.DOMRoot { children, tagName, attributes }) ->
                             List.isEmpty
                                 children
                                 && tagName
@@ -82,7 +82,7 @@ htmlParser =
             \() ->
                 Expect.true "Expect a dom node" <|
                     case (Parser.run HtmlParser.parse "<html>\n</html>") of
-                        Ok (DOM.Element { children, tagName, attributes }) ->
+                        Ok (DOM.DOMRoot { children, tagName, attributes }) ->
                             List.isEmpty
                                 children
                                 && tagName
@@ -95,7 +95,7 @@ htmlParser =
             \() ->
                 Expect.true "Expect a dom node" <|
                     case (Parser.run HtmlParser.parse "<html><body></body></html>") of
-                        Ok (DOM.Element { children, tagName, attributes }) ->
+                        Ok (DOM.DOMRoot { children, tagName, attributes }) ->
                             List.length
                                 children
                                 == 1
@@ -117,7 +117,7 @@ htmlParser =
             \() ->
                 Expect.true "Expect a dom node" <|
                     case (Parser.run HtmlParser.parse "<html>hello</html>") of
-                        Ok (DOM.Element { children, tagName, attributes }) ->
+                        Ok (DOM.DOMRoot { children, tagName, attributes }) ->
                             List.length
                                 children
                                 == 1
@@ -137,7 +137,7 @@ htmlParser =
             \() ->
                 Expect.true "Expect a dom node" <|
                     case (Parser.run HtmlParser.parse "<html lang=\"us\"></html>") of
-                        Ok (DOM.Element { children, tagName, attributes }) ->
+                        Ok (DOM.DOMRoot { children, tagName, attributes }) ->
                             List.isEmpty children
                                 && attributes
                                 == Dict.fromList [ ( "lang", "us" ) ]

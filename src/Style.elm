@@ -78,8 +78,13 @@ type alias Styles =
     }
 
 
-styleTree : CSSStyleSheet -> DOMNode -> StyledNode
-styleTree stylesheet domNode =
+styleTree : CSSStyleSheet -> DOMRoot -> StyledNode
+styleTree stylesheet (DOMRoot element) =
+    styleTreeChild stylesheet (Element element)
+
+
+styleTreeChild : CSSStyleSheet -> DOMNode -> StyledNode
+styleTreeChild stylesheet domNode =
     case domNode of
         Text text ->
             StyledText text
@@ -90,7 +95,7 @@ styleTree stylesheet domNode =
                     specifiedValues elementNode stylesheet
 
                 children =
-                    List.map (styleTree stylesheet) elementNode.children
+                    List.map (styleTreeChild stylesheet) elementNode.children
             in
                 StyledElement
                     { node = elementNode

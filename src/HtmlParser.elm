@@ -6,9 +6,28 @@ import Char
 import DOM exposing (..)
 
 
-parse : Parser DOMNode
+parse : Parser DOMRoot
 parse =
-    parseElement
+    parseRoot
+
+
+parseRoot : Parser DOMRoot
+parseRoot =
+    inContext "parse element" <|
+        succeed
+            (\( tagName, attributes ) children ->
+                DOMRoot
+                    { children = children
+                    , tagName = tagName
+                    , attributes = attributes
+                    }
+            )
+            |= parseOpeningTag
+            |. spaces
+            |= oneOf
+                [ parseClosingTag []
+                , andThen (\n -> parseNodeList [ n ]) (lazy (\_ -> parseNode))
+                ]
 
 
 parseElement : Parser DOMNode

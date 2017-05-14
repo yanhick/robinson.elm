@@ -22,6 +22,10 @@ type alias ElementNode =
     }
 
 
+type DOMRoot
+    = DOMRoot ElementNode
+
+
 type DOMNode
     = Text String
     | Element ElementNode
