@@ -36,6 +36,10 @@ type Box
     | InlineLevel InlineLevelElement
 
 
+type BoxRoot
+    = BoxRoot Styles (List Box)
+
+
 type IntermediateBox
     = IntermediateInlineContainer Styles (List IntermediateBox)
     | IntermediateInlineText String
@@ -44,9 +48,17 @@ type IntermediateBox
     | IntermediateAnonymousBlock (List IntermediateBox)
 
 
-boxTree : StyledNode -> Maybe Box
-boxTree node =
-    Maybe.andThen (boxTreeFinalStep Style.initialStyles) (intermediateBoxTree node)
+boxTree : StyledRoot -> Maybe BoxRoot
+boxTree (StyledRoot { node, styles, children }) =
+    case styles.display of
+        CSSOM.None ->
+            Nothing
+
+        _ ->
+            Just <|
+                BoxRoot styles <|
+                    List.filterMap (boxTreeFinalStep Style.initialStyles)
+                        (List.filterMap intermediateBoxTree children)
 
 
 intermediateBoxTree : StyledNode -> Maybe IntermediateBox

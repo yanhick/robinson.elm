@@ -16,6 +16,10 @@ type alias StyledElementNode =
     }
 
 
+type StyledRoot
+    = StyledRoot StyledElementNode
+
+
 type StyledNode
     = StyledElement StyledElementNode
     | StyledText String
@@ -78,9 +82,13 @@ type alias Styles =
     }
 
 
-styleTree : CSSStyleSheet -> DOMRoot -> StyledNode
+styleTree : CSSStyleSheet -> DOMRoot -> StyledRoot
 styleTree stylesheet (DOMRoot element) =
-    styleTreeChild stylesheet (Element element)
+    StyledRoot
+        { node = element
+        , styles = specifiedValues element stylesheet
+        , children = List.map (styleTreeChild stylesheet) (element.children)
+        }
 
 
 styleTreeChild : CSSStyleSheet -> DOMNode -> StyledNode

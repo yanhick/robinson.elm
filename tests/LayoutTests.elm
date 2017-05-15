@@ -437,19 +437,18 @@ startLayout =
         [ test "layout itself" <|
             \() ->
                 let
-                    getStyledNode children height =
-                        Style.StyledElement
-                            { styles =
-                                { styles
-                                    | display = CSSOM.Block
-                                    , height = height
-                                }
-                            , node = element
-                            , children = children
+                    getStyledElement children height =
+                        { styles =
+                            { styles
+                                | display = CSSOM.Block
+                                , height = height
                             }
+                        , node = element
+                        , children = children
+                        }
 
-                    styledNode =
-                        getStyledNode
+                    styledRoot =
+                        getStyledRoot
                             [ getStyledNode [] (CSSOM.heightLength <| testCSSLength 50)
                             , getStyledNode [] (CSSOM.heightLength <| testCSSLength 50)
                             ]
@@ -462,17 +461,24 @@ startLayout =
                             edgeSize
                             edgeSize
 
-                    layoutBox =
-                        case
-                            Layout.startLayout
-                                styledNode
-                                containingDimensions
-                        of
-                            Err _ ->
-                                Debug.crash "layout box should not be nothing"
+                    getStyledNode children height =
+                        Style.StyledElement <| getStyledElement children height
 
-                            Ok box ->
+                    getStyledRoot children height =
+                        Style.StyledRoot <| getStyledElement children height
+
+                    box =
+                        case AnonymousBox.boxTree styledRoot of
+                            Nothing ->
+                                Debug.crash "box should not be nothing"
+
+                            Just box ->
                                 box
+
+                    layoutBox =
+                        Layout.startLayout
+                            box
+                            containingDimensions
 
                     boxModelContent =
                         Maybe.map BoxModel.content <| getBoxModel layoutBox
@@ -483,21 +489,20 @@ startLayout =
         , test "layout itself with padding" <|
             \() ->
                 let
-                    getStyledNode children height =
-                        Style.StyledElement
-                            { styles =
-                                { styles
-                                    | display = CSSOM.Block
-                                    , height = height
-                                    , paddingTop = CSSOM.padding <| testCSSLength 20
-                                    , paddingBottom = CSSOM.padding <| testCSSLength 20
-                                }
-                            , node = element
-                            , children = children
+                    getStyledElement children height =
+                        { styles =
+                            { styles
+                                | display = CSSOM.Block
+                                , height = height
+                                , paddingTop = CSSOM.padding <| testCSSLength 20
+                                , paddingBottom = CSSOM.padding <| testCSSLength 20
                             }
+                        , node = element
+                        , children = children
+                        }
 
-                    styledNode =
-                        getStyledNode
+                    styledRoot =
+                        getStyledRoot
                             [ getStyledNode [] (CSSOM.heightLength <| testCSSLength 50)
                             , getStyledNode [] (CSSOM.heightLength <| testCSSLength 50)
                             ]
@@ -510,17 +515,24 @@ startLayout =
                             edgeSize
                             edgeSize
 
-                    layoutBox =
-                        case
-                            Layout.startLayout
-                                styledNode
-                                containingDimensions
-                        of
-                            Err _ ->
-                                Debug.crash "layout box should not be nothing"
+                    getStyledNode children height =
+                        Style.StyledElement <| getStyledElement children height
 
-                            Ok box ->
+                    getStyledRoot children height =
+                        Style.StyledRoot <| getStyledElement children height
+
+                    box =
+                        case AnonymousBox.boxTree styledRoot of
+                            Nothing ->
+                                Debug.crash "box should not be nothing"
+
+                            Just box ->
                                 box
+
+                    layoutBox =
+                        Layout.startLayout
+                            box
+                            containingDimensions
 
                     boxModelPadding =
                         Maybe.map BoxModel.paddingBox <| getBoxModel layoutBox
@@ -531,23 +543,22 @@ startLayout =
         , test "layout itself with borders" <|
             \() ->
                 let
-                    getStyledNode children height =
-                        Style.StyledElement
-                            { styles =
-                                { styles
-                                    | display = CSSOM.Block
-                                    , height = height
-                                    , borderTopWidth = CSSOM.borderWidthLength <| testCSSLength 20
-                                    , borderBottomWidth = CSSOM.borderWidthLength <| testCSSLength 20
-                                    , borderTopStyle = CSSOM.borderStyleSolid
-                                    , borderBottomStyle = CSSOM.borderStyleSolid
-                                }
-                            , node = element
-                            , children = children
+                    getStyledElement children height =
+                        { styles =
+                            { styles
+                                | display = CSSOM.Block
+                                , height = height
+                                , borderTopWidth = CSSOM.borderWidthLength <| testCSSLength 20
+                                , borderBottomWidth = CSSOM.borderWidthLength <| testCSSLength 20
+                                , borderTopStyle = CSSOM.borderStyleSolid
+                                , borderBottomStyle = CSSOM.borderStyleSolid
                             }
+                        , node = element
+                        , children = children
+                        }
 
-                    styledNode =
-                        getStyledNode
+                    styledRoot =
+                        getStyledRoot
                             [ getStyledNode [] (CSSOM.heightLength <| testCSSLength 50)
                             , getStyledNode [] (CSSOM.heightLength <| testCSSLength 50)
                             ]
@@ -560,17 +571,24 @@ startLayout =
                             edgeSize
                             edgeSize
 
-                    layoutBox =
-                        case
-                            Layout.startLayout
-                                styledNode
-                                containingDimensions
-                        of
-                            Err _ ->
-                                Debug.crash "layout box should not be nothing"
+                    getStyledNode children height =
+                        Style.StyledElement <| getStyledElement children height
 
-                            Ok box ->
+                    getStyledRoot children height =
+                        Style.StyledRoot <| getStyledElement children height
+
+                    box =
+                        case AnonymousBox.boxTree styledRoot of
+                            Nothing ->
+                                Debug.crash "box should not be nothing"
+
+                            Just box ->
                                 box
+
+                    layoutBox =
+                        Layout.startLayout
+                            box
+                            containingDimensions
 
                     boxModelBorder =
                         Maybe.map BoxModel.borderBox <| getBoxModel layoutBox
@@ -581,21 +599,26 @@ startLayout =
         , test "layout itself with margins" <|
             \() ->
                 let
-                    getStyledNode children height =
-                        Style.StyledElement
-                            { styles =
-                                { styles
-                                    | display = CSSOM.Block
-                                    , height = height
-                                    , marginTop = CSSOM.marginLength <| testCSSLength 20
-                                    , marginBottom = CSSOM.marginLength <| testCSSLength 20
-                                }
-                            , node = element
-                            , children = children
+                    getStyledElement children height =
+                        { styles =
+                            { styles
+                                | display = CSSOM.Block
+                                , height = height
+                                , marginTop = CSSOM.marginLength <| testCSSLength 20
+                                , marginBottom = CSSOM.marginLength <| testCSSLength 20
                             }
+                        , node = element
+                        , children = children
+                        }
 
-                    styledNode =
-                        getStyledNode
+                    getStyledNode children height =
+                        Style.StyledElement <| getStyledElement children height
+
+                    getStyledRoot children height =
+                        Style.StyledRoot <| getStyledElement children height
+
+                    styledRoot =
+                        getStyledRoot
                             [ getStyledNode [] (CSSOM.heightLength <| testCSSLength 50)
                             , getStyledNode [] (CSSOM.heightLength <| testCSSLength 50)
                             ]
@@ -608,17 +631,18 @@ startLayout =
                             edgeSize
                             edgeSize
 
-                    layoutBox =
-                        case
-                            Layout.startLayout
-                                styledNode
-                                containingDimensions
-                        of
-                            Err _ ->
-                                Debug.crash "layout box should not be nothing"
+                    box =
+                        case AnonymousBox.boxTree styledRoot of
+                            Nothing ->
+                                Debug.crash "box should not be nothing"
 
-                            Ok box ->
+                            Just box ->
                                 box
+
+                    layoutBox =
+                        Layout.startLayout
+                            box
+                            containingDimensions
 
                     boxModelMargin =
                         Maybe.map BoxModel.marginBox <| getBoxModel layoutBox

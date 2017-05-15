@@ -5,6 +5,7 @@ import Color exposing (..)
 import Html.Events exposing (..)
 import Html.Attributes exposing (style)
 import HtmlParser
+import AnonymousBox
 import Parser
 import DOM
 import CSSParser
@@ -94,10 +95,10 @@ render : String -> String -> List Painting.DisplayCommand
 render html css =
     let
         dom =
-            Parser.run HtmlParser.parse html
+            Result.mapError (always "html parse error") (Parser.run HtmlParser.parse html)
 
         cssom =
-            Parser.run CSSParser.parse css
+            Result.mapError (always "css parse error") (Parser.run CSSParser.parse css)
 
         style =
             Result.map2 Style.styleTree cssom dom
@@ -109,14 +110,27 @@ render html css =
                 { top = 0, left = 0, bottom = 0, right = 0 }
                 { top = 0, left = 0, bottom = 0, right = 0 }
 
+        boxes =
+            case Result.map AnonymousBox.boxTree style of
+                Ok (Just box) ->
+                    Ok box
+
+                Ok Nothing ->
+                    Err "no box"
+
+                Err err ->
+                    Err err
+
         layout =
-            Result.map2 Layout.startLayout style (Ok containingBlock)
+            Result.map2 Layout.startLayout
+                boxes
+                (Ok containingBlock)
 
         displayCommand =
-            Result.map (Result.map Painting.buildDisplayList) layout
+            Result.map Painting.buildDisplayList layout
     in
         case displayCommand of
-            Ok (Ok dc) ->
+            Ok dc ->
                 dc
 
             _ ->

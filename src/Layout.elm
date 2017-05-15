@@ -23,14 +23,9 @@ type LayoutBox
     | TextBox String
 
 
-startLayout : StyledNode -> BoxModel.BoxModel -> Result String LayoutBox
-startLayout node containingBoxModel =
-    case AnonymousBox.boxTree node of
-        Nothing ->
-            Err "no tree to layout"
-
-        Just tree ->
-            Ok <| layout tree containingBoxModel
+startLayout : AnonymousBox.BoxRoot -> BoxModel.BoxModel -> LayoutBox
+startLayout (AnonymousBox.BoxRoot styles children) containingBoxModel =
+    layout (AnonymousBox.BlockLevel <| AnonymousBox.BlockContainer styles children) containingBoxModel
 
 
 layout : AnonymousBox.Box -> BoxModel.BoxModel -> LayoutBox

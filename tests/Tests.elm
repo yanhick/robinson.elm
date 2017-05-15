@@ -166,7 +166,7 @@ styledTree =
                             Result.map2 Style.styleTree styleSheet rootElement
                     in
                         case styledTree of
-                            Ok (Style.StyledElement { node, styles, children }) ->
+                            Ok (Style.StyledRoot { node, styles, children }) ->
                                 List.isEmpty children
                                     && case styles of
                                         { display } ->
@@ -192,7 +192,7 @@ styledTree =
                             Result.map2 Style.styleTree styleSheet rootElement
                     in
                         case styledTree of
-                            Ok (Style.StyledElement { node, styles, children }) ->
+                            Ok (Style.StyledRoot { node, styles, children }) ->
                                 List.isEmpty children
                                     && case styles of
                                         { display } ->
