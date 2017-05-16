@@ -274,6 +274,45 @@ inlineLayoutBox children =
         children
 
 
+type DumpBoxTree
+    = DumpRoot (List DumpBoxTree)
+    | DumpBlockContainer (List DumpBoxTree)
+    | DumpInlineContainer (List DumpBoxTree)
+    | DumpText
+
+
+dumpBoxTree (AnonymousBox.BoxRoot styles children) =
+    DumpRoot
+        (List.map
+            dumpBoxTreeChildren
+            children
+        )
+
+
+dumpBoxTreeChildren child =
+    case child of
+        AnonymousBox.BlockLevel (AnonymousBox.BlockContainer styles children) ->
+            DumpBlockContainer
+                (List.map dumpBoxTreeChildren children)
+
+        AnonymousBox.InlineLevel inlineLevel ->
+            case inlineLevel of
+                AnonymousBox.InlineText text ->
+                    DumpText
+
+                AnonymousBox.InlineContainer styles children ->
+                    DumpInlineContainer (List.map dumpBoxTreeInlineChildren children)
+
+
+dumpBoxTreeInlineChildren child =
+    case child of
+        AnonymousBox.InlineContainer styles children ->
+            DumpInlineContainer (List.map dumpBoxTreeInlineChildren children)
+
+        AnonymousBox.InlineText text ->
+            DumpText
+
+
 anonymizedTreeOrCrash styledNode =
     AnonymousBox.boxTree
         (Style.StyledRoot
@@ -347,34 +386,36 @@ anonymizedTree =
         , test "wrap deep inline box in anonymous block for inline formatting context" <|
             \() ->
                 Expect.equal
-                    (anonymizedTreeOrCrash
-                        (styledBlockNode
-                            [ styledInlineNode
-                                [ styledBlockNode
-                                    [ styledInlineNode [ styledInlineNode [] ]
-                                    , styledBlockNode []
+                    (dumpBoxTree <|
+                        anonymizedTreeOrCrash
+                            (styledBlockNode
+                                [ styledInlineNode
+                                    [ styledBlockNode
+                                        [ styledInlineNode [ styledInlineNode [] ]
+                                        , styledBlockNode []
+                                        ]
+                                    , styledInlineNode [ styledBlockNode [] ]
                                     ]
-                                , styledInlineNode [ styledBlockNode [] ]
                                 ]
-                            ]
-                        )
+                            )
                     )
-                    (blockRoot <|
-                        blockLayoutBox
-                            [ blockLayoutBox
-                                [ inlineLevelLayoutBox []
-                                ]
-                            , blockLayoutBox
+                    (dumpBoxTree <|
+                        blockRoot <|
+                            blockLayoutBox
                                 [ blockLayoutBox
-                                    [ inlineLevelLayoutBox [ inlineLayoutBox [] ]
+                                    [ inlineLevelLayoutBox []
                                     ]
-                                , blockLayoutBox []
+                                , blockLayoutBox
+                                    [ blockLayoutBox
+                                        [ inlineLevelLayoutBox [ inlineLayoutBox [] ]
+                                        ]
+                                    , blockLayoutBox []
+                                    ]
+                                , blockLayoutBox
+                                    [ blockLayoutBox
+                                        [ inlineLevelLayoutBox [] ]
+                                    , blockLayoutBox []
+                                    ]
                                 ]
-                            , blockLayoutBox
-                                [ blockLayoutBox
-                                    [ inlineLevelLayoutBox [] ]
-                                , blockLayoutBox []
-                                ]
-                            ]
                     )
         ]
