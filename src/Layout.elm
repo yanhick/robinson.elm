@@ -25,13 +25,13 @@ type LayoutBox
 
 startLayout : AnonymousBox.BoxRoot -> BoxModel.BoxModel -> LayoutBox
 startLayout (AnonymousBox.BoxRoot styles children) containingBoxModel =
-    layout (AnonymousBox.BlockLevel <| AnonymousBox.BlockContainer styles children) containingBoxModel
+    layout (AnonymousBox.BlockLevel <| AnonymousBox.BlockContainerBlockContext styles children) containingBoxModel
 
 
 layout : AnonymousBox.Box -> BoxModel.BoxModel -> LayoutBox
 layout anonymizedBox containingBlockDimensions =
     case anonymizedBox of
-        AnonymousBox.BlockLevel (AnonymousBox.BlockContainer styles children) ->
+        AnonymousBox.BlockLevel (AnonymousBox.BlockContainerBlockContext styles children) ->
             BlockBox <| layoutBlock styles children containingBlockDimensions
 
         _ ->

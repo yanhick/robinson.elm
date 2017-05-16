@@ -22,7 +22,7 @@ element =
 
 blockBox =
     AnonymousBox.BlockLevel <|
-        AnonymousBox.BlockContainer
+        AnonymousBox.BlockContainerBlockContext
             Style.initialStyles
             []
 
@@ -250,7 +250,7 @@ blockRoot child =
 
 blockLayoutBox children =
     AnonymousBox.BlockLevel <|
-        AnonymousBox.BlockContainer
+        AnonymousBox.BlockContainerBlockContext
             { styles
                 | display = CSSOM.Block
             }
@@ -276,7 +276,8 @@ inlineLayoutBox children =
 
 type DumpBoxTree
     = DumpRoot (List DumpBoxTree)
-    | DumpBlockContainer (List DumpBoxTree)
+    | DumpBlockContainerBlockContext (List DumpBoxTree)
+    | DumpBlockContainerInlineContext (List DumpBoxTree)
     | DumpInlineContainer (List DumpBoxTree)
     | DumpText
 
@@ -291,9 +292,15 @@ dumpBoxTree (AnonymousBox.BoxRoot styles children) =
 
 dumpBoxTreeChildren child =
     case child of
-        AnonymousBox.BlockLevel (AnonymousBox.BlockContainer styles children) ->
-            DumpBlockContainer
-                (List.map dumpBoxTreeChildren children)
+        AnonymousBox.BlockLevel blockLevel ->
+            case blockLevel of
+                AnonymousBox.BlockContainerBlockContext styles children ->
+                    DumpBlockContainerBlockContext
+                        (List.map dumpBoxTreeChildren children)
+
+                AnonymousBox.BlockContainerInlineContext styles children ->
+                    DumpBlockContainerInlineContext
+                        (List.map dumpBoxTreeInlineChildren children)
 
         AnonymousBox.InlineLevel inlineLevel ->
             case inlineLevel of

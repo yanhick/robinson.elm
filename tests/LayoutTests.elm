@@ -410,7 +410,7 @@ layoutBlockChildren =
 
                     getBlockBox children height =
                         AnonymousBox.BlockLevel <|
-                            AnonymousBox.BlockContainer
+                            AnonymousBox.BlockContainerBlockContext
                                 { styles
                                     | display = CSSOM.Block
                                     , height = height
