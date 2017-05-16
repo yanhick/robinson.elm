@@ -165,15 +165,40 @@ boxTreeFinalStep parentStyles intermediateBox =
                             Nothing
                 )
                 children
+
+        allInlineChildren children =
+            case children of
+                [] ->
+                    False
+
+                _ ->
+                    List.all isInline children
+
+        isInline child =
+            case child of
+                FlattenedInlineContainer _ _ ->
+                    True
+
+                FlattenedInlineText _ ->
+                    True
+
+                _ ->
+                    False
     in
         case intermediateBox of
             FlattenedBlockContainer styles children ->
                 BlockLevel <|
-                    BlockContainerBlockContext styles (List.map (boxTreeFinalStep styles) children)
+                    if allInlineChildren children then
+                        BlockContainerInlineContext styles (getInlineChildren children)
+                    else
+                        BlockContainerBlockContext styles (List.map (boxTreeFinalStep styles) children)
 
             FlattenedAnonymousBlock children ->
                 BlockLevel <|
-                    BlockContainerBlockContext parentStyles (List.map (boxTreeFinalStep parentStyles) children)
+                    if allInlineChildren children then
+                        BlockContainerInlineContext parentStyles (getInlineChildren children)
+                    else
+                        BlockContainerBlockContext parentStyles (List.map (boxTreeFinalStep parentStyles) children)
 
             FlattenedInlineContainer styles children ->
                 InlineLevel <|

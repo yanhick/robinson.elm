@@ -27,6 +27,13 @@ blockBox =
             []
 
 
+blockBoxInlineContext children =
+    AnonymousBox.BlockLevel <|
+        AnonymousBox.BlockContainerInlineContext
+            Style.initialStyles
+            []
+
+
 inlineBox children =
     AnonymousBox.InlineLevel <|
         AnonymousBox.InlineContainer
@@ -257,6 +264,15 @@ blockLayoutBox children =
             children
 
 
+blockLayoutBoxInlineContext children =
+    AnonymousBox.BlockLevel <|
+        AnonymousBox.BlockContainerInlineContext
+            { styles
+                | display = CSSOM.Block
+            }
+            children
+
+
 inlineLevelLayoutBox children =
     AnonymousBox.InlineLevel <|
         AnonymousBox.InlineContainer
@@ -342,7 +358,7 @@ anonymizedTree =
                     (anonymizedTreeOrCrash
                         (styledBlockNode [ styledInlineNode [], styledBlockNode [] ])
                     )
-                    (blockRoot <| blockLayoutBox [ blockLayoutBox [ inlineLevelLayoutBox [] ], blockLayoutBox [] ])
+                    (blockRoot <| blockLayoutBox [ blockLayoutBoxInlineContext [ inlineLayoutBox [] ], blockLayoutBox [] ])
         , test "wrap deep inline box in anonymous block for block formatting context" <|
             \() ->
                 Expect.equal
@@ -358,15 +374,15 @@ anonymizedTree =
                     )
                     (blockRoot <|
                         blockLayoutBox
-                            [ blockLayoutBox
-                                [ inlineLevelLayoutBox [ inlineLayoutBox [] ]
+                            [ blockLayoutBoxInlineContext
+                                [ inlineLayoutBox [ inlineLayoutBox [] ]
                                 ]
                             , blockLayoutBox []
-                            , blockLayoutBox
-                                [ inlineLevelLayoutBox [] ]
+                            , blockLayoutBoxInlineContext
+                                [ inlineLayoutBox [] ]
                             , blockLayoutBox []
-                            , blockLayoutBox
-                                [ inlineLevelLayoutBox [] ]
+                            , blockLayoutBoxInlineContext
+                                [ inlineLayoutBox [] ]
                             ]
                     )
         , test "wrap inline box in anonymous block for inline formatting context" <|
@@ -383,10 +399,10 @@ anonymizedTree =
                     )
                     (blockRoot <|
                         blockLayoutBox
-                            [ blockLayoutBox [ inlineLevelLayoutBox [] ]
+                            [ blockLayoutBoxInlineContext [ inlineLayoutBox [] ]
                             , blockLayoutBox []
-                            , blockLayoutBox
-                                [ inlineLevelLayoutBox []
+                            , blockLayoutBoxInlineContext
+                                [ inlineLayoutBox []
                                 ]
                             ]
                     )
@@ -409,18 +425,18 @@ anonymizedTree =
                     (dumpBoxTree <|
                         blockRoot <|
                             blockLayoutBox
-                                [ blockLayoutBox
-                                    [ inlineLevelLayoutBox []
+                                [ blockLayoutBoxInlineContext
+                                    [ inlineLayoutBox []
                                     ]
                                 , blockLayoutBox
-                                    [ blockLayoutBox
-                                        [ inlineLevelLayoutBox [ inlineLayoutBox [] ]
+                                    [ blockLayoutBoxInlineContext
+                                        [ inlineLayoutBox [ inlineLayoutBox [] ]
                                         ]
                                     , blockLayoutBox []
                                     ]
                                 , blockLayoutBox
-                                    [ blockLayoutBox
-                                        [ inlineLevelLayoutBox [] ]
+                                    [ blockLayoutBoxInlineContext
+                                        [ inlineLayoutBox [] ]
                                     , blockLayoutBox []
                                     ]
                                 ]
