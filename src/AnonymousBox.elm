@@ -48,17 +48,16 @@ type IntermediateBox
     | IntermediateAnonymousBlock (List IntermediateBox)
 
 
-boxTree : StyledRoot -> Maybe BoxRoot
+boxTree : StyledRoot -> BoxRoot
 boxTree (StyledRoot { node, styles, children }) =
     case styles.display of
         CSSOM.None ->
-            Nothing
+            BoxRoot styles []
 
         _ ->
-            Just <|
-                BoxRoot styles <|
-                    List.filterMap (boxTreeFinalStep Style.initialStyles)
-                        (List.filterMap intermediateBoxTree children)
+            BoxRoot styles <|
+                List.filterMap (boxTreeFinalStep Style.initialStyles)
+                    (List.filterMap intermediateBoxTree children)
 
 
 intermediateBoxTree : StyledNode -> Maybe IntermediateBox

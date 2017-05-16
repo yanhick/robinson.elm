@@ -111,15 +111,7 @@ render html css =
                 { top = 0, left = 0, bottom = 0, right = 0 }
 
         boxes =
-            case Result.map AnonymousBox.boxTree style of
-                Ok (Just box) ->
-                    Ok box
-
-                Ok Nothing ->
-                    Err "no box"
-
-                Err err ->
-                    Err err
+            Result.map AnonymousBox.boxTree style
 
         layout =
             Result.map2 Layout.startLayout

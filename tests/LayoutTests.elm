@@ -468,12 +468,7 @@ startLayout =
                         Style.StyledRoot <| getStyledElement children height
 
                     box =
-                        case AnonymousBox.boxTree styledRoot of
-                            Nothing ->
-                                Debug.crash "box should not be nothing"
-
-                            Just box ->
-                                box
+                        AnonymousBox.boxTree styledRoot
 
                     layoutBox =
                         Layout.startLayout
@@ -522,12 +517,7 @@ startLayout =
                         Style.StyledRoot <| getStyledElement children height
 
                     box =
-                        case AnonymousBox.boxTree styledRoot of
-                            Nothing ->
-                                Debug.crash "box should not be nothing"
-
-                            Just box ->
-                                box
+                        AnonymousBox.boxTree styledRoot
 
                     layoutBox =
                         Layout.startLayout
@@ -578,12 +568,7 @@ startLayout =
                         Style.StyledRoot <| getStyledElement children height
 
                     box =
-                        case AnonymousBox.boxTree styledRoot of
-                            Nothing ->
-                                Debug.crash "box should not be nothing"
-
-                            Just box ->
-                                box
+                        AnonymousBox.boxTree styledRoot
 
                     layoutBox =
                         Layout.startLayout
@@ -632,12 +617,7 @@ startLayout =
                             edgeSize
 
                     box =
-                        case AnonymousBox.boxTree styledRoot of
-                            Nothing ->
-                                Debug.crash "box should not be nothing"
-
-                            Just box ->
-                                box
+                        AnonymousBox.boxTree styledRoot
 
                     layoutBox =
                         Layout.startLayout

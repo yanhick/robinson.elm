@@ -275,23 +275,16 @@ inlineLayoutBox children =
 
 
 anonymizedTreeOrCrash styledNode =
-    case
-        AnonymousBox.boxTree
-            (Style.StyledRoot
-                { styles =
-                    { styles
-                        | display = CSSOM.Block
-                    }
-                , node = element
-                , children = [ styledNode ]
+    AnonymousBox.boxTree
+        (Style.StyledRoot
+            { styles =
+                { styles
+                    | display = CSSOM.Block
                 }
-            )
-    of
-        Nothing ->
-            Debug.crash "anonymized tree should not be nothing"
-
-        Just tree ->
-            tree
+            , node = element
+            , children = [ styledNode ]
+            }
+        )
 
 
 anonymizedTree : Test
