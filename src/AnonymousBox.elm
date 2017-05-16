@@ -28,17 +28,12 @@ type InlineLevelElement
 
 
 type BlockLevelElement
-    = BlockContainerBlockContext Styles (List Box)
+    = BlockContainerBlockContext Styles (List BlockLevelElement)
     | BlockContainerInlineContext Styles (List InlineLevelElement)
 
 
-type Box
-    = BlockLevel BlockLevelElement
-    | InlineLevel InlineLevelElement
-
-
 type BoxRoot
-    = BoxRoot Styles (List Box)
+    = BoxRoot Styles (List BlockLevelElement)
 
 
 type IntermediateBox
@@ -66,7 +61,7 @@ boxTree (StyledRoot { node, styles, children }) =
             children
                 |> List.filterMap intermediateBoxTree
                 |> List.filterMap flattenBoxTree
-                |> List.map (boxTreeFinalStep styles)
+                |> List.filterMap (boxTreeFinalStep styles)
                 |> BoxRoot styles
 
 
@@ -146,8 +141,8 @@ flattenBoxTree intermediateBox =
                 Nothing
 
 
-boxTreeFinalStep : Styles -> FlattenedBox -> Box
-boxTreeFinalStep parentStyles intermediateBox =
+boxTreeFinalStep : Styles -> FlattenedBox -> Maybe BlockLevelElement
+boxTreeFinalStep parentStyles flattenedBox =
     let
         getInlineChildren children =
             List.filterMap
@@ -185,28 +180,26 @@ boxTreeFinalStep parentStyles intermediateBox =
                 _ ->
                     False
     in
-        case intermediateBox of
+        case flattenedBox of
             FlattenedBlockContainer styles children ->
-                BlockLevel <|
+                Just <|
                     if allInlineChildren children then
                         BlockContainerInlineContext styles (getInlineChildren children)
                     else
-                        BlockContainerBlockContext styles (List.map (boxTreeFinalStep styles) children)
+                        BlockContainerBlockContext styles (List.filterMap (boxTreeFinalStep styles) children)
 
             FlattenedAnonymousBlock children ->
-                BlockLevel <|
+                Just <|
                     if allInlineChildren children then
                         BlockContainerInlineContext parentStyles (getInlineChildren children)
                     else
-                        BlockContainerBlockContext parentStyles (List.map (boxTreeFinalStep parentStyles) children)
+                        BlockContainerBlockContext parentStyles (List.filterMap (boxTreeFinalStep parentStyles) children)
 
             FlattenedInlineContainer styles children ->
-                InlineLevel <|
-                    InlineContainer styles
-                        (getInlineChildren children)
+                Nothing
 
             FlattenedInlineText text ->
-                InlineLevel <| InlineText text
+                Nothing
 
 
 allBlockChildren : List IntermediateBox -> Bool

@@ -21,24 +21,21 @@ element =
 
 
 blockBox =
-    AnonymousBox.BlockLevel <|
-        AnonymousBox.BlockContainerBlockContext
-            Style.initialStyles
-            []
+    AnonymousBox.BlockContainerBlockContext
+        Style.initialStyles
+        []
 
 
 blockBoxInlineContext children =
-    AnonymousBox.BlockLevel <|
-        AnonymousBox.BlockContainerInlineContext
-            Style.initialStyles
-            []
+    AnonymousBox.BlockContainerInlineContext
+        Style.initialStyles
+        []
 
 
 inlineBox children =
-    AnonymousBox.InlineLevel <|
-        AnonymousBox.InlineContainer
-            Style.initialStyles
-            children
+    AnonymousBox.InlineContainer
+        Style.initialStyles
+        children
 
 
 intermediateBlockBox =
@@ -256,30 +253,27 @@ blockRoot child =
 
 
 blockLayoutBox children =
-    AnonymousBox.BlockLevel <|
-        AnonymousBox.BlockContainerBlockContext
-            { styles
-                | display = CSSOM.Block
-            }
-            children
+    AnonymousBox.BlockContainerBlockContext
+        { styles
+            | display = CSSOM.Block
+        }
+        children
 
 
 blockLayoutBoxInlineContext children =
-    AnonymousBox.BlockLevel <|
-        AnonymousBox.BlockContainerInlineContext
-            { styles
-                | display = CSSOM.Block
-            }
-            children
+    AnonymousBox.BlockContainerInlineContext
+        { styles
+            | display = CSSOM.Block
+        }
+        children
 
 
 inlineLevelLayoutBox children =
-    AnonymousBox.InlineLevel <|
-        AnonymousBox.InlineContainer
-            { styles
-                | display = CSSOM.Inline
-            }
-            children
+    AnonymousBox.InlineContainer
+        { styles
+            | display = CSSOM.Inline
+        }
+        children
 
 
 inlineLayoutBox children =
@@ -308,23 +302,13 @@ dumpBoxTree (AnonymousBox.BoxRoot styles children) =
 
 dumpBoxTreeChildren child =
     case child of
-        AnonymousBox.BlockLevel blockLevel ->
-            case blockLevel of
-                AnonymousBox.BlockContainerBlockContext styles children ->
-                    DumpBlockContainerBlockContext
-                        (List.map dumpBoxTreeChildren children)
+        AnonymousBox.BlockContainerBlockContext styles children ->
+            DumpBlockContainerBlockContext
+                (List.map dumpBoxTreeChildren children)
 
-                AnonymousBox.BlockContainerInlineContext styles children ->
-                    DumpBlockContainerInlineContext
-                        (List.map dumpBoxTreeInlineChildren children)
-
-        AnonymousBox.InlineLevel inlineLevel ->
-            case inlineLevel of
-                AnonymousBox.InlineText text ->
-                    DumpText
-
-                AnonymousBox.InlineContainer styles children ->
-                    DumpInlineContainer (List.map dumpBoxTreeInlineChildren children)
+        AnonymousBox.BlockContainerInlineContext styles children ->
+            DumpBlockContainerInlineContext
+                (List.map dumpBoxTreeInlineChildren children)
 
 
 dumpBoxTreeInlineChildren child =
@@ -355,10 +339,11 @@ anonymizedTree =
         [ test "wrap inline box in anonymous block for block formatting context" <|
             \() ->
                 Expect.equal
-                    (anonymizedTreeOrCrash
-                        (styledBlockNode [ styledInlineNode [], styledBlockNode [] ])
+                    (dumpBoxTree <|
+                        anonymizedTreeOrCrash
+                            (styledBlockNode [ styledInlineNode [], styledBlockNode [] ])
                     )
-                    (blockRoot <| blockLayoutBox [ blockLayoutBoxInlineContext [ inlineLayoutBox [] ], blockLayoutBox [] ])
+                    (dumpBoxTree <| blockRoot <| blockLayoutBox [ blockLayoutBoxInlineContext [ inlineLayoutBox [] ], blockLayoutBox [] ])
         , test "wrap deep inline box in anonymous block for block formatting context" <|
             \() ->
                 Expect.equal

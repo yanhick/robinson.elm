@@ -55,12 +55,6 @@ getBoxModel layoutBox =
         Layout.InlineBox { boxModel } ->
             Just boxModel
 
-        Layout.AnonymousBox { boxModel } ->
-            Just boxModel
-
-        Layout.AnonymousBoxInlineRoot { boxModel } ->
-            Just boxModel
-
         Layout.TextBox _ ->
             Nothing
 
@@ -409,13 +403,12 @@ layoutBlockChildren =
                             edgeSize
 
                     getBlockBox children height =
-                        AnonymousBox.BlockLevel <|
-                            AnonymousBox.BlockContainerBlockContext
-                                { styles
-                                    | display = CSSOM.Block
-                                    , height = height
-                                }
-                                children
+                        AnonymousBox.BlockContainerBlockContext
+                            { styles
+                                | display = CSSOM.Block
+                                , height = height
+                            }
+                            children
 
                     ( laidoutChildren, childrenBoxModel ) =
                         Layout.layoutBlockChildren
