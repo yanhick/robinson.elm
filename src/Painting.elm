@@ -12,9 +12,19 @@ type DisplayCommand
     = SolidColor BoxModel.Rect CSSBasicTypes.RGBAColor
 
 
-buildDisplayList : LayoutBox -> List DisplayCommand
-buildDisplayList layoutBox =
-    renderLayoutBox layoutBox
+buildDisplayList : LayoutRoot -> List DisplayCommand
+buildDisplayList (LayoutRoot { boxModel, styles, children }) =
+    let
+        backgroundColor =
+            Maybe.withDefault
+                { red = 0, green = 0, blue = 0, alpha = 0 }
+            <|
+                Just <|
+                    CSSOM.usedBackgroundColor styles.backgroundColor
+    in
+    [ renderBackground boxModel backgroundColor ]
+        ++ renderBorders styles boxModel
+        ++ List.concatMap renderLayoutBox children
 
 
 renderLayoutBox : LayoutBox -> List DisplayCommand

@@ -15,14 +15,19 @@ type alias Box =
     }
 
 
+type LayoutRoot
+    = LayoutRoot Box
+
+
 type LayoutBox
     = BlockBox AnonymousBox.BlockLevelElement Box
     | InlineBox AnonymousBox.InlineLevelElement Box
 
 
-startLayout : AnonymousBox.BoxRoot -> BoxModel.BoxModel -> LayoutBox
+startLayout : AnonymousBox.BoxRoot -> BoxModel.BoxModel -> LayoutRoot
 startLayout (AnonymousBox.BoxRoot styles children) containingBoxModel =
-    layout (AnonymousBox.BlockContainerBlockContext styles children) containingBoxModel
+    LayoutRoot <|
+        layoutBlock styles children containingBoxModel
 
 
 layout : AnonymousBox.BlockLevelElement -> BoxModel.BoxModel -> LayoutBox

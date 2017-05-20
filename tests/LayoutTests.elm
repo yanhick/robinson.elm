@@ -460,17 +460,17 @@ startLayout =
                     box =
                         AnonymousBox.boxTree styledRoot
 
-                    layoutBox =
+                    (Layout.LayoutRoot { boxModel }) =
                         Layout.startLayout
                             box
                             containingDimensions
 
                     boxModelContent =
-                        Maybe.map BoxModel.content <| getBoxModel layoutBox
+                        BoxModel.content boxModel
                 in
                 Expect.equal
-                    (Maybe.map .height boxModelContent)
-                    (Just 100)
+                    boxModelContent.height
+                    100
         , test "layout itself with padding" <|
             \() ->
                 let
@@ -509,17 +509,17 @@ startLayout =
                     box =
                         AnonymousBox.boxTree styledRoot
 
-                    layoutBox =
+                    (Layout.LayoutRoot { boxModel }) =
                         Layout.startLayout
                             box
                             containingDimensions
 
                     boxModelPadding =
-                        Maybe.map BoxModel.paddingBox <| getBoxModel layoutBox
+                        BoxModel.paddingBox boxModel
                 in
                 Expect.equal
-                    (Maybe.map .height boxModelPadding)
-                    (Just 220)
+                    boxModelPadding.height
+                    220
         , test "layout itself with borders" <|
             \() ->
                 let
@@ -560,17 +560,17 @@ startLayout =
                     box =
                         AnonymousBox.boxTree styledRoot
 
-                    layoutBox =
+                    (Layout.LayoutRoot { boxModel }) =
                         Layout.startLayout
                             box
                             containingDimensions
 
                     boxModelBorder =
-                        Maybe.map BoxModel.borderBox <| getBoxModel layoutBox
+                        BoxModel.borderBox boxModel
                 in
                 Expect.equal
-                    (Maybe.map .height boxModelBorder)
-                    (Just 220)
+                    boxModelBorder.height
+                    220
         , test "layout itself with margins" <|
             \() ->
                 let
@@ -609,15 +609,15 @@ startLayout =
                     box =
                         AnonymousBox.boxTree styledRoot
 
-                    layoutBox =
+                    (Layout.LayoutRoot { boxModel }) =
                         Layout.startLayout
                             box
                             containingDimensions
 
                     boxModelMargin =
-                        Maybe.map BoxModel.marginBox <| getBoxModel layoutBox
+                        BoxModel.marginBox boxModel
                 in
                 Expect.equal
-                    (Maybe.map .height boxModelMargin)
-                    (Just 220)
+                    boxModelMargin.height
+                    220
         ]
