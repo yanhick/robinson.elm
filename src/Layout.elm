@@ -20,36 +20,41 @@ type LayoutRoot
 
 
 type LayoutBox
-    = BlockBox Box.BlockLevelElement Box
-    | InlineBox Box.InlineLevelElement Box
+    = BlockBox Box
+    | InlineBox Box
 
 
 startLayout : Box.BoxRoot -> BoxModel.BoxModel -> LayoutRoot
 startLayout (Box.BoxRoot styles children) containingBoxModel =
-    LayoutRoot <|
-        layoutBlock styles children containingBoxModel
+    LayoutRoot <| layoutBlockBox styles children containingBoxModel
 
 
-layout : Box.BlockLevelElement -> BoxModel.BoxModel -> LayoutBox
-layout anonymizedBox containingBlockDimensions =
-    case anonymizedBox of
-        Box.BlockContainerBlockContext styles children ->
-            BlockBox
-                (Box.BlockContainerBlockContext styles children)
-                (layoutBlock styles children containingBlockDimensions)
+layoutBlock : Box.BlockLevelElement -> BoxModel.BoxModel -> LayoutBox
+layoutBlock blockLevelElement containingBlockDimensions =
+    BlockBox <|
+        case blockLevelElement of
+            Box.BlockContainerBlockContext styles children ->
+                layoutBlockBox styles children containingBlockDimensions
 
-        Box.BlockContainerInlineContext styles children ->
-            BlockBox
-                (Box.BlockContainerBlockContext styles [])
-                (layoutBlock styles [] containingBlockDimensions)
+            Box.BlockContainerInlineContext styles children ->
+                layoutBlockInlineFormattingContext styles children containingBlockDimensions
 
 
-layoutBlock :
+layoutBlockInlineFormattingContext :
+    Styles
+    -> List Box.InlineLevelElement
+    -> BoxModel.BoxModel
+    -> Box
+layoutBlockInlineFormattingContext styles children containingBoxModel =
+    { styles = styles, children = [], boxModel = containingBoxModel }
+
+
+layoutBlockBox :
     Styles
     -> List Box.BlockLevelElement
     -> BoxModel.BoxModel
     -> Box
-layoutBlock styles children containingBoxModel =
+layoutBlockBox styles children containingBoxModel =
     let
         boxModelWithCorrectWidth =
             calculateBlockWidth styles BoxModel.initBoxModel containingBoxModel
@@ -83,9 +88,9 @@ layoutBlock styles children containingBoxModel =
         newBoxModel =
             calculateBlockHeight styles horizontalBoxModel
     in
-    { styles = styles
-    , children = laidoutChildren
+    { children = laidoutChildren
     , boxModel = newBoxModel
+    , styles = styles
     }
 
 
@@ -99,7 +104,7 @@ layoutBlockChildren children boxModel containingBoxModel =
         (\child ( children, containingBoxModel ) ->
             let
                 childLayoutBox =
-                    layout child containingBoxModel
+                    layoutBlock child containingBoxModel
 
                 childBoxModelMargin boxModel =
                     BoxModel.marginBox boxModel
@@ -126,10 +131,10 @@ layoutBlockChildren children boxModel containingBoxModel =
                     )
             in
             case childLayoutBox of
-                BlockBox _ { boxModel } ->
+                BlockBox { boxModel } ->
                     addChild boxModel
 
-                InlineBox _ { boxModel } ->
+                InlineBox { boxModel } ->
                     addChild boxModel
         )
         ( [], containingBoxModel )

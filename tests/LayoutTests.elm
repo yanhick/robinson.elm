@@ -49,10 +49,10 @@ styles =
 
 getBoxModel layoutBox =
     case layoutBox of
-        Layout.BlockBox _ { boxModel } ->
+        Layout.BlockBox { boxModel } ->
             Just boxModel
 
-        Layout.InlineBox _ { boxModel } ->
+        Layout.InlineBox { boxModel } ->
             Just boxModel
 
 
