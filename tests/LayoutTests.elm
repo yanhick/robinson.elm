@@ -49,14 +49,11 @@ styles =
 
 getBoxModel layoutBox =
     case layoutBox of
-        Layout.BlockBox { boxModel } ->
+        Layout.BlockBox _ { boxModel } ->
             Just boxModel
 
-        Layout.InlineBox { boxModel } ->
+        Layout.InlineBox _ { boxModel } ->
             Just boxModel
-
-        Layout.TextBox _ ->
-            Nothing
 
 
 exampleLength =

@@ -16,9 +16,8 @@ type alias Box =
 
 
 type LayoutBox
-    = BlockBox Box
-    | InlineBox Box
-    | TextBox String
+    = BlockBox AnonymousBox.BlockLevelElement Box
+    | InlineBox AnonymousBox.InlineLevelElement Box
 
 
 startLayout : AnonymousBox.BoxRoot -> BoxModel.BoxModel -> LayoutBox
@@ -30,10 +29,14 @@ layout : AnonymousBox.BlockLevelElement -> BoxModel.BoxModel -> LayoutBox
 layout anonymizedBox containingBlockDimensions =
     case anonymizedBox of
         AnonymousBox.BlockContainerBlockContext styles children ->
-            BlockBox <| layoutBlock styles children containingBlockDimensions
+            BlockBox
+                (AnonymousBox.BlockContainerBlockContext styles children)
+                (layoutBlock styles children containingBlockDimensions)
 
-        _ ->
-            TextBox "todo"
+        AnonymousBox.BlockContainerInlineContext styles children ->
+            BlockBox
+                (AnonymousBox.BlockContainerBlockContext styles [])
+                (layoutBlock styles [] containingBlockDimensions)
 
 
 layoutBlock :
@@ -118,14 +121,11 @@ layoutBlockChildren children boxModel containingBoxModel =
                     )
             in
             case childLayoutBox of
-                BlockBox { boxModel } ->
+                BlockBox _ { boxModel } ->
                     addChild boxModel
 
-                InlineBox { boxModel } ->
+                InlineBox _ { boxModel } ->
                     addChild boxModel
-
-                TextBox _ ->
-                    ( children, containingBoxModel )
         )
         ( [], containingBoxModel )
         children

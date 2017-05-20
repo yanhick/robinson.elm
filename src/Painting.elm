@@ -20,7 +20,7 @@ buildDisplayList layoutBox =
 renderLayoutBox : LayoutBox -> List DisplayCommand
 renderLayoutBox layoutBox =
     case layoutBox of
-        BlockBox { boxModel, styles, children } ->
+        BlockBox _ { boxModel, styles, children } ->
             let
                 backgroundColor =
                     Maybe.withDefault
