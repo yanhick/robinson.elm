@@ -1,17 +1,17 @@
 module BoxModel
     exposing
         ( BoxModel
-        , boxModel
-        , padding
-        , content
-        , margin
-        , border
-        , initBoxModel
-        , Rect
         , EdgeSize
-        , paddingBox
-        , marginBox
+        , Rect
+        , border
         , borderBox
+        , boxModel
+        , content
+        , initBoxModel
+        , margin
+        , marginBox
+        , padding
+        , paddingBox
         )
 
 

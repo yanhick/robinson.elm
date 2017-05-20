@@ -1,23 +1,23 @@
 module Tests exposing (..)
 
-import Layout
-import LayoutTests
+import AnonymousBoxTests
 import BoxModelTests
-import CSSTests
 import CSSBasicTypesTests
-import Style
+import CSSOM
+import CSSParser
+import CSSTests
 import Color
 import DOM
 import Dict
-import Parser
-import Test exposing (..)
-import HtmlParser
-import CSSParser
-import CSSOM
 import Expect
-import Fuzz exposing (list, int, tuple, string)
+import Fuzz exposing (int, list, string, tuple)
+import HtmlParser
+import Layout
+import LayoutTests
+import Parser
 import String
-import AnonymousBoxTests
+import Style
+import Test exposing (..)
 
 
 htmlExample : String
@@ -57,18 +57,18 @@ htmlParser =
             \() ->
                 let
                     res =
-                        case (Parser.run HtmlParser.parse htmlExample) of
+                        case Parser.run HtmlParser.parse htmlExample of
                             Result.Ok _ ->
                                 True
 
                             Err e ->
                                 False
                 in
-                    Expect.true "Expected Html parser to succeed" res
+                Expect.true "Expected Html parser to succeed" res
         , test "parse html tag" <|
             \() ->
                 Expect.true "Expect a dom node" <|
-                    case (Parser.run HtmlParser.parse "<html></html>") of
+                    case Parser.run HtmlParser.parse "<html></html>" of
                         Ok (DOM.DOMRoot { children, tagName, attributes }) ->
                             List.isEmpty
                                 children
@@ -81,7 +81,7 @@ htmlParser =
         , test "parse html tag with newlines" <|
             \() ->
                 Expect.true "Expect a dom node" <|
-                    case (Parser.run HtmlParser.parse "<html>\n</html>") of
+                    case Parser.run HtmlParser.parse "<html>\n</html>" of
                         Ok (DOM.DOMRoot { children, tagName, attributes }) ->
                             List.isEmpty
                                 children
@@ -94,7 +94,7 @@ htmlParser =
         , test "parse nested tags" <|
             \() ->
                 Expect.true "Expect a dom node" <|
-                    case (Parser.run HtmlParser.parse "<html><body></body></html>") of
+                    case Parser.run HtmlParser.parse "<html><body></body></html>" of
                         Ok (DOM.DOMRoot { children, tagName, attributes }) ->
                             List.length
                                 children
@@ -102,21 +102,22 @@ htmlParser =
                                 && tagName
                                 == "html"
                                 && Dict.isEmpty attributes
-                                && case children of
-                                    [ DOM.Element { children, tagName, attributes } ] ->
-                                        List.isEmpty children
-                                            && tagName
-                                            == "body"
+                                && (case children of
+                                        [ DOM.Element { children, tagName, attributes } ] ->
+                                            List.isEmpty children
+                                                && tagName
+                                                == "body"
 
-                                    _ ->
-                                        False
+                                        _ ->
+                                            False
+                                   )
 
                         _ ->
                             False
         , test "parse text node" <|
             \() ->
                 Expect.true "Expect a dom node" <|
-                    case (Parser.run HtmlParser.parse "<html>hello</html>") of
+                    case Parser.run HtmlParser.parse "<html>hello</html>" of
                         Ok (DOM.DOMRoot { children, tagName, attributes }) ->
                             List.length
                                 children
@@ -124,19 +125,20 @@ htmlParser =
                                 && tagName
                                 == "html"
                                 && Dict.isEmpty attributes
-                                && case children of
-                                    [ DOM.Text "hello" ] ->
-                                        True
+                                && (case children of
+                                        [ DOM.Text "hello" ] ->
+                                            True
 
-                                    _ ->
-                                        False
+                                        _ ->
+                                            False
+                                   )
 
                         _ ->
                             False
         , test "parse attributes" <|
             \() ->
                 Expect.true "Expect a dom node" <|
-                    case (Parser.run HtmlParser.parse "<html lang=\"us\"></html>") of
+                    case Parser.run HtmlParser.parse "<html lang=\"us\"></html>" of
                         Ok (DOM.DOMRoot { children, tagName, attributes }) ->
                             List.isEmpty children
                                 && attributes
@@ -165,19 +167,21 @@ styledTree =
                         styledTree =
                             Result.map2 Style.styleTree styleSheet rootElement
                     in
-                        case styledTree of
-                            Ok (Style.StyledRoot { node, styles, children }) ->
-                                List.isEmpty children
-                                    && case styles of
+                    case styledTree of
+                        Ok (Style.StyledRoot { node, styles, children }) ->
+                            List.isEmpty children
+                                && (case styles of
                                         { display } ->
                                             display
                                                 == CSSOM.Block
-                                                && case node of
-                                                    { attributes } ->
-                                                        attributes == Dict.fromList [ ( "class", "my-class" ) ]
+                                                && (case node of
+                                                        { attributes } ->
+                                                            attributes == Dict.fromList [ ( "class", "my-class" ) ]
+                                                   )
+                                   )
 
-                            _ ->
-                                False
+                        _ ->
+                            False
         , test "style a dom node with multiple selector" <|
             \() ->
                 Expect.true "styled dom node" <|
@@ -191,21 +195,23 @@ styledTree =
                         styledTree =
                             Result.map2 Style.styleTree styleSheet rootElement
                     in
-                        case styledTree of
-                            Ok (Style.StyledRoot { node, styles, children }) ->
-                                List.isEmpty children
-                                    && case styles of
+                    case styledTree of
+                        Ok (Style.StyledRoot { node, styles, children }) ->
+                            List.isEmpty children
+                                && (case styles of
                                         { display } ->
                                             display
                                                 == CSSOM.Block
-                                                && case node of
-                                                    { attributes } ->
-                                                        attributes
-                                                            == Dict.fromList
-                                                                [ ( "class", "my-class" )
-                                                                , ( "id", "my-id" )
-                                                                ]
+                                                && (case node of
+                                                        { attributes } ->
+                                                            attributes
+                                                                == Dict.fromList
+                                                                    [ ( "class", "my-class" )
+                                                                    , ( "id", "my-id" )
+                                                                    ]
+                                                   )
+                                   )
 
-                            _ ->
-                                False
+                        _ ->
+                            False
         ]

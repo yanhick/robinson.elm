@@ -1,12 +1,12 @@
 module AnonymousBoxTests exposing (..)
 
-import Test exposing (..)
-import Expect
-import Dict
 import AnonymousBox
 import BoxModel
-import Style
 import CSSOM
+import Dict
+import Expect
+import Style
+import Test exposing (..)
 
 
 styles =

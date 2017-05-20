@@ -1,15 +1,15 @@
 module LayoutTests exposing (..)
 
-import Dict
-import CSSOM
-import Style
-import Painting
 import AnonymousBox
-import Layout
-import Test exposing (..)
-import Expect
 import BoxModel
 import CSSBasicTypes
+import CSSOM
+import Dict
+import Expect
+import Layout
+import Painting
+import Style
+import Test exposing (..)
 
 
 layout : Test
@@ -94,7 +94,7 @@ calculateBlockWidth =
                                 BoxModel.initBoxModel
                                 containingDimensions
                 in
-                    Expect.equal boxModelContent.width 50
+                Expect.equal boxModelContent.width 50
         , test "set the block width with an auto width" <|
             \() ->
                 let
@@ -114,7 +114,7 @@ calculateBlockWidth =
                                 BoxModel.initBoxModel
                                 containingDimensions
                 in
-                    Expect.equal boxModelContent.width 200
+                Expect.equal boxModelContent.width 200
         , test "set the margins width with auto margins and explicit width" <|
             \() ->
                 let
@@ -142,14 +142,14 @@ calculateBlockWidth =
                     boxModelMargin =
                         BoxModel.margin boxModel
                 in
-                    Expect.true ""
-                        (boxModelContent.width
-                            == 100
-                            && boxModelMargin.left
-                            == 50
-                            && boxModelMargin.right
-                            == 50
-                        )
+                Expect.true ""
+                    (boxModelContent.width
+                        == 100
+                        && boxModelMargin.left
+                        == 50
+                        && boxModelMargin.right
+                        == 50
+                    )
         , test "set the margins width with auto margins and explicit width" <|
             \() ->
                 let
@@ -177,14 +177,14 @@ calculateBlockWidth =
                     boxModelMargin =
                         BoxModel.margin boxModel
                 in
-                    Expect.true ""
-                        (boxModelContent.width
-                            == 100
-                            && boxModelMargin.left
-                            == 50
-                            && boxModelMargin.right
-                            == 50
-                        )
+                Expect.true ""
+                    (boxModelContent.width
+                        == 100
+                        && boxModelMargin.left
+                        == 50
+                        && boxModelMargin.right
+                        == 50
+                    )
         , test "resize left auto margin when right margin and width length is explicit" <|
             \() ->
                 let
@@ -212,14 +212,14 @@ calculateBlockWidth =
                     boxModelMargin =
                         BoxModel.margin boxModel
                 in
-                    Expect.true ""
-                        (boxModelContent.width
-                            == 100
-                            && boxModelMargin.left
-                            == 50
-                            && boxModelMargin.right
-                            == -50
-                        )
+                Expect.true ""
+                    (boxModelContent.width
+                        == 100
+                        && boxModelMargin.left
+                        == 50
+                        && boxModelMargin.right
+                        == -50
+                    )
         , test "resize right auto margin when left margin and width length is explicit" <|
             \() ->
                 let
@@ -247,14 +247,14 @@ calculateBlockWidth =
                     boxModelMargin =
                         BoxModel.margin boxModel
                 in
-                    Expect.true ""
-                        (boxModelContent.width
-                            == 100
-                            && boxModelMargin.left
-                            == 50
-                            && boxModelMargin.right
-                            == 50
-                        )
+                Expect.true ""
+                    (boxModelContent.width
+                        == 100
+                        && boxModelMargin.left
+                        == 50
+                        && boxModelMargin.right
+                        == 50
+                    )
         , test "set auto margins to 0 if width is auto" <|
             \() ->
                 let
@@ -282,14 +282,14 @@ calculateBlockWidth =
                     boxModelMargin =
                         BoxModel.margin boxModel
                 in
-                    Expect.true ""
-                        (boxModelContent.width
-                            == 200
-                            && boxModelMargin.left
-                            == 0
-                            && boxModelMargin.right
-                            == 0
-                        )
+                Expect.true ""
+                    (boxModelContent.width
+                        == 200
+                        && boxModelMargin.left
+                        == 0
+                        && boxModelMargin.right
+                        == 0
+                    )
         , test "make right margin negative if the width was going to be negative" <|
             \() ->
                 let
@@ -317,14 +317,14 @@ calculateBlockWidth =
                     boxModelMargin =
                         BoxModel.margin boxModel
                 in
-                    Expect.true ""
-                        (boxModelContent.width
-                            == 0
-                            && boxModelMargin.left
-                            == 200
-                            && boxModelMargin.right
-                            == -100
-                        )
+                Expect.true ""
+                    (boxModelContent.width
+                        == 0
+                        && boxModelMargin.left
+                        == 200
+                        && boxModelMargin.right
+                        == -100
+                    )
         ]
 
 
@@ -346,7 +346,7 @@ calculateBlockHeight =
                                 newStyles
                                 BoxModel.initBoxModel
                 in
-                    Expect.equal boxModel.height 50
+                Expect.equal boxModel.height 50
         , test "do nothing if auto height" <|
             \() ->
                 let
@@ -356,7 +356,7 @@ calculateBlockHeight =
                                 Style.initialStyles
                                 BoxModel.initBoxModel
                 in
-                    Expect.equal boxModelContent.height 0
+                Expect.equal boxModelContent.height 0
         ]
 
 
@@ -380,12 +380,12 @@ calculateBlockPosition =
                                 BoxModel.initBoxModel
                                 containingDimensions
                 in
-                    Expect.true ""
-                        (boxModelContent.x
-                            == 10
-                            && boxModelContent.y
-                            == 20
-                        )
+                Expect.true ""
+                    (boxModelContent.x
+                        == 10
+                        && boxModelContent.y
+                        == 20
+                    )
         ]
 
 
@@ -412,15 +412,15 @@ layoutBlockChildren =
 
                     ( laidoutChildren, childrenBoxModel ) =
                         Layout.layoutBlockChildren
-                            [ (getBlockBox [] <| CSSOM.heightLength exampleLength)
-                            , (getBlockBox [] <| CSSOM.heightLength exampleLength)
+                            [ getBlockBox [] <| CSSOM.heightLength exampleLength
+                            , getBlockBox [] <| CSSOM.heightLength exampleLength
                             ]
                             BoxModel.initBoxModel
                             containingDimensions
                 in
-                    Expect.equal
-                        (BoxModel.content childrenBoxModel).height
-                        200
+                Expect.equal
+                    (BoxModel.content childrenBoxModel).height
+                    200
         ]
 
 
@@ -471,9 +471,9 @@ startLayout =
                     boxModelContent =
                         Maybe.map BoxModel.content <| getBoxModel layoutBox
                 in
-                    Expect.equal
-                        (Maybe.map .height boxModelContent)
-                        (Just 100)
+                Expect.equal
+                    (Maybe.map .height boxModelContent)
+                    (Just 100)
         , test "layout itself with padding" <|
             \() ->
                 let
@@ -520,9 +520,9 @@ startLayout =
                     boxModelPadding =
                         Maybe.map BoxModel.paddingBox <| getBoxModel layoutBox
                 in
-                    Expect.equal
-                        (Maybe.map .height boxModelPadding)
-                        (Just 220)
+                Expect.equal
+                    (Maybe.map .height boxModelPadding)
+                    (Just 220)
         , test "layout itself with borders" <|
             \() ->
                 let
@@ -571,9 +571,9 @@ startLayout =
                     boxModelBorder =
                         Maybe.map BoxModel.borderBox <| getBoxModel layoutBox
                 in
-                    Expect.equal
-                        (Maybe.map .height boxModelBorder)
-                        (Just 220)
+                Expect.equal
+                    (Maybe.map .height boxModelBorder)
+                    (Just 220)
         , test "layout itself with margins" <|
             \() ->
                 let
@@ -620,7 +620,7 @@ startLayout =
                     boxModelMargin =
                         Maybe.map BoxModel.marginBox <| getBoxModel layoutBox
                 in
-                    Expect.equal
-                        (Maybe.map .height boxModelMargin)
-                        (Just 220)
+                Expect.equal
+                    (Maybe.map .height boxModelMargin)
+                    (Just 220)
         ]

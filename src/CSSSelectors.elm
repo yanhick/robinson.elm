@@ -60,6 +60,6 @@ matchesSimpleSelector { tagName, attributes } { tag, ids, classes } =
             Maybe.withDefault True <|
                 Maybe.map (\class -> List.member class classes) className
     in
-        matchesTagSelector
-            && matchesIdSelector
-            && matchesClassSelector
+    matchesTagSelector
+        && matchesIdSelector
+        && matchesClassSelector

@@ -1,11 +1,11 @@
 module CSSParser exposing (..)
 
+import CSSBasicTypes exposing (..)
+import CSSOM exposing (..)
+import CSSSelectors exposing (..)
 import Char
 import ParseInt exposing (..)
 import Parser exposing (..)
-import CSSOM exposing (..)
-import CSSBasicTypes exposing (..)
-import CSSSelectors exposing (..)
 import String
 
 
@@ -47,21 +47,21 @@ parseRGBAColor =
             map (parseIntHex >> Result.withDefault 0)
                 (keep (Exactly 2) Char.isHexDigit)
     in
-        andThen
-            (\maybeColor ->
-                case maybeColor of
-                    Just color ->
-                        succeed color
+    andThen
+        (\maybeColor ->
+            case maybeColor of
+                Just color ->
+                    succeed color
 
-                    Nothing ->
-                        fail "bim"
-            )
-            (succeed (\r g b -> cssColorFromRGBA { red = r, green = g, blue = b, alpha = 1.0 })
-                |. symbol "#"
-                |= parseHex
-                |= parseHex
-                |= parseHex
-            )
+                Nothing ->
+                    fail "bim"
+        )
+        (succeed (\r g b -> cssColorFromRGBA { red = r, green = g, blue = b, alpha = 1.0 })
+            |. symbol "#"
+            |= parseHex
+            |= parseHex
+            |= parseHex
+        )
 
 
 parseLength : Parser CSSLength
@@ -141,31 +141,30 @@ parseSimpleSelector =
                 )
                 ( [], [] )
     in
-        oneOf
-            [ universalSelector
-            , (oneOf
-                [ succeed
-                    (\tag ( ids, classes ) ->
-                        Simple
-                            { tag = Just tag
-                            , classes = classes
-                            , ids = ids
-                            }
-                    )
-                    |= tagSelector
-                    |= map separate classOrIdSelectors
-                , succeed
-                    (\( ids, classes ) ->
-                        Simple
-                            { tag = Nothing
-                            , classes = classes
-                            , ids = ids
-                            }
-                    )
-                    |= map separate classOrIdSelectors
-                ]
-              )
+    oneOf
+        [ universalSelector
+        , oneOf
+            [ succeed
+                (\tag ( ids, classes ) ->
+                    Simple
+                        { tag = Just tag
+                        , classes = classes
+                        , ids = ids
+                        }
+                )
+                |= tagSelector
+                |= map separate classOrIdSelectors
+            , succeed
+                (\( ids, classes ) ->
+                    Simple
+                        { tag = Nothing
+                        , classes = classes
+                        , ids = ids
+                        }
+                )
+                |= map separate classOrIdSelectors
             ]
+        ]
 
 
 parseSelectors : Parser (List CSSSelector)
@@ -185,8 +184,8 @@ parseSelectors =
                     |. spaces
                     |= parseSimpleSelector
     in
-        succeed identity
-            |= andThen (\s -> selectorListHelp [ s ]) parseSimpleSelector
+    succeed identity
+        |= andThen (\s -> selectorListHelp [ s ]) parseSimpleSelector
 
 
 parseDeclaration : Parser CSSDeclaration

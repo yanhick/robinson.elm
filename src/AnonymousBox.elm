@@ -1,8 +1,8 @@
 module AnonymousBox exposing (..)
 
-import Style exposing (..)
 import BoxModel exposing (..)
 import CSSOM
+import Style exposing (..)
 
 
 {- TODO, should expose final layout boxes (block container, block container
@@ -71,41 +71,40 @@ intermediateBoxTree node =
         intermediateBoxChildren =
             List.filterMap intermediateBoxTree
     in
-        case node of
-            StyledElement { styles, children } ->
-                case styles.display of
-                    CSSOM.Block ->
-                        Just <|
-                            (IntermediateBlockContainer
-                                styles
-                                (fixAnonymousChildrenForBlockContainer <|
-                                    intermediateBoxChildren children
-                                )
+    case node of
+        StyledElement { styles, children } ->
+            case styles.display of
+                CSSOM.Block ->
+                    Just <|
+                        IntermediateBlockContainer
+                            styles
+                            (fixAnonymousChildrenForBlockContainer <|
+                                intermediateBoxChildren children
                             )
 
-                    CSSOM.Inline ->
-                        Just <|
-                            let
-                                laidoutChildren =
-                                    intermediateBoxChildren children
+                CSSOM.Inline ->
+                    Just <|
+                        let
+                            laidoutChildren =
+                                intermediateBoxChildren children
 
-                                anonymousInlineBox =
-                                    fixAnonymousChildrenForInlineContainer
-                                        styles
-                                        laidoutChildren
-                            in
-                                case anonymousInlineBox of
-                                    Nothing ->
-                                        IntermediateInlineContainer styles laidoutChildren
+                            anonymousInlineBox =
+                                fixAnonymousChildrenForInlineContainer
+                                    styles
+                                    laidoutChildren
+                        in
+                        case anonymousInlineBox of
+                            Nothing ->
+                                IntermediateInlineContainer styles laidoutChildren
 
-                                    Just wrappedChildren ->
-                                        IntermediateAnonymousInlineRoot wrappedChildren
+                            Just wrappedChildren ->
+                                IntermediateAnonymousInlineRoot wrappedChildren
 
-                    CSSOM.None ->
-                        Nothing
+                CSSOM.None ->
+                    Nothing
 
-            StyledText text ->
-                Just <| IntermediateInlineText text
+        StyledText text ->
+            Just <| IntermediateInlineText text
 
 
 flattenBoxTree : IntermediateBox -> Maybe FlattenedBox
@@ -124,21 +123,21 @@ flattenBoxTree intermediateBox =
                 []
                 children
     in
-        case intermediateBox of
-            IntermediateBlockContainer styles children ->
-                Just <| FlattenedBlockContainer styles (List.filterMap flattenBoxTree <| flattenChildren children)
+    case intermediateBox of
+        IntermediateBlockContainer styles children ->
+            Just <| FlattenedBlockContainer styles (List.filterMap flattenBoxTree <| flattenChildren children)
 
-            IntermediateAnonymousBlock children ->
-                Just <| FlattenedAnonymousBlock (List.filterMap flattenBoxTree <| flattenChildren children)
+        IntermediateAnonymousBlock children ->
+            Just <| FlattenedAnonymousBlock (List.filterMap flattenBoxTree <| flattenChildren children)
 
-            IntermediateInlineContainer styles children ->
-                Just <| FlattenedInlineContainer styles (List.filterMap flattenBoxTree <| flattenChildren children)
+        IntermediateInlineContainer styles children ->
+            Just <| FlattenedInlineContainer styles (List.filterMap flattenBoxTree <| flattenChildren children)
 
-            IntermediateInlineText text ->
-                Just <| FlattenedInlineText text
+        IntermediateInlineText text ->
+            Just <| FlattenedInlineText text
 
-            IntermediateAnonymousInlineRoot children ->
-                Nothing
+        IntermediateAnonymousInlineRoot children ->
+            Nothing
 
 
 boxTreeFinalStep : Styles -> FlattenedBox -> Maybe BlockLevelElement
@@ -180,26 +179,26 @@ boxTreeFinalStep parentStyles flattenedBox =
                 _ ->
                     False
     in
-        case flattenedBox of
-            FlattenedBlockContainer styles children ->
-                Just <|
-                    if allInlineChildren children then
-                        BlockContainerInlineContext styles (getInlineChildren children)
-                    else
-                        BlockContainerBlockContext styles (List.filterMap (boxTreeFinalStep styles) children)
+    case flattenedBox of
+        FlattenedBlockContainer styles children ->
+            Just <|
+                if allInlineChildren children then
+                    BlockContainerInlineContext styles (getInlineChildren children)
+                else
+                    BlockContainerBlockContext styles (List.filterMap (boxTreeFinalStep styles) children)
 
-            FlattenedAnonymousBlock children ->
-                Just <|
-                    if allInlineChildren children then
-                        BlockContainerInlineContext parentStyles (getInlineChildren children)
-                    else
-                        BlockContainerBlockContext parentStyles (List.filterMap (boxTreeFinalStep parentStyles) children)
+        FlattenedAnonymousBlock children ->
+            Just <|
+                if allInlineChildren children then
+                    BlockContainerInlineContext parentStyles (getInlineChildren children)
+                else
+                    BlockContainerBlockContext parentStyles (List.filterMap (boxTreeFinalStep parentStyles) children)
 
-            FlattenedInlineContainer styles children ->
-                Nothing
+        FlattenedInlineContainer styles children ->
+            Nothing
 
-            FlattenedInlineText text ->
-                Nothing
+        FlattenedInlineText text ->
+            Nothing
 
 
 allBlockChildren : List IntermediateBox -> Bool
@@ -268,11 +267,11 @@ wrapInlineBoxInAnonymousBlockForBlockContainer children =
                 ( [], [] )
                 children
     in
-        if not (List.isEmpty remainingInlineChildren) then
-            wrappedChildren
-                ++ [ wrapInAnonymousBlock remainingInlineChildren ]
-        else
-            wrappedChildren
+    if not (List.isEmpty remainingInlineChildren) then
+        wrappedChildren
+            ++ [ wrapInAnonymousBlock remainingInlineChildren ]
+    else
+        wrappedChildren
 
 
 wrapInlineBoxInAnonymousBlockForInlineContainer : Styles -> List IntermediateBox -> List IntermediateBox

@@ -1,18 +1,18 @@
 module Main exposing (..)
 
-import Html exposing (..)
-import Color exposing (..)
-import Html.Events exposing (..)
-import Html.Attributes exposing (style)
-import HtmlParser
 import AnonymousBox
-import Parser
-import DOM
+import BoxModel
 import CSSParser
-import Style
+import Color exposing (..)
+import DOM
+import Html exposing (..)
+import Html.Attributes exposing (style)
+import Html.Events exposing (..)
+import HtmlParser
 import Layout
 import Painting
-import BoxModel
+import Parser
+import Style
 
 
 main =
@@ -121,12 +121,12 @@ render html css =
         displayCommand =
             Result.map Painting.buildDisplayList layout
     in
-        case displayCommand of
-            Ok dc ->
-                dc
+    case displayCommand of
+        Ok dc ->
+            dc
 
-            _ ->
-                []
+        _ ->
+            []
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -153,11 +153,11 @@ ui html css =
         textareaStyle =
             [ ( "display", "block" ), ( "width", "400px" ), ( "height", "400px" ) ]
     in
-        div
-            [ style [ ( "float", "right" ) ] ]
-            [ textarea [ style textareaStyle, onInput HTML ] [ text html ]
-            , textarea [ style textareaStyle, onInput CSS ] [ text css ]
-            ]
+    div
+        [ style [ ( "float", "right" ) ] ]
+        [ textarea [ style textareaStyle, onInput HTML ] [ text html ]
+        , textarea [ style textareaStyle, onInput CSS ] [ text css ]
+        ]
 
 
 element : Painting.DisplayCommand -> Html Msg
@@ -183,7 +183,7 @@ element (Painting.SolidColor { x, y, width, height } color) =
             , ( "background", toRGBAString color )
             ]
     in
-        div [ style s ] []
+    div [ style s ] []
 
 
 subscriptions : Model -> Sub msg

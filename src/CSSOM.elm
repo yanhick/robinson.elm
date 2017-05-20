@@ -1,58 +1,58 @@
 module CSSOM
     exposing
-        ( CSSDisplay(..)
-        , CSSMargin
-        , marginLength
-        , marginAuto
-        , defaultMargin
-        , isAutoMargin
-        , computedMargin
-        , usedMargin
-        , CSSPadding
-        , defaultPadding
-        , computedPadding
-        , usedPadding
-        , SpecifiedValue
-        , padding
-        , CSSHeight
-        , defaultHeight
-        , heightLength
-        , heightAuto
-        , computedHeight
-        , usedHeight
-        , CSSWidth
-        , defaultWidth
-        , widthLength
-        , widthAuto
-        , computedWidth
-        , isAutoWidth
-        , usedWidth
-        , CSSBackgroundColor
-        , backgroundColorColor
-        , backgroundColorTransparent
-        , defaultBackgroundColor
-        , usedBackgroundColor
+        ( CSSBackgroundColor
         , CSSBorderColor
-        , borderColorColor
-        , borderColorTransparent
-        , defaultBorderColor
-        , usedBorderColor
-        , CSSBorderWidth
-        , borderWidthThin
-        , borderWidthMedium
-        , borderWidthThick
-        , borderWidthLength
-        , computedBorderWidth
-        , usedBorderWidth
-        , defaultBorderWidth
         , CSSBorderStyle
-        , borderStyleNone
-        , borderStyleSolid
-        , defaultBorderStyle
+        , CSSBorderWidth
         , CSSDeclaration(..)
+        , CSSDisplay(..)
+        , CSSHeight
+        , CSSMargin
+        , CSSPadding
         , CSSRule
         , CSSStyleSheet
+        , CSSWidth
+        , SpecifiedValue
+        , backgroundColorColor
+        , backgroundColorTransparent
+        , borderColorColor
+        , borderColorTransparent
+        , borderStyleNone
+        , borderStyleSolid
+        , borderWidthLength
+        , borderWidthMedium
+        , borderWidthThick
+        , borderWidthThin
+        , computedBorderWidth
+        , computedHeight
+        , computedMargin
+        , computedPadding
+        , computedWidth
+        , defaultBackgroundColor
+        , defaultBorderColor
+        , defaultBorderStyle
+        , defaultBorderWidth
+        , defaultHeight
+        , defaultMargin
+        , defaultPadding
+        , defaultWidth
+        , heightAuto
+        , heightLength
+        , isAutoMargin
+        , isAutoWidth
+        , marginAuto
+        , marginLength
         , matchingRules
+        , padding
+        , usedBackgroundColor
+        , usedBorderColor
+        , usedBorderWidth
+        , usedHeight
+        , usedMargin
+        , usedPadding
+        , usedWidth
+        , widthAuto
+        , widthLength
         )
 
 import CSSBasicTypes exposing (..)

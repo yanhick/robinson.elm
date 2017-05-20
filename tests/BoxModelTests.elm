@@ -1,9 +1,9 @@
 module BoxModelTests exposing (..)
 
 import BoxModel exposing (..)
-import Test exposing (..)
 import Expect
 import Fuzz exposing (..)
+import Test exposing (..)
 
 
 box : BoxModel
@@ -72,6 +72,6 @@ boxModelTests =
                     paddingBoxRect =
                         paddingBox boxModel
                 in
-                    Expect.true "area of padding box is larger or equal to area of content box"
-                        ((width * height) <= (paddingBoxRect.width * paddingBoxRect.height))
+                Expect.true "area of padding box is larger or equal to area of content box"
+                    ((width * height) <= (paddingBoxRect.width * paddingBoxRect.height))
         ]

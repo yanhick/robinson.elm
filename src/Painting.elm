@@ -1,12 +1,11 @@
 module Painting exposing (..)
 
-import Style
-import Color exposing (..)
-import CSSOM
-import Layout exposing (..)
-import Style exposing (..)
 import BoxModel
 import CSSBasicTypes
+import CSSOM
+import Color exposing (..)
+import Layout exposing (..)
+import Style exposing (..)
 
 
 type DisplayCommand
@@ -15,7 +14,7 @@ type DisplayCommand
 
 buildDisplayList : LayoutBox -> List DisplayCommand
 buildDisplayList layoutBox =
-    renderLayoutBox (layoutBox)
+    renderLayoutBox layoutBox
 
 
 renderLayoutBox : LayoutBox -> List DisplayCommand
@@ -30,9 +29,9 @@ renderLayoutBox layoutBox =
                         Just <|
                             CSSOM.usedBackgroundColor styles.backgroundColor
             in
-                [ renderBackground boxModel backgroundColor ]
-                    ++ renderBorders styles boxModel
-                    ++ (List.concatMap renderLayoutBox children)
+            [ renderBackground boxModel backgroundColor ]
+                ++ renderBorders styles boxModel
+                ++ List.concatMap renderLayoutBox children
 
         _ ->
             []
@@ -64,36 +63,32 @@ renderBorders styles boxModel =
         border =
             BoxModel.border boxModel
     in
-        [ SolidColor
-            ({ x = borderBox.x
-             , y = borderBox.y
-             , width = borderBox.width
-             , height = border.top
-             }
-            )
-            topColor
-        , SolidColor
-            ({ x = borderBox.x + borderBox.width - border.right
-             , y = borderBox.y
-             , width = border.right
-             , height = borderBox.height
-             }
-            )
-            rightColor
-        , SolidColor
-            ({ x = borderBox.x
-             , y = borderBox.y + borderBox.height - border.bottom
-             , width = borderBox.width
-             , height = border.bottom
-             }
-            )
-            bottomColor
-        , SolidColor
-            ({ x = borderBox.x
-             , y = borderBox.y
-             , width = border.left
-             , height = borderBox.height
-             }
-            )
-            leftColor
-        ]
+    [ SolidColor
+        { x = borderBox.x
+        , y = borderBox.y
+        , width = borderBox.width
+        , height = border.top
+        }
+        topColor
+    , SolidColor
+        { x = borderBox.x + borderBox.width - border.right
+        , y = borderBox.y
+        , width = border.right
+        , height = borderBox.height
+        }
+        rightColor
+    , SolidColor
+        { x = borderBox.x
+        , y = borderBox.y + borderBox.height - border.bottom
+        , width = borderBox.width
+        , height = border.bottom
+        }
+        bottomColor
+    , SolidColor
+        { x = borderBox.x
+        , y = borderBox.y
+        , width = border.left
+        , height = borderBox.height
+        }
+        leftColor
+    ]

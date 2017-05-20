@@ -1,12 +1,11 @@
 module Style exposing (..)
 
-import Dict
-import CSSOM exposing (..)
-import DOM exposing (..)
-import Color exposing (..)
 import CSSBasicTypes exposing (..)
-import CSSSelectors exposing (..)
 import CSSOM exposing (..)
+import CSSSelectors exposing (..)
+import Color exposing (..)
+import DOM exposing (..)
+import Dict
 
 
 type alias StyledElementNode =
@@ -87,7 +86,7 @@ styleTree stylesheet (DOMRoot element) =
     StyledRoot
         { node = element
         , styles = specifiedValues element stylesheet
-        , children = List.map (styleTreeChild stylesheet) (element.children)
+        , children = List.map (styleTreeChild stylesheet) element.children
         }
 
 
@@ -105,11 +104,11 @@ styleTreeChild stylesheet domNode =
                 children =
                     List.map (styleTreeChild stylesheet) elementNode.children
             in
-                StyledElement
-                    { node = elementNode
-                    , styles = styles
-                    , children = children
-                    }
+            StyledElement
+                { node = elementNode
+                , styles = styles
+                , children = children
+                }
 
 
 specifiedValues : ElementNode -> CSSStyleSheet -> Styles

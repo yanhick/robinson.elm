@@ -1,9 +1,9 @@
 module HtmlParser exposing (..)
 
-import Dict
-import Parser exposing (..)
 import Char
 import DOM exposing (..)
+import Dict
+import Parser exposing (..)
 
 
 parse : Parser DOMRoot

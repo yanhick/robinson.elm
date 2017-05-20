@@ -1,11 +1,11 @@
 module Layout exposing (..)
 
-import Style exposing (..)
+import AnonymousBox
+import BoxModel
+import CSSBasicTypes exposing (..)
 import CSSOM exposing (..)
 import DOM exposing (..)
-import BoxModel
-import AnonymousBox
-import CSSBasicTypes exposing (..)
+import Style exposing (..)
 
 
 type alias Box =
@@ -75,10 +75,10 @@ layoutBlock styles children containingBoxModel =
         newBoxModel =
             calculateBlockHeight styles horizontalBoxModel
     in
-        { styles = styles
-        , children = laidoutChildren
-        , boxModel = newBoxModel
-        }
+    { styles = styles
+    , children = laidoutChildren
+    , boxModel = newBoxModel
+    }
 
 
 layoutBlockChildren :
@@ -117,15 +117,15 @@ layoutBlockChildren children boxModel containingBoxModel =
                         (BoxModel.margin boxModel)
                     )
             in
-                case childLayoutBox of
-                    BlockBox { boxModel } ->
-                        addChild boxModel
+            case childLayoutBox of
+                BlockBox { boxModel } ->
+                    addChild boxModel
 
-                    InlineBox { boxModel } ->
-                        addChild boxModel
+                InlineBox { boxModel } ->
+                    addChild boxModel
 
-                    TextBox _ ->
-                        ( children, containingBoxModel )
+                TextBox _ ->
+                    ( children, containingBoxModel )
         )
         ( [], containingBoxModel )
         children
@@ -175,7 +175,7 @@ calculateBlockWidth styles boxModel containingBoxModel =
                         else
                             styles.marginRight
                 in
-                    ( marginLeft, marginRight )
+                ( marginLeft, marginRight )
             else
                 ( styles.marginLeft, styles.marginRight )
 
@@ -220,12 +220,12 @@ calculateBlockWidth styles boxModel containingBoxModel =
                     if underflow >= 0.0 then
                         ( marginLeft, marginLength 0.0, widthLength underflow )
                     else
-                        ( marginLeft, marginLength (underflow), widthLength 0.0 )
+                        ( marginLeft, marginLength underflow, widthLength 0.0 )
                 else if marginLeftIsAuto && marginRightIsAuto then
                     if underflow >= 0.0 then
                         ( marginLength 0.0, marginLength 0.0, widthLength underflow )
                     else
-                        ( marginLength 0.0, marginLength (underflow), widthLength 0.0 )
+                        ( marginLength 0.0, marginLength underflow, widthLength 0.0 )
                 else if not marginLeftIsAuto && not marginRightIsAuto then
                     if underflow >= 0.0 then
                         ( marginLeft, marginRight, widthLength underflow )
@@ -280,11 +280,11 @@ calculateBlockWidth styles boxModel containingBoxModel =
                 , right = usedBorderWidth <| computedBorderWidth styles.borderRightStyle styles.borderRightWidth
             }
     in
-        BoxModel.boxModel
-            newContent
-            newPadding
-            newBorder
-            newMargin
+    BoxModel.boxModel
+        newContent
+        newPadding
+        newBorder
+        newMargin
 
 
 calculateBlockHeight :
@@ -308,11 +308,11 @@ calculateBlockHeight styles boxModel =
                         computedHeight styles.height
             }
     in
-        BoxModel.boxModel
-            newContent
-            (BoxModel.padding boxModel)
-            (BoxModel.border boxModel)
-            (BoxModel.margin boxModel)
+    BoxModel.boxModel
+        newContent
+        (BoxModel.padding boxModel)
+        (BoxModel.border boxModel)
+        (BoxModel.margin boxModel)
 
 
 calculateBlockPosition :
@@ -384,4 +384,4 @@ calculateBlockPosition styles boxModel containingBoxModel =
             , y = y
             }
     in
-        BoxModel.boxModel newContent newPadding newBorder newMargin
+    BoxModel.boxModel newContent newPadding newBorder newMargin

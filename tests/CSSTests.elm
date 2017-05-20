@@ -1,12 +1,12 @@
 module CSSTests exposing (..)
 
-import Test exposing (..)
-import CSSOM
-import CSSSelectors
 import CSSBasicTypes
+import CSSOM
 import CSSParser
-import Parser
+import CSSSelectors
 import Expect
+import Parser
+import Test exposing (..)
 
 
 cssExample =
@@ -65,18 +65,18 @@ cssParser =
             \() ->
                 let
                     res =
-                        case (Parser.run CSSParser.parse cssExample) of
+                        case Parser.run CSSParser.parse cssExample of
                             Ok _ ->
                                 True
 
                             Err e ->
                                 False
                 in
-                    Expect.true "Expected CSS parser to succeed" res
+                Expect.true "Expected CSS parser to succeed" res
         , test "parse name selector" <|
             \() ->
                 Expect.true "name selector" <|
-                    case (Parser.run CSSParser.parse "div {display:block;}") of
+                    case Parser.run CSSParser.parse "div {display:block;}" of
                         Ok [ { selectors, declarations } ] ->
                             case selectors of
                                 [ CSSSelectors.Simple { tag, classes, ids } ] ->
@@ -93,7 +93,7 @@ cssParser =
         , test "parse css with newlines " <|
             \() ->
                 Expect.true "name selector" <|
-                    case (Parser.run CSSParser.parse "div\n {display:block;\n}") of
+                    case Parser.run CSSParser.parse "div\n {display:block;\n}" of
                         Ok [ { selectors, declarations } ] ->
                             case selectors of
                                 [ CSSSelectors.Simple { tag, classes, ids } ] ->
@@ -110,7 +110,7 @@ cssParser =
         , test "parse id selectors" <|
             \() ->
                 Expect.true "id selector" <|
-                    case (Parser.run CSSParser.parse "#my-id {display:block;}") of
+                    case Parser.run CSSParser.parse "#my-id {display:block;}" of
                         Ok [ { selectors, declarations } ] ->
                             case selectors of
                                 [ CSSSelectors.Simple { tag, classes, ids } ] ->
@@ -128,7 +128,7 @@ cssParser =
         , test "parse class selectors" <|
             \() ->
                 Expect.true "class selector" <|
-                    case (Parser.run CSSParser.parse ".my-class {display:block;}") of
+                    case Parser.run CSSParser.parse ".my-class {display:block;}" of
                         Ok [ { selectors, declarations } ] ->
                             case selectors of
                                 [ CSSSelectors.Simple { tag, classes, ids } ] ->
@@ -146,7 +146,7 @@ cssParser =
         , test "parse universal selector" <|
             \() ->
                 Expect.true "universal selector" <|
-                    case (Parser.run CSSParser.parse "*{display:block;}") of
+                    case Parser.run CSSParser.parse "*{display:block;}" of
                         Ok [ { selectors, declarations } ] ->
                             case selectors of
                                 [ CSSSelectors.Universal ] ->
@@ -160,7 +160,7 @@ cssParser =
         , test "parse multiple classes" <|
             \() ->
                 Expect.true "multiple classes" <|
-                    case (Parser.run CSSParser.parse ".my-class.my-other-class {display:block;}") of
+                    case Parser.run CSSParser.parse ".my-class.my-other-class {display:block;}" of
                         Ok [ { selectors, declarations } ] ->
                             case selectors of
                                 [ CSSSelectors.Simple { tag, classes, ids } ] ->
@@ -178,7 +178,7 @@ cssParser =
         , test "parse simple selector" <|
             \() ->
                 Expect.true "simple selector" <|
-                    case (Parser.run CSSParser.parse "div.my-class#my-id {display:block;}") of
+                    case Parser.run CSSParser.parse "div.my-class#my-id {display:block;}" of
                         Ok [ { selectors, declarations } ] ->
                             case selectors of
                                 [ CSSSelectors.Simple { tag, classes, ids } ] ->
@@ -197,7 +197,7 @@ cssParser =
         , test "parse keyword value" <|
             \() ->
                 Expect.true "keyword value" <|
-                    case (Parser.run CSSParser.parse "div {display:block;}") of
+                    case Parser.run CSSParser.parse "div {display:block;}" of
                         Ok [ { selectors, declarations } ] ->
                             case declarations of
                                 [ CSSOM.Display CSSOM.Block ] ->
@@ -211,7 +211,7 @@ cssParser =
         , test "parse length value" <|
             \() ->
                 Expect.true "length value" <|
-                    case (Parser.run CSSParser.parse "div {margin-left:10px;}") of
+                    case Parser.run CSSParser.parse "div {margin-left:10px;}" of
                         Ok [ { selectors, declarations } ] ->
                             case declarations of
                                 [ CSSOM.MarginLeft margin ] ->
@@ -225,7 +225,7 @@ cssParser =
         , test "parse color value" <|
             \() ->
                 Expect.true "color value" <|
-                    case (Parser.run CSSParser.parse "div {background-color:#CCFF00;}") of
+                    case Parser.run CSSParser.parse "div {background-color:#CCFF00;}" of
                         Ok [ { selectors, declarations } ] ->
                             case declarations of
                                 [ CSSOM.BackgroundColor color ] ->
@@ -244,7 +244,7 @@ cssParser =
         , test "parse multiple selectors" <|
             \() ->
                 Expect.true "multiple selectors" <|
-                    case (Parser.run CSSParser.parse "div, p {display:block;}") of
+                    case Parser.run CSSParser.parse "div, p {display:block;}" of
                         Ok [ { selectors, declarations } ] ->
                             case selectors of
                                 [ CSSSelectors.Simple first, CSSSelectors.Simple second ] ->
@@ -271,18 +271,18 @@ passingTests : Test
 passingTests =
     let
         isOk css =
-            case (Parser.run CSSParser.parse css) of
+            case Parser.run CSSParser.parse css of
                 Ok _ ->
                     True
 
                 _ ->
                     False
     in
-        describe "those should pass"
-            (List.map
-                (\( description, css ) ->
-                    test description
-                        (\() -> Expect.true description (isOk css))
-                )
-                passingTestCases
+    describe "those should pass"
+        (List.map
+            (\( description, css ) ->
+                test description
+                    (\() -> Expect.true description (isOk css))
             )
+            passingTestCases
+        )

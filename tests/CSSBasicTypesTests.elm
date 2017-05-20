@@ -1,8 +1,8 @@
 module CSSBasicTypesTests exposing (..)
 
 import CSSBasicTypes exposing (..)
-import Test exposing (..)
 import Expect
+import Test exposing (..)
 
 
 cssBasicTypes : Test

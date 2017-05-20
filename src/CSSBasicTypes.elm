@@ -1,16 +1,16 @@
 module CSSBasicTypes
     exposing
-        ( CSSLength
-        , cssPixelLength
-        , CSSUnit
-        , computedCSSLength
-        , defaultCSSLength
-        , CSSColor
+        ( CSSColor
         , CSSColorKeyword
+        , CSSLength
+        , CSSUnit
         , RGBAColor
-        , cssColorFromRGBA
-        , cssColorFromColorName
         , computedCSSColor
+        , computedCSSLength
+        , cssColorFromColorName
+        , cssColorFromRGBA
+        , cssPixelLength
+        , defaultCSSLength
         )
 
 
