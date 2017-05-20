@@ -1,25 +1,8 @@
-module AnonymousBox exposing (..)
+module Box exposing (..)
 
 import BoxModel exposing (..)
 import CSSOM
 import Style exposing (..)
-
-
-{- TODO, should expose final layout boxes (block container, block container
-   establishing formatting context, block container establishing inlilne inline formatting context,
-   inline container, text container)
-
-   block container establishing inline context and inline container should only be allowed
-   inline container children and text container children
-
-   later: add in-flow and out-of-flow (fixed , absolute and floater box)box generation
-   generated content also? and table?
-
-   call it normalized tree? or box generated tree? Box tree? and layout tree?
-
-   all those tree should have a root, then root children, no maybe?
-
--}
 
 
 type InlineLevelElement

@@ -1,7 +1,7 @@
 module Tests exposing (..)
 
-import AnonymousBoxTests
 import BoxModelTests
+import BoxTests
 import CSSBasicTypesTests
 import CSSOM
 import CSSParser
@@ -46,7 +46,7 @@ all =
         , CSSTests.cssTest
         , CSSBasicTypesTests.cssBasicTypes
         , BoxModelTests.boxModelTests
-        , AnonymousBoxTests.anonymousBoxTests
+        , BoxTests.boxTests
         ]
 
 

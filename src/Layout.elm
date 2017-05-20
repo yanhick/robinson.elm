@@ -1,6 +1,6 @@
 module Layout exposing (..)
 
-import AnonymousBox
+import Box
 import BoxModel
 import CSSBasicTypes exposing (..)
 import CSSOM exposing (..)
@@ -20,33 +20,33 @@ type LayoutRoot
 
 
 type LayoutBox
-    = BlockBox AnonymousBox.BlockLevelElement Box
-    | InlineBox AnonymousBox.InlineLevelElement Box
+    = BlockBox Box.BlockLevelElement Box
+    | InlineBox Box.InlineLevelElement Box
 
 
-startLayout : AnonymousBox.BoxRoot -> BoxModel.BoxModel -> LayoutRoot
-startLayout (AnonymousBox.BoxRoot styles children) containingBoxModel =
+startLayout : Box.BoxRoot -> BoxModel.BoxModel -> LayoutRoot
+startLayout (Box.BoxRoot styles children) containingBoxModel =
     LayoutRoot <|
         layoutBlock styles children containingBoxModel
 
 
-layout : AnonymousBox.BlockLevelElement -> BoxModel.BoxModel -> LayoutBox
+layout : Box.BlockLevelElement -> BoxModel.BoxModel -> LayoutBox
 layout anonymizedBox containingBlockDimensions =
     case anonymizedBox of
-        AnonymousBox.BlockContainerBlockContext styles children ->
+        Box.BlockContainerBlockContext styles children ->
             BlockBox
-                (AnonymousBox.BlockContainerBlockContext styles children)
+                (Box.BlockContainerBlockContext styles children)
                 (layoutBlock styles children containingBlockDimensions)
 
-        AnonymousBox.BlockContainerInlineContext styles children ->
+        Box.BlockContainerInlineContext styles children ->
             BlockBox
-                (AnonymousBox.BlockContainerBlockContext styles [])
+                (Box.BlockContainerBlockContext styles [])
                 (layoutBlock styles [] containingBlockDimensions)
 
 
 layoutBlock :
     Styles
-    -> List AnonymousBox.BlockLevelElement
+    -> List Box.BlockLevelElement
     -> BoxModel.BoxModel
     -> Box
 layoutBlock styles children containingBoxModel =
@@ -90,7 +90,7 @@ layoutBlock styles children containingBoxModel =
 
 
 layoutBlockChildren :
-    List AnonymousBox.BlockLevelElement
+    List Box.BlockLevelElement
     -> BoxModel.BoxModel
     -> BoxModel.BoxModel
     -> ( List LayoutBox, BoxModel.BoxModel )

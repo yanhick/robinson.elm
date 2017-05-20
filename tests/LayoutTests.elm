@@ -1,6 +1,6 @@
 module LayoutTests exposing (..)
 
-import AnonymousBox
+import Box
 import BoxModel
 import CSSBasicTypes
 import CSSOM
@@ -400,7 +400,7 @@ layoutBlockChildren =
                             edgeSize
 
                     getBlockBox children height =
-                        AnonymousBox.BlockContainerBlockContext
+                        Box.BlockContainerBlockContext
                             { styles
                                 | display = CSSOM.Block
                                 , height = height
@@ -458,7 +458,7 @@ startLayout =
                         Style.StyledRoot <| getStyledElement children height
 
                     box =
-                        AnonymousBox.boxTree styledRoot
+                        Box.boxTree styledRoot
 
                     (Layout.LayoutRoot { boxModel }) =
                         Layout.startLayout
@@ -507,7 +507,7 @@ startLayout =
                         Style.StyledRoot <| getStyledElement children height
 
                     box =
-                        AnonymousBox.boxTree styledRoot
+                        Box.boxTree styledRoot
 
                     (Layout.LayoutRoot { boxModel }) =
                         Layout.startLayout
@@ -558,7 +558,7 @@ startLayout =
                         Style.StyledRoot <| getStyledElement children height
 
                     box =
-                        AnonymousBox.boxTree styledRoot
+                        Box.boxTree styledRoot
 
                     (Layout.LayoutRoot { boxModel }) =
                         Layout.startLayout
@@ -607,7 +607,7 @@ startLayout =
                             edgeSize
 
                     box =
-                        AnonymousBox.boxTree styledRoot
+                        Box.boxTree styledRoot
 
                     (Layout.LayoutRoot { boxModel }) =
                         Layout.startLayout

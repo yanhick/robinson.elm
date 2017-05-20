@@ -1,6 +1,6 @@
 module Main exposing (..)
 
-import AnonymousBox
+import Box
 import BoxModel
 import CSSParser
 import Color exposing (..)
@@ -111,7 +111,7 @@ render html css =
                 { top = 0, left = 0, bottom = 0, right = 0 }
 
         boxes =
-            Result.map AnonymousBox.boxTree style
+            Result.map Box.boxTree style
 
         layout =
             Result.map2 Layout.startLayout
