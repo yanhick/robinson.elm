@@ -15,12 +15,19 @@ type alias Box =
     }
 
 
+type alias LineBox =
+    { rect : BoxModel.Rect
+    , boxes : List LayoutBox
+    }
+
+
 type LayoutRoot
     = LayoutRoot Box
 
 
 type LayoutBox
     = BlockBox Box
+    | BlockBoxInlineContext Box (List LineBox)
     | InlineBox Box
 
 
@@ -31,22 +38,79 @@ startLayout (Box.BoxRoot styles children) containingBoxModel =
 
 layoutBlock : Box.BlockLevelElement -> BoxModel.BoxModel -> LayoutBox
 layoutBlock blockLevelElement containingBlockDimensions =
-    BlockBox <|
-        case blockLevelElement of
-            Box.BlockContainerBlockContext styles children ->
-                layoutBlockBox styles children containingBlockDimensions
+    case blockLevelElement of
+        Box.BlockContainerBlockContext styles children ->
+            BlockBox <| layoutBlockBox styles children containingBlockDimensions
 
-            Box.BlockContainerInlineContext styles children ->
-                layoutBlockInlineFormattingContext styles children containingBlockDimensions
+        Box.BlockContainerInlineContext styles children ->
+            let
+                ( box, lineBoxes ) =
+                    layoutBlockInlineFormattingContext styles children containingBlockDimensions
+            in
+            BlockBoxInlineContext box lineBoxes
 
 
 layoutBlockInlineFormattingContext :
     Styles
     -> List Box.InlineLevelElement
     -> BoxModel.BoxModel
-    -> Box
+    -> ( Box, List LineBox )
 layoutBlockInlineFormattingContext styles children containingBoxModel =
-    { styles = styles, children = [], boxModel = containingBoxModel }
+    let
+        boxModelWithCorrectWidth =
+            calculateBlockWidth styles BoxModel.initBoxModel containingBoxModel
+
+        boxModelWithCorrectPosition =
+            calculateBlockPosition styles boxModelWithCorrectWidth containingBoxModel
+
+        ( laidoutChildren, childrenBoxModel, lineBoxes ) =
+            layoutInlineChildren children boxModelWithCorrectPosition
+
+        boxModelContent =
+            BoxModel.content boxModelWithCorrectPosition
+
+        childrenBoxModelContent =
+            BoxModel.content childrenBoxModel
+
+        newContent =
+            { x = boxModelContent.x
+            , y = boxModelContent.y
+            , width = boxModelContent.width
+            , height = childrenBoxModelContent.height
+            }
+
+        horizontalBoxModel =
+            BoxModel.boxModel
+                newContent
+                (BoxModel.padding boxModelWithCorrectPosition)
+                (BoxModel.border boxModelWithCorrectPosition)
+                (BoxModel.margin boxModelWithCorrectPosition)
+
+        newBoxModel =
+            calculateBlockHeight styles horizontalBoxModel
+    in
+    ( { styles = styles, children = laidoutChildren, boxModel = newBoxModel }, lineBoxes )
+
+
+layoutInlineChildren :
+    List Box.InlineLevelElement
+    -> BoxModel.BoxModel
+    -> ( List LayoutBox, BoxModel.BoxModel, List LineBox )
+layoutInlineChildren children containingBoxModel =
+    ( [], containingBoxModel, [] )
+
+
+calculateInlineWidth :
+    Box.InlineLevelElement
+    -> BoxModel.BoxModel
+    -> BoxModel.BoxModel
+calculateInlineWidth inlineLevelElement containingBoxModel =
+    case inlineLevelElement of
+        Box.InlineContainer styles children ->
+            BoxModel.initBoxModel
+
+        Box.InlineText _ ->
+            BoxModel.initBoxModel
 
 
 layoutBlockBox :
@@ -63,7 +127,7 @@ layoutBlockBox styles children containingBoxModel =
             calculateBlockPosition styles boxModelWithCorrectWidth containingBoxModel
 
         ( laidoutChildren, childrenBoxModel ) =
-            layoutBlockChildren children boxModelWithCorrectPosition containingBoxModel
+            layoutBlockChildren children boxModelWithCorrectPosition
 
         boxModelContent =
             BoxModel.content boxModelWithCorrectPosition
@@ -97,9 +161,8 @@ layoutBlockBox styles children containingBoxModel =
 layoutBlockChildren :
     List Box.BlockLevelElement
     -> BoxModel.BoxModel
-    -> BoxModel.BoxModel
     -> ( List LayoutBox, BoxModel.BoxModel )
-layoutBlockChildren children boxModel containingBoxModel =
+layoutBlockChildren children containingBoxModel =
     List.foldl
         (\child ( children, containingBoxModel ) ->
             let
@@ -132,6 +195,9 @@ layoutBlockChildren children boxModel containingBoxModel =
             in
             case childLayoutBox of
                 BlockBox { boxModel } ->
+                    addChild boxModel
+
+                BlockBoxInlineContext { boxModel } _ ->
                     addChild boxModel
 
                 InlineBox { boxModel } ->

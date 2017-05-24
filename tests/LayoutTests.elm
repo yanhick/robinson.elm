@@ -55,6 +55,9 @@ getBoxModel layoutBox =
         Layout.InlineBox { boxModel } ->
             Just boxModel
 
+        Layout.BlockBoxInlineContext { boxModel } _ ->
+            Just boxModel
+
 
 exampleLength =
     Maybe.withDefault CSSBasicTypes.defaultCSSLength (CSSBasicTypes.cssPixelLength 100)
@@ -412,7 +415,6 @@ layoutBlockChildren =
                             [ getBlockBox [] <| CSSOM.heightLength exampleLength
                             , getBlockBox [] <| CSSOM.heightLength exampleLength
                             ]
-                            BoxModel.initBoxModel
                             containingDimensions
                 in
                 Expect.equal
