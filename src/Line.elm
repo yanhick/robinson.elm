@@ -74,7 +74,7 @@ getLine line lineBoxTree =
             if List.length res.unusedChildren == 0 then
                 ( Used (LineBoxContainer res.usedChildren), res.line )
             else if List.length res.usedChildren == 0 then
-                ( Unused (LineBoxContainer res.usedChildren), res.line )
+                ( Unused (LineBoxContainer res.unusedChildren), res.line )
             else
                 ( Mixed (LineBoxContainer res.usedChildren) (LineBoxContainer res.unusedChildren), res.line )
 

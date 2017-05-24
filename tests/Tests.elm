@@ -14,6 +14,7 @@ import Fuzz exposing (int, list, string, tuple)
 import HtmlParser
 import Layout
 import LayoutTests
+import LineTests
 import Parser
 import String
 import Style
@@ -47,6 +48,7 @@ all =
         , CSSBasicTypesTests.cssBasicTypes
         , BoxModelTests.boxModelTests
         , BoxTests.boxTests
+        , LineTests.lineTests
         ]
 
 
