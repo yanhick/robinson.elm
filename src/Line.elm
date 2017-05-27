@@ -36,10 +36,14 @@ type LayoutLineBoxTree
 
 layoutLineBoxRoot : LineBoxRoot -> LayoutLineBoxRoot
 layoutLineBoxRoot (LineBoxRoot lineBoxTree) =
-    LayoutLineBoxRoot (Tuple.second (layoutLineBoxTree 0 lineBoxTree))
+    let
+        ( width, laidoutChildren, height ) =
+            layoutLineBoxTree 0 lineBoxTree
+    in
+    LayoutLineBoxRoot laidoutChildren
 
 
-layoutLineBoxTree : Float -> LineBoxTree -> ( Float, LayoutLineBoxTree )
+layoutLineBoxTree : Float -> LineBoxTree -> ( Float, LayoutLineBoxTree, Float )
 layoutLineBoxTree x lineBoxTree =
     case lineBoxTree of
         LineBoxText text textDimensions ->
@@ -47,26 +51,31 @@ layoutLineBoxTree x lineBoxTree =
             , LayoutLineBoxText
                 text
                 { x = x, y = 0, width = textDimensions.width, height = textDimensions.height }
+            , textDimensions.height
             )
 
         LineBoxContainer children ->
             let
-                ( totalWidth, laidoutChildren ) =
+                ( totalWidth, laidoutChildren, childrenMaxHeight ) =
                     List.foldl
-                        (\child ( childrenWidth, children ) ->
+                        (\child ( childrenWidth, children, currentMaxHeight ) ->
                             let
-                                ( childWidth, laidoutChild ) =
+                                ( childWidth, laidoutChild, childHeight ) =
                                     layoutLineBoxTree (x + childrenWidth) child
+
+                                maxHeight =
+                                    max currentMaxHeight childHeight
                             in
-                            ( childWidth + childrenWidth, List.append children [ laidoutChild ] )
+                            ( childWidth + childrenWidth, List.append children [ laidoutChild ], maxHeight )
                         )
-                        ( 0, [] )
+                        ( 0, [], 0 )
                         children
             in
             ( totalWidth
             , LayoutLineBoxContainer
-                { x = x, y = 0, width = totalWidth, height = 0 }
+                { x = x, y = 0, width = totalWidth, height = childrenMaxHeight }
                 laidoutChildren
+            , childrenMaxHeight
             )
 
 

@@ -22,15 +22,15 @@ testLayoutLineBoxRoot =
                         (LineBoxRoot
                             (LineBoxContainer
                                 [ LineBoxText "hello" { width = 100, height = 20 }
-                                , LineBoxText "world" { width = 150, height = 20 }
+                                , LineBoxText "world" { width = 150, height = 30 }
                                 ]
                             )
                         )
                     )
                     (LayoutLineBoxRoot
-                        (LayoutLineBoxContainer { x = 0, y = 0, width = 250, height = 0 }
+                        (LayoutLineBoxContainer { x = 0, y = 0, width = 250, height = 30 }
                             [ LayoutLineBoxText "hello" { x = 0, y = 0, width = 100, height = 20 }
-                            , LayoutLineBoxText "world" { x = 100, y = 0, width = 150, height = 20 }
+                            , LayoutLineBoxText "world" { x = 100, y = 0, width = 150, height = 30 }
                             ]
                         )
                     )
@@ -42,17 +42,17 @@ testLayoutLineBoxRoot =
                             (LineBoxContainer
                                 [ LineBoxText "hello" { width = 100, height = 20 }
                                 , LineBoxContainer
-                                    [ LineBoxText "world" { width = 120, height = 20 }
+                                    [ LineBoxText "world" { width = 120, height = 30 }
                                     ]
                                 ]
                             )
                         )
                     )
                     (LayoutLineBoxRoot
-                        (LayoutLineBoxContainer { x = 0, y = 0, width = 220, height = 0 }
+                        (LayoutLineBoxContainer { x = 0, y = 0, width = 220, height = 30 }
                             [ LayoutLineBoxText "hello" { x = 0, y = 0, width = 100, height = 20 }
-                            , LayoutLineBoxContainer { x = 100, y = 0, width = 120, height = 0 }
-                                [ LayoutLineBoxText "world" { x = 100, y = 0, width = 120, height = 20 }
+                            , LayoutLineBoxContainer { x = 100, y = 0, width = 120, height = 30 }
+                                [ LayoutLineBoxText "world" { x = 100, y = 0, width = 120, height = 30 }
                                 ]
                             ]
                         )
