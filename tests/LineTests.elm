@@ -1,13 +1,41 @@
 module LineTests exposing (..)
 
+import Box
 import Expect
 import Line exposing (..)
+import Style
 import Test exposing (..)
 
 
-lineTests : Test
-lineTests =
-    describe "get line boxes"
+testLineBoxRoot : Test
+testLineBoxRoot =
+    describe "get line box tree"
+        [ test "get root line box tree" <|
+            \() ->
+                Expect.equal
+                    (lineBoxRoot (Box.InlineBoxRoot Style.initialStyles []))
+                    (LineBoxRoot (LineBoxContainer []))
+        , test "get root line box with text" <|
+            \() ->
+                Expect.equal
+                    (lineBoxRoot (Box.InlineBoxRoot Style.initialStyles [ Box.InlineText "hello" ]))
+                    (LineBoxRoot (LineBoxContainer [ LineBoxText "hello" 50 ]))
+        , test "get root line box with container " <|
+            \() ->
+                Expect.equal
+                    (lineBoxRoot (Box.InlineBoxRoot Style.initialStyles [ Box.InlineContainer Style.initialStyles [] ]))
+                    (LineBoxRoot (LineBoxContainer [ LineBoxContainer [] ]))
+        , test "get root line box with container and text " <|
+            \() ->
+                Expect.equal
+                    (lineBoxRoot (Box.InlineBoxRoot Style.initialStyles [ Box.InlineContainer Style.initialStyles [], Box.InlineText "hello" ]))
+                    (LineBoxRoot (LineBoxContainer [ LineBoxContainer [], LineBoxText "hello" 50 ]))
+        ]
+
+
+testGetLines : Test
+testGetLines =
+    describe "get lines"
         [ test "gets a single line if there are no elements" <|
             \() ->
                 Expect.equal

@@ -36,39 +36,43 @@ type LayoutLineBoxTree
 
 layoutLineBoxRoot : LineBoxRoot -> LayoutLineBoxRoot
 layoutLineBoxRoot (LineBoxRoot lineBoxTree) =
-    LayoutLineBoxRoot (Tuple.second (layoutLineBoxTree lineBoxTree 0))
+    LayoutLineBoxRoot (Tuple.second (layoutLineBoxTree 0 lineBoxTree))
 
 
-layoutLineBoxTree : LineBoxTree -> Float -> ( Float, LayoutLineBoxTree )
-layoutLineBoxTree lineBoxTree currentWidth =
+layoutLineBoxTree : Float -> LineBoxTree -> ( Float, LayoutLineBoxTree )
+layoutLineBoxTree x lineBoxTree =
     case lineBoxTree of
         LineBoxText text width ->
-            ( currentWidth + width
+            ( width
             , LayoutLineBoxText
                 text
-                { x = currentWidth, y = 0, width = width, height = 0 }
+                { x = x, y = 0, width = width, height = 0 }
             )
 
         LineBoxContainer children ->
             let
                 ( totalWidth, laidoutChildren ) =
                     List.foldl
-                        (\child ( currentWidth, children ) ->
-                            ( currentWidth, children )
+                        (\child ( childrenWidth, children ) ->
+                            let
+                                ( childWidth, laidoutChild ) =
+                                    layoutLineBoxTree (x + childrenWidth) child
+                            in
+                            ( childWidth, List.append children [ laidoutChild ] )
                         )
-                        ( currentWidth, [] )
+                        ( 0, [] )
                         children
             in
             ( totalWidth
             , LayoutLineBoxContainer
-                { x = 0, y = 0, width = 0, height = 0 }
+                { x = 0, y = 0, width = totalWidth, height = 0 }
                 laidoutChildren
             )
 
 
 lineBoxRoot : Box.InlineBoxRoot -> LineBoxRoot
 lineBoxRoot (Box.InlineBoxRoot styles children) =
-    LineBoxRoot (LineBoxText "" 0.0)
+    LineBoxRoot (LineBoxContainer (List.map lineBoxTree children))
 
 
 lineBoxTree : Box.InlineLevelElement -> LineBoxTree
