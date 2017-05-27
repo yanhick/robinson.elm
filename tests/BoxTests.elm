@@ -28,8 +28,10 @@ blockBox =
 
 blockBoxInlineContext children =
     Box.BlockContainerInlineContext
-        Style.initialStyles
-        []
+        (Box.InlineBoxRoot
+            Style.initialStyles
+            []
+        )
 
 
 inlineBox children =
@@ -244,10 +246,12 @@ blockLayoutBox children =
 
 blockLayoutBoxInlineContext children =
     Box.BlockContainerInlineContext
-        { styles
-            | display = CSSOM.Block
-        }
-        children
+        (Box.InlineBoxRoot
+            { styles
+                | display = CSSOM.Block
+            }
+            children
+        )
 
 
 inlineLevelLayoutBox children =
@@ -288,7 +292,7 @@ dumpBoxTreeChildren child =
             DumpBlockContainerBlockContext
                 (List.map dumpBoxTreeChildren children)
 
-        Box.BlockContainerInlineContext styles children ->
+        Box.BlockContainerInlineContext (Box.InlineBoxRoot styles children) ->
             DumpBlockContainerInlineContext
                 (List.map dumpBoxTreeInlineChildren children)
 

@@ -1,5 +1,8 @@
 module Line exposing (..)
 
+import Box
+import BoxModel
+
 
 type LineBoxRoot
     = LineBoxRoot LineBoxTree
@@ -20,6 +23,62 @@ type LineBoxNode
     = Used LineBoxTree
     | Unused LineBoxTree
     | Mixed LineBoxTree LineBoxTree
+
+
+type LayoutLineBoxRoot
+    = LayoutLineBoxRoot LayoutLineBoxTree
+
+
+type LayoutLineBoxTree
+    = LayoutLineBoxContainer BoxModel.Rect (List LayoutLineBoxTree)
+    | LayoutLineBoxText String BoxModel.Rect
+
+
+layoutLineBoxRoot : LineBoxRoot -> LayoutLineBoxRoot
+layoutLineBoxRoot (LineBoxRoot lineBoxTree) =
+    LayoutLineBoxRoot (Tuple.second (layoutLineBoxTree lineBoxTree 0))
+
+
+layoutLineBoxTree : LineBoxTree -> Float -> ( Float, LayoutLineBoxTree )
+layoutLineBoxTree lineBoxTree currentWidth =
+    case lineBoxTree of
+        LineBoxText text width ->
+            ( currentWidth + width
+            , LayoutLineBoxText
+                text
+                { x = currentWidth, y = 0, width = width, height = 0 }
+            )
+
+        LineBoxContainer children ->
+            let
+                ( totalWidth, laidoutChildren ) =
+                    List.foldl
+                        (\child ( currentWidth, children ) ->
+                            ( currentWidth, children )
+                        )
+                        ( currentWidth, [] )
+                        children
+            in
+            ( totalWidth
+            , LayoutLineBoxContainer
+                { x = 0, y = 0, width = 0, height = 0 }
+                laidoutChildren
+            )
+
+
+lineBoxRoot : Box.InlineBoxRoot -> LineBoxRoot
+lineBoxRoot (Box.InlineBoxRoot styles children) =
+    LineBoxRoot (LineBoxText "" 0.0)
+
+
+lineBoxTree : Box.InlineLevelElement -> LineBoxTree
+lineBoxTree inlineLevelElement =
+    case inlineLevelElement of
+        Box.InlineText text ->
+            LineBoxText text 50
+
+        Box.InlineContainer styles children ->
+            LineBoxContainer (List.map lineBoxTree children)
 
 
 getLines :

@@ -12,7 +12,11 @@ type InlineLevelElement
 
 type BlockLevelElement
     = BlockContainerBlockContext Styles (List BlockLevelElement)
-    | BlockContainerInlineContext Styles (List InlineLevelElement)
+    | BlockContainerInlineContext InlineBoxRoot
+
+
+type InlineBoxRoot
+    = InlineBoxRoot Styles (List InlineLevelElement)
 
 
 type BoxRoot
@@ -166,14 +170,14 @@ boxTreeFinalStep parentStyles flattenedBox =
         FlattenedBlockContainer styles children ->
             Just <|
                 if allInlineChildren children then
-                    BlockContainerInlineContext styles (getInlineChildren children)
+                    BlockContainerInlineContext (InlineBoxRoot styles (getInlineChildren children))
                 else
                     BlockContainerBlockContext styles (List.filterMap (boxTreeFinalStep styles) children)
 
         FlattenedAnonymousBlock children ->
             Just <|
                 if allInlineChildren children then
-                    BlockContainerInlineContext parentStyles (getInlineChildren children)
+                    BlockContainerInlineContext (InlineBoxRoot parentStyles (getInlineChildren children))
                 else
                     BlockContainerBlockContext parentStyles (List.filterMap (boxTreeFinalStep parentStyles) children)
 

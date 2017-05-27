@@ -42,20 +42,19 @@ layoutBlock blockLevelElement containingBlockDimensions =
         Box.BlockContainerBlockContext styles children ->
             BlockBox <| layoutBlockBox styles children containingBlockDimensions
 
-        Box.BlockContainerInlineContext styles children ->
+        Box.BlockContainerInlineContext inlineBoxRoot ->
             let
                 ( box, lineBoxes ) =
-                    layoutBlockInlineFormattingContext styles children containingBlockDimensions
+                    layoutBlockInlineFormattingContext inlineBoxRoot containingBlockDimensions
             in
             BlockBoxInlineContext box lineBoxes
 
 
 layoutBlockInlineFormattingContext :
-    Styles
-    -> List Box.InlineLevelElement
+    Box.InlineBoxRoot
     -> BoxModel.BoxModel
     -> ( Box, List LineBox )
-layoutBlockInlineFormattingContext styles children containingBoxModel =
+layoutBlockInlineFormattingContext (Box.InlineBoxRoot styles children) containingBoxModel =
     let
         boxModelWithCorrectWidth =
             calculateBlockWidth styles BoxModel.initBoxModel containingBoxModel
