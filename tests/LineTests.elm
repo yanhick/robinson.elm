@@ -14,7 +14,7 @@ testLayoutLineBoxRoot =
             \() ->
                 Expect.equal
                     (layoutLineBoxRoot (LineBoxRoot (LineBoxText "hello" { width = 100, height = 20 })))
-                    (LayoutLineBoxRoot (LayoutLineBoxText "hello" { x = 0, y = 0, width = 100, height = 20 }))
+                    (LayoutLineBoxRoot { width = 100, height = 20 } (LayoutLineBoxText "hello" { x = 0, y = 0, width = 100, height = 20 }))
         , test "layout with multiple text line box" <|
             \() ->
                 Expect.equal
@@ -27,7 +27,7 @@ testLayoutLineBoxRoot =
                             )
                         )
                     )
-                    (LayoutLineBoxRoot
+                    (LayoutLineBoxRoot { width = 250, height = 30 }
                         (LayoutLineBoxContainer { x = 0, y = 0, width = 250, height = 30 }
                             [ LayoutLineBoxText "hello" { x = 0, y = 0, width = 100, height = 20 }
                             , LayoutLineBoxText "world" { x = 100, y = 0, width = 150, height = 30 }
@@ -48,7 +48,7 @@ testLayoutLineBoxRoot =
                             )
                         )
                     )
-                    (LayoutLineBoxRoot
+                    (LayoutLineBoxRoot { width = 220, height = 30 }
                         (LayoutLineBoxContainer { x = 0, y = 0, width = 220, height = 30 }
                             [ LayoutLineBoxText "hello" { x = 0, y = 0, width = 100, height = 20 }
                             , LayoutLineBoxContainer { x = 100, y = 0, width = 120, height = 30 }
@@ -83,6 +83,19 @@ testLineBoxRoot =
                 Expect.equal
                     (lineBoxRoot (Box.InlineBoxRoot Style.initialStyles [ Box.InlineContainer Style.initialStyles [], Box.InlineText "hello" ]))
                     (LineBoxRoot (LineBoxContainer [ LineBoxContainer [], LineBoxText "hello" { width = 50, height = 10 } ]))
+        , test "get root line box with split text " <|
+            \() ->
+                Expect.equal
+                    (lineBoxRoot (Box.InlineBoxRoot Style.initialStyles [ Box.InlineContainer Style.initialStyles [], Box.InlineText "hello world" ]))
+                    (LineBoxRoot
+                        (LineBoxContainer
+                            [ LineBoxContainer []
+                            , LineBoxText "hello" { width = 50, height = 10 }
+                            , LineBoxText " " { width = 50, height = 10 }
+                            , LineBoxText "world" { width = 50, height = 10 }
+                            ]
+                        )
+                    )
         ]
 
 

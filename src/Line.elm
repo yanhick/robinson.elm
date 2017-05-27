@@ -26,7 +26,7 @@ type LineBoxNode
 
 
 type LayoutLineBoxRoot
-    = LayoutLineBoxRoot LayoutLineBoxTree
+    = LayoutLineBoxRoot { width : Float, height : Float } LayoutLineBoxTree
 
 
 type LayoutLineBoxTree
@@ -40,7 +40,7 @@ layoutLineBoxRoot (LineBoxRoot lineBoxTree) =
         ( width, laidoutChildren, height ) =
             layoutLineBoxTree 0 lineBoxTree
     in
-    LayoutLineBoxRoot laidoutChildren
+    LayoutLineBoxRoot { width = width, height = height } laidoutChildren
 
 
 layoutLineBoxTree : Float -> LineBoxTree -> ( Float, LayoutLineBoxTree, Float )
@@ -81,17 +81,26 @@ layoutLineBoxTree x lineBoxTree =
 
 lineBoxRoot : Box.InlineBoxRoot -> LineBoxRoot
 lineBoxRoot (Box.InlineBoxRoot styles children) =
-    LineBoxRoot (LineBoxContainer (List.map lineBoxTree children))
+    LineBoxRoot (LineBoxContainer (List.concatMap lineBoxTree children))
 
 
-lineBoxTree : Box.InlineLevelElement -> LineBoxTree
+lineBoxTree : Box.InlineLevelElement -> List LineBoxTree
 lineBoxTree inlineLevelElement =
     case inlineLevelElement of
         Box.InlineText text ->
-            LineBoxText text { width = 50, height = 10 }
+            List.map
+                (\text -> LineBoxText text { width = 50, height = 10 })
+                (splitText text)
 
         Box.InlineContainer styles children ->
-            LineBoxContainer (List.map lineBoxTree children)
+            [ LineBoxContainer (List.concatMap lineBoxTree children) ]
+
+
+splitText : String -> List String
+splitText text =
+    text
+        |> String.split " "
+        |> List.intersperse " "
 
 
 getLines :
