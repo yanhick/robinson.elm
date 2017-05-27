@@ -10,7 +10,7 @@ type LineBoxRoot
 
 type LineBoxTree
     = LineBoxContainer (List LineBoxTree)
-    | LineBoxText String Float
+    | LineBoxText String { width : Float, height : Float }
 
 
 type Line
@@ -42,11 +42,11 @@ layoutLineBoxRoot (LineBoxRoot lineBoxTree) =
 layoutLineBoxTree : Float -> LineBoxTree -> ( Float, LayoutLineBoxTree )
 layoutLineBoxTree x lineBoxTree =
     case lineBoxTree of
-        LineBoxText text width ->
-            ( width
+        LineBoxText text textDimensions ->
+            ( textDimensions.width
             , LayoutLineBoxText
                 text
-                { x = x, y = 0, width = width, height = 0 }
+                { x = x, y = 0, width = textDimensions.width, height = textDimensions.height }
             )
 
         LineBoxContainer children ->
@@ -58,14 +58,14 @@ layoutLineBoxTree x lineBoxTree =
                                 ( childWidth, laidoutChild ) =
                                     layoutLineBoxTree (x + childrenWidth) child
                             in
-                            ( childWidth, List.append children [ laidoutChild ] )
+                            ( childWidth + childrenWidth, List.append children [ laidoutChild ] )
                         )
                         ( 0, [] )
                         children
             in
             ( totalWidth
             , LayoutLineBoxContainer
-                { x = 0, y = 0, width = totalWidth, height = 0 }
+                { x = x, y = 0, width = totalWidth, height = 0 }
                 laidoutChildren
             )
 
@@ -79,7 +79,7 @@ lineBoxTree : Box.InlineLevelElement -> LineBoxTree
 lineBoxTree inlineLevelElement =
     case inlineLevelElement of
         Box.InlineText text ->
-            LineBoxText text 50
+            LineBoxText text { width = 50, height = 10 }
 
         Box.InlineContainer styles children ->
             LineBoxContainer (List.map lineBoxTree children)
@@ -141,29 +141,29 @@ getLine line lineBoxTree =
             else
                 ( Mixed (LineBoxContainer res.usedChildren) (LineBoxContainer res.unusedChildren), res.line )
 
-        LineBoxText text textWidth ->
+        LineBoxText text textDimensions ->
             case line of
                 EmptyLine maxWidth ->
-                    if textWidth > maxWidth then
-                        ( Used (LineBoxText text textWidth)
+                    if textDimensions.width > maxWidth then
+                        ( Used (LineBoxText text textDimensions)
                         , FullLine
                         )
                     else
-                        ( Used (LineBoxText text textWidth)
-                        , UsedLine { width = textWidth, maxWidth = maxWidth }
+                        ( Used (LineBoxText text textDimensions)
+                        , UsedLine { width = textDimensions.width, maxWidth = maxWidth }
                         )
 
                 UsedLine { width, maxWidth } ->
-                    if width + textWidth > maxWidth then
-                        ( Unused (LineBoxText text textWidth)
+                    if width + textDimensions.width > maxWidth then
+                        ( Unused (LineBoxText text textDimensions)
                         , FullLine
                         )
                     else
-                        ( Used (LineBoxText text textWidth)
-                        , UsedLine { width = textWidth + width, maxWidth = maxWidth }
+                        ( Used (LineBoxText text textDimensions)
+                        , UsedLine { width = textDimensions.width + width, maxWidth = maxWidth }
                         )
 
                 FullLine ->
-                    ( Unused (LineBoxText text textWidth)
+                    ( Unused (LineBoxText text textDimensions)
                     , FullLine
                     )
