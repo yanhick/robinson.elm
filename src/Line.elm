@@ -89,7 +89,7 @@ lineBoxTree inlineLevelElement =
     case inlineLevelElement of
         Box.InlineText text ->
             List.map
-                (\text -> LineBoxText text { width = 50, height = 10 })
+                (\text -> LineBoxText text (measureText text))
                 (splitText text)
 
         Box.InlineContainer styles children ->
@@ -101,6 +101,11 @@ splitText text =
     text
         |> String.split " "
         |> List.intersperse " "
+
+
+measureText : String -> { width : Float, height : Float }
+measureText text =
+    { width = 50, height = 10 }
 
 
 getLines :
