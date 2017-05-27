@@ -50,14 +50,6 @@ span#name {
 }"""
 
 
-cssTest : Test
-cssTest =
-    describe "css tests"
-        [ cssParser
-        , passingTests
-        ]
-
-
 cssParser : Test
 cssParser =
     describe "CSS parser"

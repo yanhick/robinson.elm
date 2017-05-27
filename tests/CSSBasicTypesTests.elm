@@ -5,12 +5,6 @@ import Expect
 import Test exposing (..)
 
 
-cssBasicTypes : Test
-cssBasicTypes =
-    describe "CSS basic types"
-        [ length, color ]
-
-
 isJust : Maybe a -> Bool
 isJust maybe =
     case maybe of

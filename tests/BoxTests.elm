@@ -101,13 +101,6 @@ boxTests =
                         [ intermediateBlockBox ]
                     )
                     [ intermediateBlockBox ]
-        , test "do nothing if single block" <|
-            \() ->
-                Expect.equal
-                    (Box.wrapInlineBoxInAnonymousBlockForBlockContainer
-                        [ intermediateBlockBox ]
-                    )
-                    [ intermediateBlockBox ]
         , test "do nothing if all children inline for inline container" <|
             \() ->
                 Expect.equal
@@ -184,17 +177,6 @@ boxTests =
                     )
                     [ intermediateAnonymousBox [ intermediateInlineBox [] ]
                     , intermediateBlockBox
-                    ]
-        , test "wrap inline children in anonymous block for inline container with inline element last" <|
-            \() ->
-                Expect.equal
-                    (Box.wrapInlineBoxInAnonymousBlockForInlineContainer
-                        Style.initialStyles
-                        [ intermediateBlockBox, intermediateInlineBox [] ]
-                    )
-                    [ intermediateAnonymousBox [ intermediateInlineBox [] ]
-                    , intermediateBlockBox
-                    , intermediateAnonymousBox [ intermediateInlineBox [] ]
                     ]
         , test "wrap inline children in anonymous block for inline container with inline element last" <|
             \() ->

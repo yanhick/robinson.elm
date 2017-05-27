@@ -12,17 +12,6 @@ import Style
 import Test exposing (..)
 
 
-layout : Test
-layout =
-    describe "layout"
-        [ calculateBlockWidth
-        , calculateBlockHeight
-        , calculateBlockPosition
-        , layoutBlockChildren
-        , startLayout
-        ]
-
-
 edgeSize =
     { top = 0, right = 0, bottom = 0, left = 0 }
 
@@ -115,41 +104,6 @@ calculateBlockWidth =
                                 containingDimensions
                 in
                 Expect.equal boxModelContent.width 200
-        , test "set the margins width with auto margins and explicit width" <|
-            \() ->
-                let
-                    containingDimensions =
-                        BoxModel.boxModel
-                            { x = 0, y = 0, width = 200, height = 0 }
-                            edgeSize
-                            edgeSize
-                            edgeSize
-
-                    boxModel =
-                        Layout.calculateBlockWidth
-                            { styles
-                                | display = CSSOM.Block
-                                , width = CSSOM.widthLength <| testCSSLength 100
-                                , marginLeft = CSSOM.marginAuto
-                                , marginRight = CSSOM.marginAuto
-                            }
-                            BoxModel.initBoxModel
-                            containingDimensions
-
-                    boxModelContent =
-                        BoxModel.content boxModel
-
-                    boxModelMargin =
-                        BoxModel.margin boxModel
-                in
-                Expect.true ""
-                    (boxModelContent.width
-                        == 100
-                        && boxModelMargin.left
-                        == 50
-                        && boxModelMargin.right
-                        == 50
-                    )
         , test "set the margins width with auto margins and explicit width" <|
             \() ->
                 let
