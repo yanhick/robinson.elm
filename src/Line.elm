@@ -105,7 +105,7 @@ splitText text =
 
 measureText : String -> { width : Float, height : Float }
 measureText text =
-    { width = 50, height = 10 }
+    { width = toFloat <| 5 * String.length text, height = 10 }
 
 
 getLines :

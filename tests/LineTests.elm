@@ -72,7 +72,12 @@ testLineBoxRoot =
             \() ->
                 Expect.equal
                     (lineBoxRoot (Box.InlineBoxRoot Style.initialStyles [ Box.InlineText "hello" ]))
-                    (LineBoxRoot (LineBoxContainer [ LineBoxText "hello" { width = 50, height = 10 } ]))
+                    (LineBoxRoot
+                        (LineBoxContainer
+                            [ LineBoxText "hello" { width = 25, height = 10 }
+                            ]
+                        )
+                    )
         , test "get root line box with container " <|
             \() ->
                 Expect.equal
@@ -82,7 +87,13 @@ testLineBoxRoot =
             \() ->
                 Expect.equal
                     (lineBoxRoot (Box.InlineBoxRoot Style.initialStyles [ Box.InlineContainer Style.initialStyles [], Box.InlineText "hello" ]))
-                    (LineBoxRoot (LineBoxContainer [ LineBoxContainer [], LineBoxText "hello" { width = 50, height = 10 } ]))
+                    (LineBoxRoot
+                        (LineBoxContainer
+                            [ LineBoxContainer []
+                            , LineBoxText "hello" { width = 25, height = 10 }
+                            ]
+                        )
+                    )
         , test "get root line box with split text " <|
             \() ->
                 Expect.equal
@@ -90,9 +101,9 @@ testLineBoxRoot =
                     (LineBoxRoot
                         (LineBoxContainer
                             [ LineBoxContainer []
-                            , LineBoxText "hello" { width = 50, height = 10 }
-                            , LineBoxText " " { width = 50, height = 10 }
-                            , LineBoxText "world" { width = 50, height = 10 }
+                            , LineBoxText "hello" { width = 25, height = 10 }
+                            , LineBoxText " " { width = 5, height = 10 }
+                            , LineBoxText "world" { width = 25, height = 10 }
                             ]
                         )
                     )
@@ -161,4 +172,15 @@ testGetLines =
                 Expect.equal
                     (getLines (LineBoxRoot (LineBoxContainer [ LineBoxContainer [ LineBoxText "hello" { width = 80, height = 20 } ], LineBoxContainer [ LineBoxText "world" { width = 60, height = 20 } ] ])) 100)
                     [ LineBoxRoot (LineBoxContainer [ LineBoxContainer [ LineBoxText "hello" { width = 80, height = 20 } ] ]), LineBoxRoot (LineBoxContainer [ LineBoxContainer [ LineBoxText "world" { width = 60, height = 20 } ] ]) ]
+        ]
+
+
+testMeasureText : Test
+testMeasureText =
+    describe "measure text"
+        [ test "measure width and height of text string" <|
+            \() ->
+                Expect.equal
+                    (measureText "hello")
+                    { width = 25, height = 10 }
         ]
