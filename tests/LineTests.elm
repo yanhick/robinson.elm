@@ -116,32 +116,33 @@ testGetLines =
         [ test "gets a single line if there are no elements" <|
             \() ->
                 Expect.equal
-                    (getLines (LineBoxRoot (LineBoxContainer [])) 100)
+                    (getLines 100 (LineBoxRoot (LineBoxContainer [])))
                     [ LineBoxRoot (LineBoxContainer []) ]
         , test "gets a single line with text" <|
             \() ->
                 Expect.equal
-                    (getLines (LineBoxRoot (LineBoxContainer [ LineBoxText "hello" { width = 50, height = 20 } ])) 100)
+                    (getLines 100 (LineBoxRoot (LineBoxContainer [ LineBoxText "hello" { width = 50, height = 20 } ])))
                     [ LineBoxRoot (LineBoxContainer [ LineBoxText "hello" { width = 50, height = 20 } ]) ]
         , test "gets a single line with text overflowing" <|
             \() ->
                 Expect.equal
-                    (getLines (LineBoxRoot (LineBoxContainer [ LineBoxText "hello" { width = 150, height = 20 } ])) 100)
+                    (getLines 100 (LineBoxRoot (LineBoxContainer [ LineBoxText "hello" { width = 150, height = 20 } ])))
                     [ LineBoxRoot (LineBoxContainer [ LineBoxText "hello" { width = 150, height = 20 } ]) ]
         , test "gets a multiple lines to fit the text" <|
             \() ->
                 Expect.equal
-                    (getLines (LineBoxRoot (LineBoxContainer [ LineBoxText "hello" { width = 80, height = 20 }, LineBoxText "world" { width = 30, height = 20 } ])) 100)
+                    (getLines 100 (LineBoxRoot (LineBoxContainer [ LineBoxText "hello" { width = 80, height = 20 }, LineBoxText "world" { width = 30, height = 20 } ])))
                     [ LineBoxRoot (LineBoxContainer [ LineBoxText "hello" { width = 80, height = 20 } ]), LineBoxRoot (LineBoxContainer [ LineBoxText "world" { width = 30, height = 20 } ]) ]
         , test "gets one line with text that fit exactly" <|
             \() ->
                 Expect.equal
-                    (getLines (LineBoxRoot (LineBoxContainer [ LineBoxText "hello" { width = 80, height = 20 }, LineBoxText "world" { width = 20, height = 20 } ])) 100)
+                    (getLines 100 (LineBoxRoot (LineBoxContainer [ LineBoxText "hello" { width = 80, height = 20 }, LineBoxText "world" { width = 20, height = 20 } ])))
                     [ LineBoxRoot (LineBoxContainer [ LineBoxText "hello" { width = 80, height = 20 }, LineBoxText "world" { width = 20, height = 20 } ]) ]
         , test "gets multple lines with multiple overflowing text" <|
             \() ->
                 Expect.equal
                     (getLines
+                        50
                         (LineBoxRoot
                             (LineBoxContainer
                                 [ LineBoxText "hello" { width = 80, height = 20 }
@@ -149,7 +150,6 @@ testGetLines =
                                 ]
                             )
                         )
-                        50
                     )
                     [ LineBoxRoot
                         (LineBoxContainer
@@ -165,12 +165,12 @@ testGetLines =
         , test "gets multiple lines and preserve the child containers" <|
             \() ->
                 Expect.equal
-                    (getLines (LineBoxRoot (LineBoxContainer [ LineBoxText "hello" { width = 80, height = 20 }, LineBoxContainer [ LineBoxText "world" { width = 60, height = 20 } ] ])) 100)
+                    (getLines 100 (LineBoxRoot (LineBoxContainer [ LineBoxText "hello" { width = 80, height = 20 }, LineBoxContainer [ LineBoxText "world" { width = 60, height = 20 } ] ])))
                     [ LineBoxRoot (LineBoxContainer [ LineBoxText "hello" { width = 80, height = 20 } ]), LineBoxRoot (LineBoxContainer [ LineBoxContainer [ LineBoxText "world" { width = 60, height = 20 } ] ]) ]
         , test "gets multiple lines and preserve the sibling containers" <|
             \() ->
                 Expect.equal
-                    (getLines (LineBoxRoot (LineBoxContainer [ LineBoxContainer [ LineBoxText "hello" { width = 80, height = 20 } ], LineBoxContainer [ LineBoxText "world" { width = 60, height = 20 } ] ])) 100)
+                    (getLines 100 (LineBoxRoot (LineBoxContainer [ LineBoxContainer [ LineBoxText "hello" { width = 80, height = 20 } ], LineBoxContainer [ LineBoxText "world" { width = 60, height = 20 } ] ])))
                     [ LineBoxRoot (LineBoxContainer [ LineBoxContainer [ LineBoxText "hello" { width = 80, height = 20 } ] ]), LineBoxRoot (LineBoxContainer [ LineBoxContainer [ LineBoxText "world" { width = 60, height = 20 } ] ]) ]
         ]
 
@@ -183,4 +183,33 @@ testMeasureText =
                 Expect.equal
                     (measureText "hello")
                     { width = 25, height = 10 }
+        ]
+
+
+testStackLineBoxes : Test
+testStackLineBoxes =
+    describe "stack line boxes"
+        [ test "stack line boxes to get x,y position" <|
+            \() ->
+                Expect.equal
+                    (stackLineBoxes { x = 10, y = 30 }
+                        [ LayoutLineBoxRoot
+                            { height = 30, width = 100 }
+                            (LayoutLineBoxContainer { x = 0, y = 0, height = 0, width = 0 } [])
+                        , LayoutLineBoxRoot
+                            { height = 50, width = 100 }
+                            (LayoutLineBoxContainer { x = 0, y = 0, height = 0, width = 0 } [])
+                        ]
+                    )
+                    [ StackedLayoutLineBoxRoot { x = 10, y = 30 }
+                        (LayoutLineBoxRoot
+                            { height = 30, width = 100 }
+                            (LayoutLineBoxContainer { x = 0, y = 0, height = 0, width = 0 } [])
+                        )
+                    , StackedLayoutLineBoxRoot { x = 10, y = 60 }
+                        (LayoutLineBoxRoot
+                            { height = 50, width = 100 }
+                            (LayoutLineBoxContainer { x = 0, y = 0, height = 0, width = 0 } [])
+                        )
+                    ]
         ]

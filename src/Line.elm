@@ -25,6 +25,10 @@ type LineBoxNode
     | Mixed LineBoxTree LineBoxTree
 
 
+type StackedLayoutLineBoxRoot
+    = StackedLayoutLineBoxRoot { x : Float, y : Float } LayoutLineBoxRoot
+
+
 type LayoutLineBoxRoot
     = LayoutLineBoxRoot { width : Float, height : Float } LayoutLineBoxTree
 
@@ -32,6 +36,37 @@ type LayoutLineBoxRoot
 type LayoutLineBoxTree
     = LayoutLineBoxContainer BoxModel.Rect (List LayoutLineBoxTree)
     | LayoutLineBoxText String BoxModel.Rect
+
+
+layoutInlineFormattingContext : Box.InlineBoxRoot -> BoxModel.Rect -> List StackedLayoutLineBoxRoot
+layoutInlineFormattingContext inlineBoxRoot containingBlockRect =
+    inlineBoxRoot
+        |> lineBoxRoot
+        |> getLines containingBlockRect.width
+        |> List.map layoutLineBoxRoot
+        |> stackLineBoxes { x = containingBlockRect.x, y = containingBlockRect.y }
+
+
+stackLineBoxes : { x : Float, y : Float } -> List LayoutLineBoxRoot -> List StackedLayoutLineBoxRoot
+stackLineBoxes position layoutLineBoxRoots =
+    Tuple.second <|
+        List.foldl
+            (\(LayoutLineBoxRoot { width, height } layoutLineBoxTree) ( { x, y }, stackedLineBoxes ) ->
+                let
+                    newPosition =
+                        { x = x
+                        , y = y + height
+                        }
+                in
+                ( newPosition
+                , List.append stackedLineBoxes
+                    [ StackedLayoutLineBoxRoot { x = x, y = y }
+                        (LayoutLineBoxRoot { width = width, height = height } layoutLineBoxTree)
+                    ]
+                )
+            )
+            ( position, [] )
+            layoutLineBoxRoots
 
 
 layoutLineBoxRoot : LineBoxRoot -> LayoutLineBoxRoot
@@ -109,10 +144,10 @@ measureText text =
 
 
 getLines :
-    LineBoxRoot
-    -> Float
+    Float
+    -> LineBoxRoot
     -> List LineBoxRoot
-getLines (LineBoxRoot root) maxWidth =
+getLines maxWidth (LineBoxRoot root) =
     case getLine (EmptyLine maxWidth) root of
         ( Used child, _ ) ->
             [ LineBoxRoot child ]
@@ -121,7 +156,7 @@ getLines (LineBoxRoot root) maxWidth =
             [ LineBoxRoot child ]
 
         ( Mixed usedChild unusedChild, _ ) ->
-            [ LineBoxRoot usedChild ] ++ getLines (LineBoxRoot unusedChild) maxWidth
+            [ LineBoxRoot usedChild ] ++ getLines maxWidth (LineBoxRoot unusedChild)
 
 
 getLine :
