@@ -161,7 +161,7 @@ ui html css =
 
 
 element : Painting.DisplayCommand -> Html Msg
-element (Painting.SolidColor { x, y, width, height } color) =
+element command =
     let
         toRGBAString { red, green, blue, alpha } =
             "rgba("
@@ -173,17 +173,32 @@ element (Painting.SolidColor { x, y, width, height } color) =
                 ++ ", "
                 ++ toString alpha
                 ++ ")"
-
-        s =
-            [ ( "width", toString width ++ "px" )
-            , ( "height", toString height ++ "px" )
-            , ( "position", "absolute" )
-            , ( "left", toString x ++ "px" )
-            , ( "top", toString y ++ "px" )
-            , ( "background", toRGBAString color )
-            ]
     in
-    div [ style s ] []
+    case command of
+        Painting.SolidColor { x, y, width, height } color ->
+            div
+                [ style
+                    [ ( "width", toString width ++ "px" )
+                    , ( "height", toString height ++ "px" )
+                    , ( "position", "absolute" )
+                    , ( "left", toString x ++ "px" )
+                    , ( "top", toString y ++ "px" )
+                    , ( "background", toRGBAString color )
+                    ]
+                ]
+                []
+
+        Painting.Text { x, y, width, height } textContent ->
+            div
+                [ style
+                    [ ( "width", toString width ++ "px" )
+                    , ( "height", toString height ++ "px" )
+                    , ( "position", "absolute" )
+                    , ( "left", toString x ++ "px" )
+                    , ( "top", toString y ++ "px" )
+                    ]
+                ]
+                [ text textContent ]
 
 
 subscriptions : Model -> Sub msg

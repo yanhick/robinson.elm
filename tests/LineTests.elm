@@ -74,7 +74,7 @@ testLineBoxRoot =
                     (lineBoxRoot (Box.InlineBoxRoot Style.initialStyles [ Box.InlineText "hello" ]))
                     (LineBoxRoot
                         (LineBoxContainer
-                            [ LineBoxText "hello" { width = 25, height = 10 }
+                            [ LineBoxText "hello" { width = 50, height = 20 }
                             ]
                         )
                     )
@@ -90,20 +90,20 @@ testLineBoxRoot =
                     (LineBoxRoot
                         (LineBoxContainer
                             [ LineBoxContainer []
-                            , LineBoxText "hello" { width = 25, height = 10 }
+                            , LineBoxText "hello" { width = 50, height = 20 }
                             ]
                         )
                     )
-        , test "get root line box with split text " <|
+        , test "get root line box with split text" <|
             \() ->
                 Expect.equal
                     (lineBoxRoot (Box.InlineBoxRoot Style.initialStyles [ Box.InlineContainer Style.initialStyles [], Box.InlineText "hello world" ]))
                     (LineBoxRoot
                         (LineBoxContainer
                             [ LineBoxContainer []
-                            , LineBoxText "hello" { width = 25, height = 10 }
-                            , LineBoxText " " { width = 5, height = 10 }
-                            , LineBoxText "world" { width = 25, height = 10 }
+                            , LineBoxText "hello" { width = 50, height = 20 }
+                            , LineBoxText " " { width = 10, height = 20 }
+                            , LineBoxText "world" { width = 50, height = 20 }
                             ]
                         )
                     )
@@ -182,7 +182,7 @@ testMeasureText =
             \() ->
                 Expect.equal
                     (measureText "hello")
-                    { width = 25, height = 10 }
+                    { width = 50, height = 20 }
         ]
 
 

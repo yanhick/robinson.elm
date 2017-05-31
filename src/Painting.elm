@@ -11,6 +11,7 @@ import Style exposing (..)
 
 type DisplayCommand
     = SolidColor BoxModel.Rect CSSBasicTypes.RGBAColor
+    | Text BoxModel.Rect String
 
 
 buildDisplayList : LayoutRoot -> List DisplayCommand
@@ -57,13 +58,24 @@ renderLayoutBox layoutBox =
                 ++ renderBorders styles
                     boxModel
                 ++ List.concatMap
-                    renderLine
+                    renderLineRoot
                     lineRoots
 
 
-renderLine : Line.StackedLayoutLineBoxRoot -> List DisplayCommand
-renderLine (Line.StackedLayoutLineBoxRoot { x, y } (Line.LayoutLineBoxRoot { width, height } _)) =
-    [ SolidColor { x = x, y = y, width = width, height = height } { green = 255, blue = 255, red = 0, alpha = 1.0 } ]
+renderLineRoot : Line.StackedLayoutLineBoxRoot -> List DisplayCommand
+renderLineRoot (Line.StackedLayoutLineBoxRoot linePosition (Line.LayoutLineBoxRoot { width, height } layoutBox)) =
+    renderLineBox linePosition layoutBox
+
+
+renderLineBox : { x : Float, y : Float } -> Line.LayoutLineBoxTree -> List DisplayCommand
+renderLineBox linePosition layoutBox =
+    case layoutBox of
+        Line.LayoutLineBoxText text { x, y, width, height } ->
+            [ Text { x = x + linePosition.x, y = y + linePosition.y, width = width, height = height } text ]
+
+        Line.LayoutLineBoxContainer { x, y, width, height } children ->
+            [ SolidColor { x = linePosition.x, y = linePosition.y, width = width, height = height } { green = 255, blue = 255, red = 0, alpha = 1.0 } ]
+                ++ List.concatMap (renderLineBox linePosition) children
 
 
 renderBackground : BoxModel.BoxModel -> CSSBasicTypes.RGBAColor -> DisplayCommand
