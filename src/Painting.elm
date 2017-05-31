@@ -5,6 +5,7 @@ import CSSBasicTypes
 import CSSOM
 import Color exposing (..)
 import Layout exposing (..)
+import Line
 import Style exposing (..)
 
 
@@ -43,8 +44,26 @@ renderLayoutBox layoutBox =
                 ++ renderBorders styles boxModel
                 ++ List.concatMap renderLayoutBox children
 
-        _ ->
-            []
+        BlockBoxInlineContext { boxModel, styles } lineRoots ->
+            let
+                backgroundColor =
+                    Maybe.withDefault
+                        { red = 0, green = 0, blue = 0, alpha = 0 }
+                    <|
+                        Just <|
+                            CSSOM.usedBackgroundColor styles.backgroundColor
+            in
+            [ renderBackground boxModel backgroundColor ]
+                ++ renderBorders styles
+                    boxModel
+                ++ List.concatMap
+                    renderLine
+                    lineRoots
+
+
+renderLine : Line.StackedLayoutLineBoxRoot -> List DisplayCommand
+renderLine (Line.StackedLayoutLineBoxRoot { x, y } (Line.LayoutLineBoxRoot { width, height } _)) =
+    [ SolidColor { x = x, y = y, width = width, height = height } { green = 255, blue = 255, red = 0, alpha = 1.0 } ]
 
 
 renderBackground : BoxModel.BoxModel -> CSSBasicTypes.RGBAColor -> DisplayCommand
