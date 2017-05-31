@@ -13,7 +13,7 @@ type DisplayCommand
 
 
 buildDisplayList : LayoutRoot -> List DisplayCommand
-buildDisplayList (LayoutRoot { boxModel, styles, children }) =
+buildDisplayList (LayoutRoot { boxModel, styles } children) =
     let
         backgroundColor =
             Maybe.withDefault
@@ -30,7 +30,7 @@ buildDisplayList (LayoutRoot { boxModel, styles, children }) =
 renderLayoutBox : LayoutBox -> List DisplayCommand
 renderLayoutBox layoutBox =
     case layoutBox of
-        BlockBox { boxModel, styles, children } ->
+        BlockBox { boxModel, styles } children ->
             let
                 backgroundColor =
                     Maybe.withDefault

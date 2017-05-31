@@ -38,10 +38,7 @@ styles =
 
 getBoxModel layoutBox =
     case layoutBox of
-        Layout.BlockBox { boxModel } ->
-            Just boxModel
-
-        Layout.InlineBox { boxModel } ->
+        Layout.BlockBox { boxModel } _ ->
             Just boxModel
 
         Layout.BlockBoxInlineContext { boxModel } _ ->
@@ -416,7 +413,7 @@ startLayout =
                     box =
                         Box.boxTree styledRoot
 
-                    (Layout.LayoutRoot { boxModel }) =
+                    (Layout.LayoutRoot { boxModel } _) =
                         Layout.startLayout
                             box
                             containingDimensions
@@ -465,7 +462,7 @@ startLayout =
                     box =
                         Box.boxTree styledRoot
 
-                    (Layout.LayoutRoot { boxModel }) =
+                    (Layout.LayoutRoot { boxModel } _) =
                         Layout.startLayout
                             box
                             containingDimensions
@@ -516,7 +513,7 @@ startLayout =
                     box =
                         Box.boxTree styledRoot
 
-                    (Layout.LayoutRoot { boxModel }) =
+                    (Layout.LayoutRoot { boxModel } _) =
                         Layout.startLayout
                             box
                             containingDimensions
@@ -565,7 +562,7 @@ startLayout =
                     box =
                         Box.boxTree styledRoot
 
-                    (Layout.LayoutRoot { boxModel }) =
+                    (Layout.LayoutRoot { boxModel } _) =
                         Layout.startLayout
                             box
                             containingDimensions

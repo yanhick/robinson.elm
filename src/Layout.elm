@@ -5,42 +5,43 @@ import BoxModel
 import CSSBasicTypes exposing (..)
 import CSSOM exposing (..)
 import DOM exposing (..)
+import Line
 import Style exposing (..)
 
 
 type alias Box =
     { boxModel : BoxModel.BoxModel
     , styles : Styles
-    , children : List LayoutBox
-    }
-
-
-type alias LineBox =
-    { rect : BoxModel.Rect
-    , boxes : List LayoutBox
     }
 
 
 type LayoutRoot
-    = LayoutRoot Box
+    = LayoutRoot Box (List LayoutBox)
 
 
 type LayoutBox
-    = BlockBox Box
-    | BlockBoxInlineContext Box (List LineBox)
-    | InlineBox Box
+    = BlockBox Box (List LayoutBox)
+    | BlockBoxInlineContext Box (List Line.StackedLayoutLineBoxRoot)
 
 
 startLayout : Box.BoxRoot -> BoxModel.BoxModel -> LayoutRoot
 startLayout (Box.BoxRoot styles children) containingBoxModel =
-    LayoutRoot <| layoutBlockBox styles children containingBoxModel
+    let
+        ( box, laidoutChildren ) =
+            layoutBlockBox styles children containingBoxModel
+    in
+    LayoutRoot box laidoutChildren
 
 
 layoutBlock : Box.BlockLevelElement -> BoxModel.BoxModel -> LayoutBox
 layoutBlock blockLevelElement containingBlockDimensions =
     case blockLevelElement of
         Box.BlockContainerBlockContext styles children ->
-            BlockBox <| layoutBlockBox styles children containingBlockDimensions
+            let
+                ( box, laidoutChildren ) =
+                    layoutBlockBox styles children containingBlockDimensions
+            in
+            BlockBox box laidoutChildren
 
         Box.BlockContainerInlineContext inlineBoxRoot ->
             let
@@ -53,7 +54,7 @@ layoutBlock blockLevelElement containingBlockDimensions =
 layoutBlockInlineFormattingContext :
     Box.InlineBoxRoot
     -> BoxModel.BoxModel
-    -> ( Box, List LineBox )
+    -> ( Box, List Line.StackedLayoutLineBoxRoot )
 layoutBlockInlineFormattingContext (Box.InlineBoxRoot styles children) containingBoxModel =
     let
         boxModelWithCorrectWidth =
@@ -62,20 +63,25 @@ layoutBlockInlineFormattingContext (Box.InlineBoxRoot styles children) containin
         boxModelWithCorrectPosition =
             calculateBlockPosition styles boxModelWithCorrectWidth containingBoxModel
 
-        ( laidoutChildren, childrenBoxModel, lineBoxes ) =
-            layoutInlineChildren children boxModelWithCorrectPosition
+        lineBoxes =
+            Line.layoutInlineFormattingContext (Box.InlineBoxRoot styles children) (BoxModel.content boxModelWithCorrectPosition)
 
         boxModelContent =
             BoxModel.content boxModelWithCorrectPosition
 
-        childrenBoxModelContent =
-            BoxModel.content childrenBoxModel
+        childrenHeight =
+            List.foldl
+                (\(Line.StackedLayoutLineBoxRoot _ _) children ->
+                    0
+                )
+                0
+                lineBoxes
 
         newContent =
             { x = boxModelContent.x
             , y = boxModelContent.y
             , width = boxModelContent.width
-            , height = childrenBoxModelContent.height
+            , height = childrenHeight
             }
 
         horizontalBoxModel =
@@ -88,15 +94,7 @@ layoutBlockInlineFormattingContext (Box.InlineBoxRoot styles children) containin
         newBoxModel =
             calculateBlockHeight styles horizontalBoxModel
     in
-    ( { styles = styles, children = laidoutChildren, boxModel = newBoxModel }, lineBoxes )
-
-
-layoutInlineChildren :
-    List Box.InlineLevelElement
-    -> BoxModel.BoxModel
-    -> ( List LayoutBox, BoxModel.BoxModel, List LineBox )
-layoutInlineChildren children containingBoxModel =
-    ( [], containingBoxModel, [] )
+    ( { boxModel = newBoxModel, styles = styles }, lineBoxes )
 
 
 calculateInlineWidth :
@@ -116,7 +114,7 @@ layoutBlockBox :
     Styles
     -> List Box.BlockLevelElement
     -> BoxModel.BoxModel
-    -> Box
+    -> ( Box, List LayoutBox )
 layoutBlockBox styles children containingBoxModel =
     let
         boxModelWithCorrectWidth =
@@ -151,10 +149,11 @@ layoutBlockBox styles children containingBoxModel =
         newBoxModel =
             calculateBlockHeight styles horizontalBoxModel
     in
-    { children = laidoutChildren
-    , boxModel = newBoxModel
-    , styles = styles
-    }
+    ( { boxModel = newBoxModel
+      , styles = styles
+      }
+    , laidoutChildren
+    )
 
 
 layoutBlockChildren :
@@ -193,13 +192,10 @@ layoutBlockChildren children containingBoxModel =
                     )
             in
             case childLayoutBox of
-                BlockBox { boxModel } ->
+                BlockBox { boxModel } _ ->
                     addChild boxModel
 
                 BlockBoxInlineContext { boxModel } _ ->
-                    addChild boxModel
-
-                InlineBox { boxModel } ->
                     addChild boxModel
         )
         ( [], containingBoxModel )
