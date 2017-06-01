@@ -1,6 +1,11 @@
-module CSSSelectors exposing (..)
+module CSSSelectors
+    exposing
+        ( CSSSelector(Simple, Universal)
+        , matches
+        , specifity
+        )
 
-import DOM exposing (..)
+import DOM
 import Dict
 
 
@@ -29,7 +34,7 @@ specifity selector =
             0
 
 
-matches : ElementNode -> CSSSelector -> Bool
+matches : DOM.ElementNode -> CSSSelector -> Bool
 matches node selector =
     case selector of
         Universal ->
@@ -39,7 +44,7 @@ matches node selector =
             matchesSimpleSelector node s
 
 
-matchesSimpleSelector : ElementNode -> CSSSimpleSelector -> Bool
+matchesSimpleSelector : DOM.ElementNode -> CSSSimpleSelector -> Bool
 matchesSimpleSelector { tagName, attributes } { tag, ids, classes } =
     let
         id =

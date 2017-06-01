@@ -1,18 +1,21 @@
-module DOM exposing (..)
+module DOM
+    exposing
+        ( Attributes
+        , DOMNode(Element, Text)
+        , DOMRoot(DOMRoot)
+        , ElementNode
+        , TagName
+        )
 
-import Dict exposing (..)
+import Dict
 
 
 type alias TagName =
     String
 
 
-type alias Attribute =
-    String
-
-
 type alias Attributes =
-    Dict String String
+    Dict.Dict String String
 
 
 type alias ElementNode =

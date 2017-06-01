@@ -1,22 +1,22 @@
 module HtmlParser exposing (..)
 
 import Char
-import DOM exposing (..)
+import DOM
 import Dict
 import Parser exposing (..)
 
 
-parse : Parser DOMRoot
+parse : Parser DOM.DOMRoot
 parse =
     parseRoot
 
 
-parseRoot : Parser DOMRoot
+parseRoot : Parser DOM.DOMRoot
 parseRoot =
     inContext "parse element" <|
         succeed
             (\( tagName, attributes ) children ->
-                DOMRoot
+                DOM.DOMRoot
                     { children = children
                     , tagName = tagName
                     , attributes = attributes
@@ -30,12 +30,12 @@ parseRoot =
                 ]
 
 
-parseElement : Parser DOMNode
+parseElement : Parser DOM.DOMNode
 parseElement =
     inContext "parse element" <|
         succeed
             (\( tagName, attributes ) children ->
-                Element
+                DOM.Element
                     { children = children
                     , tagName = tagName
                     , attributes = attributes
@@ -49,7 +49,7 @@ parseElement =
                 ]
 
 
-parseNodeList : List DOMNode -> Parser (List DOMNode)
+parseNodeList : List DOM.DOMNode -> Parser (List DOM.DOMNode)
 parseNodeList domNodes =
     oneOf
         [ parseClosingTag domNodes
@@ -58,7 +58,7 @@ parseNodeList domNodes =
         ]
 
 
-nextNode : Parser DOMNode
+nextNode : Parser DOM.DOMNode
 nextNode =
     delayedCommit spaces <|
         succeed identity
@@ -77,7 +77,7 @@ parseClosingTag after =
                 |. symbol ">"
 
 
-parseOpeningTag : Parser ( TagName, Attributes )
+parseOpeningTag : Parser ( DOM.TagName, DOM.Attributes )
 parseOpeningTag =
     inContext "parse opening tag" <|
         succeed (\tagName attributes -> ( tagName, Dict.fromList attributes ))
@@ -91,16 +91,16 @@ parseOpeningTag =
             |. symbol ">"
 
 
-parseNode : Parser DOMNode
+parseNode : Parser DOM.DOMNode
 parseNode =
     inContext "parse node" <|
         oneOf [ parseText, parseElement ]
 
 
-parseText : Parser DOMNode
+parseText : Parser DOM.DOMNode
 parseText =
     inContext "parse text" <|
-        succeed Text
+        succeed DOM.Text
             |= keep oneOrMore (\c -> c /= '<')
 
 

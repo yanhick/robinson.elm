@@ -38,7 +38,11 @@ computedCSSLength (CSSLength length Pixel) =
 
 
 type alias RGBAColor =
-    { red : Int, green : Int, blue : Int, alpha : Float }
+    { red : Int
+    , green : Int
+    , blue : Int
+    , alpha : Float
+    }
 
 
 cssColorFromRGBA : RGBAColor -> Maybe CSSColor
