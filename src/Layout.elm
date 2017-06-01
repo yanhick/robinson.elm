@@ -71,8 +71,8 @@ layoutBlockInlineFormattingContext (Box.InlineBoxRoot styles children) containin
 
         childrenHeight =
             List.foldl
-                (\(Line.StackedLayoutLineBoxRoot _ _) children ->
-                    0
+                (\(Line.StackedLayoutLineBoxRoot _ (Line.LayoutLineBoxRoot { height } _)) childrenHeight ->
+                    childrenHeight + height
                 )
                 0
                 lineBoxes
@@ -95,19 +95,6 @@ layoutBlockInlineFormattingContext (Box.InlineBoxRoot styles children) containin
             calculateBlockHeight styles horizontalBoxModel
     in
     ( { boxModel = newBoxModel, styles = styles }, lineBoxes )
-
-
-calculateInlineWidth :
-    Box.InlineLevelElement
-    -> BoxModel.BoxModel
-    -> BoxModel.BoxModel
-calculateInlineWidth inlineLevelElement containingBoxModel =
-    case inlineLevelElement of
-        Box.InlineContainer styles children ->
-            BoxModel.initBoxModel
-
-        Box.InlineText _ ->
-            BoxModel.initBoxModel
 
 
 layoutBlockBox :
