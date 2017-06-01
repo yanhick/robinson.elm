@@ -104,7 +104,7 @@ render html css =
             Result.map2 Style.styleTree cssom dom
 
         containingBlock =
-            BoxModel.boxModel
+            BoxModel.make
                 { x = 0, y = 0, width = 400, height = 0 }
                 { top = 0, left = 0, bottom = 0, right = 0 }
                 { top = 0, left = 0, bottom = 0, right = 0 }

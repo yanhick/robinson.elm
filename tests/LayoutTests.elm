@@ -57,289 +57,6 @@ type BoxType
     | Text
 
 
-calculateBlockWidth : Test
-calculateBlockWidth =
-    describe "calculate block width"
-        [ test "set the block width with an explicit width" <|
-            \() ->
-                let
-                    containingDimensions =
-                        BoxModel.boxModel
-                            { x = 0, y = 0, width = 100, height = 0 }
-                            edgeSize
-                            edgeSize
-                            edgeSize
-
-                    boxModelContent =
-                        BoxModel.content <|
-                            Layout.calculateBlockWidth
-                                { styles
-                                    | display = CSSOM.Block
-                                    , width = CSSOM.widthLength <| testCSSLength 50
-                                }
-                                BoxModel.initBoxModel
-                                containingDimensions
-                in
-                Expect.equal boxModelContent.width 50
-        , test "set the block width with an auto width" <|
-            \() ->
-                let
-                    containingDimensions =
-                        BoxModel.boxModel
-                            { x = 0, y = 0, width = 200, height = 0 }
-                            edgeSize
-                            edgeSize
-                            edgeSize
-
-                    boxModelContent =
-                        BoxModel.content <|
-                            Layout.calculateBlockWidth
-                                { styles
-                                    | display = CSSOM.Block
-                                }
-                                BoxModel.initBoxModel
-                                containingDimensions
-                in
-                Expect.equal boxModelContent.width 200
-        , test "set the margins width with auto margins and explicit width" <|
-            \() ->
-                let
-                    containingDimensions =
-                        BoxModel.boxModel
-                            { x = 0, y = 0, width = 200, height = 0 }
-                            edgeSize
-                            edgeSize
-                            edgeSize
-
-                    boxModel =
-                        Layout.calculateBlockWidth
-                            { styles
-                                | display = CSSOM.Block
-                                , width = CSSOM.widthLength <| testCSSLength 100
-                                , marginLeft = CSSOM.marginAuto
-                                , marginRight = CSSOM.marginAuto
-                            }
-                            BoxModel.initBoxModel
-                            containingDimensions
-
-                    boxModelContent =
-                        BoxModel.content boxModel
-
-                    boxModelMargin =
-                        BoxModel.margin boxModel
-                in
-                Expect.true ""
-                    (boxModelContent.width
-                        == 100
-                        && boxModelMargin.left
-                        == 50
-                        && boxModelMargin.right
-                        == 50
-                    )
-        , test "resize left auto margin when right margin and width length is explicit" <|
-            \() ->
-                let
-                    containingDimensions =
-                        BoxModel.boxModel
-                            { x = 0, y = 0, width = 100, height = 0 }
-                            edgeSize
-                            edgeSize
-                            edgeSize
-
-                    boxModel =
-                        Layout.calculateBlockWidth
-                            { styles
-                                | display = CSSOM.Block
-                                , width = CSSOM.widthLength <| testCSSLength 100
-                                , marginLeft = CSSOM.marginLength <| testCSSLength 50
-                                , marginRight = CSSOM.marginAuto
-                            }
-                            BoxModel.initBoxModel
-                            containingDimensions
-
-                    boxModelContent =
-                        BoxModel.content boxModel
-
-                    boxModelMargin =
-                        BoxModel.margin boxModel
-                in
-                Expect.true ""
-                    (boxModelContent.width
-                        == 100
-                        && boxModelMargin.left
-                        == 50
-                        && boxModelMargin.right
-                        == -50
-                    )
-        , test "resize right auto margin when left margin and width length is explicit" <|
-            \() ->
-                let
-                    containingDimensions =
-                        BoxModel.boxModel
-                            { x = 0, y = 0, width = 200, height = 0 }
-                            edgeSize
-                            edgeSize
-                            edgeSize
-
-                    boxModel =
-                        Layout.calculateBlockWidth
-                            { styles
-                                | display = CSSOM.Block
-                                , width = CSSOM.widthLength <| testCSSLength 100
-                                , marginRight = CSSOM.marginLength <| testCSSLength 50
-                                , marginLeft = CSSOM.marginAuto
-                            }
-                            BoxModel.initBoxModel
-                            containingDimensions
-
-                    boxModelContent =
-                        BoxModel.content boxModel
-
-                    boxModelMargin =
-                        BoxModel.margin boxModel
-                in
-                Expect.true ""
-                    (boxModelContent.width
-                        == 100
-                        && boxModelMargin.left
-                        == 50
-                        && boxModelMargin.right
-                        == 50
-                    )
-        , test "set auto margins to 0 if width is auto" <|
-            \() ->
-                let
-                    containingDimensions =
-                        BoxModel.boxModel
-                            { x = 0, y = 0, width = 200, height = 0 }
-                            edgeSize
-                            edgeSize
-                            edgeSize
-
-                    boxModel =
-                        Layout.calculateBlockWidth
-                            { styles
-                                | display = CSSOM.Block
-                                , width = CSSOM.widthAuto
-                                , marginRight = CSSOM.marginAuto
-                                , marginLeft = CSSOM.marginAuto
-                            }
-                            BoxModel.initBoxModel
-                            containingDimensions
-
-                    boxModelContent =
-                        BoxModel.content boxModel
-
-                    boxModelMargin =
-                        BoxModel.margin boxModel
-                in
-                Expect.true ""
-                    (boxModelContent.width
-                        == 200
-                        && boxModelMargin.left
-                        == 0
-                        && boxModelMargin.right
-                        == 0
-                    )
-        , test "make right margin negative if the width was going to be negative" <|
-            \() ->
-                let
-                    containingDimensions =
-                        BoxModel.boxModel
-                            { x = 0, y = 0, width = 100, height = 0 }
-                            edgeSize
-                            edgeSize
-                            edgeSize
-
-                    boxModel =
-                        Layout.calculateBlockWidth
-                            { styles
-                                | display = CSSOM.Block
-                                , width = CSSOM.widthAuto
-                                , marginRight = CSSOM.marginLength <| testCSSLength 100
-                                , marginLeft = CSSOM.marginLength <| testCSSLength 200
-                            }
-                            BoxModel.initBoxModel
-                            containingDimensions
-
-                    boxModelContent =
-                        BoxModel.content boxModel
-
-                    boxModelMargin =
-                        BoxModel.margin boxModel
-                in
-                Expect.true ""
-                    (boxModelContent.width
-                        == 0
-                        && boxModelMargin.left
-                        == 200
-                        && boxModelMargin.right
-                        == -100
-                    )
-        ]
-
-
-calculateBlockHeight : Test
-calculateBlockHeight =
-    describe "calculate block height"
-        [ test "set the block height if provided" <|
-            \() ->
-                let
-                    newStyles =
-                        { styles
-                            | display = CSSOM.Block
-                            , height = CSSOM.heightLength <| testCSSLength 50
-                        }
-
-                    boxModel =
-                        BoxModel.content <|
-                            Layout.calculateBlockHeight
-                                newStyles
-                                BoxModel.initBoxModel
-                in
-                Expect.equal boxModel.height 50
-        , test "do nothing if auto height" <|
-            \() ->
-                let
-                    boxModelContent =
-                        BoxModel.content <|
-                            Layout.calculateBlockHeight
-                                Style.initialStyles
-                                BoxModel.initBoxModel
-                in
-                Expect.equal boxModelContent.height 0
-        ]
-
-
-calculateBlockPosition : Test
-calculateBlockPosition =
-    describe "calculate block position"
-        [ test "set the block position" <|
-            \() ->
-                let
-                    containingDimensions =
-                        BoxModel.boxModel
-                            { x = 10, y = 20, width = 0, height = 0 }
-                            edgeSize
-                            edgeSize
-                            edgeSize
-
-                    boxModelContent =
-                        BoxModel.content <|
-                            Layout.calculateBlockPosition
-                                Style.initialStyles
-                                BoxModel.initBoxModel
-                                containingDimensions
-                in
-                Expect.true ""
-                    (boxModelContent.x
-                        == 10
-                        && boxModelContent.y
-                        == 20
-                    )
-        ]
-
-
 layoutBlockChildren : Test
 layoutBlockChildren =
     describe "layout block children"
@@ -347,7 +64,7 @@ layoutBlockChildren =
             \() ->
                 let
                     containingDimensions =
-                        BoxModel.boxModel
+                        BoxModel.make
                             { x = 0, y = 0, width = 0, height = 0 }
                             edgeSize
                             edgeSize
@@ -398,7 +115,7 @@ startLayout =
                             CSSOM.heightAuto
 
                     containingDimensions =
-                        BoxModel.boxModel
+                        BoxModel.make
                             { x = 0, y = 0, width = 0, height = 0 }
                             edgeSize
                             edgeSize
@@ -447,7 +164,7 @@ startLayout =
                             CSSOM.heightAuto
 
                     containingDimensions =
-                        BoxModel.boxModel
+                        BoxModel.make
                             { x = 0, y = 0, width = 0, height = 0 }
                             edgeSize
                             edgeSize
@@ -498,7 +215,7 @@ startLayout =
                             CSSOM.heightAuto
 
                     containingDimensions =
-                        BoxModel.boxModel
+                        BoxModel.make
                             { x = 0, y = 0, width = 0, height = 0 }
                             edgeSize
                             edgeSize
@@ -553,7 +270,7 @@ startLayout =
                             CSSOM.heightAuto
 
                     containingDimensions =
-                        BoxModel.boxModel
+                        BoxModel.make
                             { x = 0, y = 0, width = 0, height = 0 }
                             edgeSize
                             edgeSize
