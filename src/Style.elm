@@ -1,15 +1,21 @@
-module Style exposing (..)
+module Style
+    exposing
+        ( StyledNode
+            ( StyledElement
+            , StyledText
+            )
+        , StyledRoot(StyledRoot)
+        , Styles
+        , initialStyles
+        , styleTree
+        )
 
-import CSSBasicTypes exposing (..)
-import CSSOM exposing (..)
-import CSSSelectors exposing (..)
-import Color exposing (..)
-import DOM exposing (..)
-import Dict
+import CSSOM
+import DOM
 
 
 type alias StyledElementNode =
-    { node : ElementNode
+    { node : DOM.ElementNode
     , styles : Styles
     , children : List StyledNode
     }
@@ -26,63 +32,63 @@ type StyledNode
 
 initialStyles : Styles
 initialStyles =
-    { display = Inline
-    , marginLeft = defaultMargin
-    , marginRight = defaultMargin
-    , marginTop = defaultMargin
-    , marginBottom = defaultMargin
-    , paddingLeft = defaultPadding
-    , paddingRight = defaultPadding
-    , paddingTop = defaultPadding
-    , paddingBottom = defaultPadding
-    , borderLeftWidth = defaultBorderWidth
-    , borderRightWidth = defaultBorderWidth
-    , borderTopWidth = defaultBorderWidth
-    , borderBottomWidth = defaultBorderWidth
-    , width = defaultWidth
-    , height = defaultHeight
-    , backgroundColor = defaultBackgroundColor
-    , borderTopColor = defaultBorderColor
-    , borderBottomColor = defaultBorderColor
-    , borderLeftColor = defaultBorderColor
-    , borderRightColor = defaultBorderColor
-    , borderLeftStyle = defaultBorderStyle
-    , borderRightStyle = defaultBorderStyle
-    , borderTopStyle = defaultBorderStyle
-    , borderBottomStyle = defaultBorderStyle
+    { display = CSSOM.Inline
+    , marginLeft = CSSOM.defaultMargin
+    , marginRight = CSSOM.defaultMargin
+    , marginTop = CSSOM.defaultMargin
+    , marginBottom = CSSOM.defaultMargin
+    , paddingLeft = CSSOM.defaultPadding
+    , paddingRight = CSSOM.defaultPadding
+    , paddingTop = CSSOM.defaultPadding
+    , paddingBottom = CSSOM.defaultPadding
+    , borderLeftWidth = CSSOM.defaultBorderWidth
+    , borderRightWidth = CSSOM.defaultBorderWidth
+    , borderTopWidth = CSSOM.defaultBorderWidth
+    , borderBottomWidth = CSSOM.defaultBorderWidth
+    , width = CSSOM.defaultWidth
+    , height = CSSOM.defaultHeight
+    , backgroundColor = CSSOM.defaultBackgroundColor
+    , borderTopColor = CSSOM.defaultBorderColor
+    , borderBottomColor = CSSOM.defaultBorderColor
+    , borderLeftColor = CSSOM.defaultBorderColor
+    , borderRightColor = CSSOM.defaultBorderColor
+    , borderLeftStyle = CSSOM.defaultBorderStyle
+    , borderRightStyle = CSSOM.defaultBorderStyle
+    , borderTopStyle = CSSOM.defaultBorderStyle
+    , borderBottomStyle = CSSOM.defaultBorderStyle
     }
 
 
 type alias Styles =
-    { display : CSSDisplay
-    , height : CSSHeight SpecifiedValue
-    , width : CSSWidth SpecifiedValue
-    , backgroundColor : CSSBackgroundColor SpecifiedValue
-    , marginLeft : CSSMargin SpecifiedValue
-    , marginRight : CSSMargin SpecifiedValue
-    , marginTop : CSSMargin SpecifiedValue
-    , marginBottom : CSSMargin SpecifiedValue
-    , paddingLeft : CSSPadding SpecifiedValue
-    , paddingRight : CSSPadding SpecifiedValue
-    , paddingTop : CSSPadding SpecifiedValue
-    , paddingBottom : CSSPadding SpecifiedValue
-    , borderLeftWidth : CSSBorderWidth SpecifiedValue
-    , borderRightWidth : CSSBorderWidth SpecifiedValue
-    , borderTopWidth : CSSBorderWidth SpecifiedValue
-    , borderBottomWidth : CSSBorderWidth SpecifiedValue
-    , borderTopColor : CSSBorderColor SpecifiedValue
-    , borderBottomColor : CSSBorderColor SpecifiedValue
-    , borderLeftColor : CSSBorderColor SpecifiedValue
-    , borderRightColor : CSSBorderColor SpecifiedValue
-    , borderLeftStyle : CSSBorderStyle SpecifiedValue
-    , borderRightStyle : CSSBorderStyle SpecifiedValue
-    , borderTopStyle : CSSBorderStyle SpecifiedValue
-    , borderBottomStyle : CSSBorderStyle SpecifiedValue
+    { display : CSSOM.CSSDisplay
+    , height : CSSOM.CSSHeight CSSOM.SpecifiedValue
+    , width : CSSOM.CSSWidth CSSOM.SpecifiedValue
+    , backgroundColor : CSSOM.CSSBackgroundColor CSSOM.SpecifiedValue
+    , marginLeft : CSSOM.CSSMargin CSSOM.SpecifiedValue
+    , marginRight : CSSOM.CSSMargin CSSOM.SpecifiedValue
+    , marginTop : CSSOM.CSSMargin CSSOM.SpecifiedValue
+    , marginBottom : CSSOM.CSSMargin CSSOM.SpecifiedValue
+    , paddingLeft : CSSOM.CSSPadding CSSOM.SpecifiedValue
+    , paddingRight : CSSOM.CSSPadding CSSOM.SpecifiedValue
+    , paddingTop : CSSOM.CSSPadding CSSOM.SpecifiedValue
+    , paddingBottom : CSSOM.CSSPadding CSSOM.SpecifiedValue
+    , borderLeftWidth : CSSOM.CSSBorderWidth CSSOM.SpecifiedValue
+    , borderRightWidth : CSSOM.CSSBorderWidth CSSOM.SpecifiedValue
+    , borderTopWidth : CSSOM.CSSBorderWidth CSSOM.SpecifiedValue
+    , borderBottomWidth : CSSOM.CSSBorderWidth CSSOM.SpecifiedValue
+    , borderTopColor : CSSOM.CSSBorderColor CSSOM.SpecifiedValue
+    , borderBottomColor : CSSOM.CSSBorderColor CSSOM.SpecifiedValue
+    , borderLeftColor : CSSOM.CSSBorderColor CSSOM.SpecifiedValue
+    , borderRightColor : CSSOM.CSSBorderColor CSSOM.SpecifiedValue
+    , borderLeftStyle : CSSOM.CSSBorderStyle CSSOM.SpecifiedValue
+    , borderRightStyle : CSSOM.CSSBorderStyle CSSOM.SpecifiedValue
+    , borderTopStyle : CSSOM.CSSBorderStyle CSSOM.SpecifiedValue
+    , borderBottomStyle : CSSOM.CSSBorderStyle CSSOM.SpecifiedValue
     }
 
 
-styleTree : CSSStyleSheet -> DOMRoot -> StyledRoot
-styleTree stylesheet (DOMRoot element) =
+styleTree : CSSOM.CSSStyleSheet -> DOM.DOMRoot -> StyledRoot
+styleTree stylesheet (DOM.DOMRoot element) =
     StyledRoot
         { node = element
         , styles = specifiedValues element stylesheet
@@ -90,13 +96,13 @@ styleTree stylesheet (DOMRoot element) =
         }
 
 
-styleTreeChild : CSSStyleSheet -> DOMNode -> StyledNode
+styleTreeChild : CSSOM.CSSStyleSheet -> DOM.DOMNode -> StyledNode
 styleTreeChild stylesheet domNode =
     case domNode of
-        Text text ->
+        DOM.Text text ->
             StyledText text
 
-        Element elementNode ->
+        DOM.Element elementNode ->
             let
                 styles =
                     specifiedValues elementNode stylesheet
@@ -111,10 +117,10 @@ styleTreeChild stylesheet domNode =
                 }
 
 
-specifiedValues : ElementNode -> CSSStyleSheet -> Styles
+specifiedValues : DOM.ElementNode -> CSSOM.CSSStyleSheet -> Styles
 specifiedValues node stylesheet =
     stylesheet
-        |> matchingRules node
+        |> CSSOM.matchingRules node
         |> List.sortBy .specifity
         |> List.map .rule
         |> List.map .declarations
@@ -122,122 +128,122 @@ specifiedValues node stylesheet =
         |> List.foldl
             (\declaration styles ->
                 case declaration of
-                    Display value ->
+                    CSSOM.Display value ->
                         { styles
                             | display = value
                         }
 
-                    MarginLeft value ->
+                    CSSOM.MarginLeft value ->
                         { styles
                             | marginLeft = value
                         }
 
-                    MarginRight value ->
+                    CSSOM.MarginRight value ->
                         { styles
                             | marginRight = value
                         }
 
-                    MarginTop value ->
+                    CSSOM.MarginTop value ->
                         { styles
                             | marginTop = value
                         }
 
-                    MarginBottom value ->
+                    CSSOM.MarginBottom value ->
                         { styles
                             | marginBottom = value
                         }
 
-                    PaddingLeft value ->
+                    CSSOM.PaddingLeft value ->
                         { styles
                             | paddingLeft = value
                         }
 
-                    PaddingRight value ->
+                    CSSOM.PaddingRight value ->
                         { styles
                             | paddingRight = value
                         }
 
-                    PaddingTop value ->
+                    CSSOM.PaddingTop value ->
                         { styles
                             | paddingTop = value
                         }
 
-                    PaddingBottom value ->
+                    CSSOM.PaddingBottom value ->
                         { styles
                             | paddingBottom = value
                         }
 
-                    Height value ->
+                    CSSOM.Height value ->
                         { styles
                             | height = value
                         }
 
-                    Width value ->
+                    CSSOM.Width value ->
                         { styles
                             | width = value
                         }
 
-                    BackgroundColor value ->
+                    CSSOM.BackgroundColor value ->
                         { styles
                             | backgroundColor = value
                         }
 
-                    BorderLeftWidth value ->
+                    CSSOM.BorderLeftWidth value ->
                         { styles
                             | borderLeftWidth = value
                         }
 
-                    BorderRightWidth value ->
+                    CSSOM.BorderRightWidth value ->
                         { styles
                             | borderRightWidth = value
                         }
 
-                    BorderTopWidth value ->
+                    CSSOM.BorderTopWidth value ->
                         { styles
                             | borderTopWidth = value
                         }
 
-                    BorderBottomWidth value ->
+                    CSSOM.BorderBottomWidth value ->
                         { styles
                             | borderBottomWidth = value
                         }
 
-                    BorderTopColor value ->
+                    CSSOM.BorderTopColor value ->
                         { styles
                             | borderTopColor = value
                         }
 
-                    BorderBottomColor value ->
+                    CSSOM.BorderBottomColor value ->
                         { styles
                             | borderBottomColor = value
                         }
 
-                    BorderLeftColor value ->
+                    CSSOM.BorderLeftColor value ->
                         { styles
                             | borderLeftColor = value
                         }
 
-                    BorderRightColor value ->
+                    CSSOM.BorderRightColor value ->
                         { styles
                             | borderRightColor = value
                         }
 
-                    BorderLeftStyle value ->
+                    CSSOM.BorderLeftStyle value ->
                         { styles
                             | borderLeftStyle = value
                         }
 
-                    BorderRightStyle value ->
+                    CSSOM.BorderRightStyle value ->
                         { styles
                             | borderRightStyle = value
                         }
 
-                    BorderTopStyle value ->
+                    CSSOM.BorderTopStyle value ->
                         { styles
                             | borderTopStyle = value
                         }
 
-                    BorderBottomStyle value ->
+                    CSSOM.BorderBottomStyle value ->
                         { styles
                             | borderBottomStyle = value
                         }

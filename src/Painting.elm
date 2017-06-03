@@ -1,12 +1,11 @@
-module Painting exposing (..)
+module Painting exposing (buildDisplayList)
 
 import BoxModel
 import CSSBasicTypes
 import CSSOM
-import Color exposing (..)
-import Layout exposing (..)
+import Layout
 import Line
-import Style exposing (..)
+import Style
 
 
 type DisplayCommand
@@ -14,8 +13,8 @@ type DisplayCommand
     | Text BoxModel.Rect String
 
 
-buildDisplayList : LayoutRoot -> List DisplayCommand
-buildDisplayList (LayoutRoot { boxModel, styles } children) =
+buildDisplayList : Layout.LayoutRoot -> List DisplayCommand
+buildDisplayList (Layout.LayoutRoot { boxModel, styles } children) =
     let
         backgroundColor =
             Maybe.withDefault
@@ -24,15 +23,15 @@ buildDisplayList (LayoutRoot { boxModel, styles } children) =
                 Just <|
                     CSSOM.usedBackgroundColor styles.backgroundColor
     in
-    [ renderBackground boxModel backgroundColor ]
-        ++ renderBorders styles boxModel
+    renderBackground boxModel backgroundColor
+        :: renderBorders styles boxModel
         ++ List.concatMap renderLayoutBox children
 
 
-renderLayoutBox : LayoutBox -> List DisplayCommand
+renderLayoutBox : Layout.LayoutBox -> List DisplayCommand
 renderLayoutBox layoutBox =
     case layoutBox of
-        BlockBox { boxModel, styles } children ->
+        Layout.BlockBox { boxModel, styles } children ->
             let
                 backgroundColor =
                     Maybe.withDefault
@@ -41,11 +40,11 @@ renderLayoutBox layoutBox =
                         Just <|
                             CSSOM.usedBackgroundColor styles.backgroundColor
             in
-            [ renderBackground boxModel backgroundColor ]
-                ++ renderBorders styles boxModel
+            renderBackground boxModel backgroundColor
+                :: renderBorders styles boxModel
                 ++ List.concatMap renderLayoutBox children
 
-        BlockBoxInlineContext { boxModel, styles } lineRoots ->
+        Layout.BlockBoxInlineContext { boxModel, styles } lineRoots ->
             let
                 backgroundColor =
                     Maybe.withDefault
@@ -54,8 +53,8 @@ renderLayoutBox layoutBox =
                         Just <|
                             CSSOM.usedBackgroundColor styles.backgroundColor
             in
-            [ renderBackground boxModel backgroundColor ]
-                ++ renderBorders styles
+            renderBackground boxModel backgroundColor
+                :: renderBorders styles
                     boxModel
                 ++ List.concatMap
                     renderLineRoot
@@ -63,7 +62,7 @@ renderLayoutBox layoutBox =
 
 
 renderLineRoot : Line.StackedLayoutLineBoxRoot -> List DisplayCommand
-renderLineRoot (Line.StackedLayoutLineBoxRoot linePosition (Line.LayoutLineBoxRoot { width, height } layoutBox)) =
+renderLineRoot (Line.StackedLayoutLineBoxRoot linePosition (Line.LayoutLineBoxRoot _ layoutBox)) =
     renderLineBox linePosition layoutBox
 
 
@@ -73,9 +72,15 @@ renderLineBox linePosition layoutBox =
         Line.LayoutLineBoxText text { x, y, width, height } ->
             [ Text { x = x + linePosition.x, y = y + linePosition.y, width = width, height = height } text ]
 
-        Line.LayoutLineBoxContainer { x, y, width, height } children ->
-            [ SolidColor { x = linePosition.x, y = linePosition.y, width = width, height = height } { green = 255, blue = 255, red = 0, alpha = 1.0 } ]
-                ++ List.concatMap (renderLineBox linePosition) children
+        Line.LayoutLineBoxContainer { width, height } children ->
+            SolidColor
+                { x = linePosition.x
+                , y = linePosition.y
+                , width = width
+                , height = height
+                }
+                { green = 255, blue = 255, red = 0, alpha = 1.0 }
+                :: List.concatMap (renderLineBox linePosition) children
 
 
 renderBackground : BoxModel.BoxModel -> CSSBasicTypes.RGBAColor -> DisplayCommand
@@ -83,7 +88,7 @@ renderBackground boxModel color =
     SolidColor (BoxModel.borderBox boxModel) color
 
 
-renderBorders : Styles -> BoxModel.BoxModel -> List DisplayCommand
+renderBorders : Style.Styles -> BoxModel.BoxModel -> List DisplayCommand
 renderBorders styles boxModel =
     let
         topColor =
