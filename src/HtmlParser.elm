@@ -1,9 +1,26 @@
-module HtmlParser exposing (..)
+module HtmlParser exposing (parse)
 
 import Char
 import DOM
 import Dict
-import Parser exposing (..)
+import Parser
+    exposing
+        ( (|.)
+        , (|=)
+        , Parser
+        , andThen
+        , delayedCommit
+        , ignore
+        , inContext
+        , keep
+        , lazy
+        , oneOf
+        , oneOrMore
+        , repeat
+        , succeed
+        , symbol
+        , zeroOrMore
+        )
 
 
 parse : Parser DOM.DOMRoot

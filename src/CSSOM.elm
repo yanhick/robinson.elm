@@ -55,9 +55,9 @@ module CSSOM
         , widthLength
         )
 
-import CSSBasicTypes exposing (..)
-import CSSSelectors exposing (..)
-import DOM exposing (..)
+import CSSBasicTypes
+import CSSSelectors
+import DOM
 
 
 type SpecifiedValue
@@ -76,10 +76,10 @@ type CSSDisplay
 
 type CSSMargin valueType
     = MarginAuto
-    | MarginLength CSSLength
+    | MarginLength CSSBasicTypes.CSSLength
 
 
-marginLength : CSSLength -> CSSMargin SpecifiedValue
+marginLength : CSSBasicTypes.CSSLength -> CSSMargin SpecifiedValue
 marginLength =
     MarginLength
 
@@ -91,7 +91,7 @@ marginAuto =
 
 defaultMargin : CSSMargin SpecifiedValue
 defaultMargin =
-    MarginLength defaultCSSLength
+    MarginLength CSSBasicTypes.defaultCSSLength
 
 
 isAutoMargin : CSSMargin valueType -> Bool
@@ -118,22 +118,22 @@ usedMargin : CSSMargin ComputedValue -> Maybe Float
 usedMargin margin =
     case margin of
         MarginLength length ->
-            Just <| computedCSSLength length
+            Just <| CSSBasicTypes.computedCSSLength length
 
         MarginAuto ->
             Nothing
 
 
 type CSSPadding valueType
-    = PaddingLength CSSLength
+    = PaddingLength CSSBasicTypes.CSSLength
 
 
 defaultPadding : CSSPadding SpecifiedValue
 defaultPadding =
-    PaddingLength defaultCSSLength
+    PaddingLength CSSBasicTypes.defaultCSSLength
 
 
-padding : CSSLength -> CSSPadding SpecifiedValue
+padding : CSSBasicTypes.CSSLength -> CSSPadding SpecifiedValue
 padding =
     PaddingLength
 
@@ -145,15 +145,15 @@ computedPadding (PaddingLength length) =
 
 usedPadding : CSSPadding ComputedValue -> Float
 usedPadding (PaddingLength length) =
-    computedCSSLength length
+    CSSBasicTypes.computedCSSLength length
 
 
 type CSSHeight valueType
     = HeightAuto
-    | HeightLength CSSLength
+    | HeightLength CSSBasicTypes.CSSLength
 
 
-heightLength : CSSLength -> CSSHeight SpecifiedValue
+heightLength : CSSBasicTypes.CSSLength -> CSSHeight SpecifiedValue
 heightLength =
     HeightLength
 
@@ -185,15 +185,15 @@ usedHeight height =
             Nothing
 
         HeightLength length ->
-            Just <| computedCSSLength length
+            Just <| CSSBasicTypes.computedCSSLength length
 
 
 type CSSWidth valueType
     = WidthAuto
-    | WidthLength CSSLength
+    | WidthLength CSSBasicTypes.CSSLength
 
 
-widthLength : CSSLength -> CSSWidth SpecifiedValue
+widthLength : CSSBasicTypes.CSSLength -> CSSWidth SpecifiedValue
 widthLength =
     WidthLength
 
@@ -235,15 +235,15 @@ usedWidth width =
             Nothing
 
         WidthLength length ->
-            Just <| computedCSSLength length
+            Just <| CSSBasicTypes.computedCSSLength length
 
 
 type CSSBackgroundColor valueType
-    = BackgroundColorColor CSSColor
+    = BackgroundColorColor CSSBasicTypes.CSSColor
     | BackgroundColorTransparent
 
 
-backgroundColorColor : CSSColor -> CSSBackgroundColor SpecifiedValue
+backgroundColorColor : CSSBasicTypes.CSSColor -> CSSBackgroundColor SpecifiedValue
 backgroundColorColor =
     BackgroundColorColor
 
@@ -258,11 +258,11 @@ defaultBackgroundColor =
     BackgroundColorTransparent
 
 
-usedBackgroundColor : CSSBackgroundColor SpecifiedValue -> RGBAColor
+usedBackgroundColor : CSSBackgroundColor SpecifiedValue -> CSSBasicTypes.RGBAColor
 usedBackgroundColor backgroundColor =
     case backgroundColor of
         BackgroundColorColor color ->
-            computedCSSColor color
+            CSSBasicTypes.computedCSSColor color
 
         BackgroundColorTransparent ->
             { red = 0
@@ -293,11 +293,11 @@ defaultBorderStyle =
 
 
 type CSSBorderColor valueType
-    = BorderColorColor CSSColor
+    = BorderColorColor CSSBasicTypes.CSSColor
     | BorderColorTransparent
 
 
-borderColorColor : CSSColor -> CSSBorderColor SpecifiedValue
+borderColorColor : CSSBasicTypes.CSSColor -> CSSBorderColor SpecifiedValue
 borderColorColor =
     BorderColorColor
 
@@ -312,11 +312,11 @@ defaultBorderColor =
     BorderColorTransparent
 
 
-usedBorderColor : CSSBorderColor SpecifiedValue -> RGBAColor
+usedBorderColor : CSSBorderColor SpecifiedValue -> CSSBasicTypes.RGBAColor
 usedBorderColor borderColor =
     case borderColor of
         BorderColorColor color ->
-            computedCSSColor color
+            CSSBasicTypes.computedCSSColor color
 
         BorderColorTransparent ->
             { red = 0
@@ -330,7 +330,7 @@ type CSSBorderWidth valueType
     = BorderWidthThin
     | BorderWidthMedium
     | BorderWidthThick
-    | BorderWidthLength CSSLength
+    | BorderWidthLength CSSBasicTypes.CSSLength
 
 
 defaultBorderWidth : CSSBorderWidth SpecifiedValue
@@ -345,7 +345,7 @@ computedBorderWidth :
 computedBorderWidth borderStyle borderWidth =
     case borderStyle of
         BorderStyleNone ->
-            BorderWidthLength defaultCSSLength
+            BorderWidthLength CSSBasicTypes.defaultCSSLength
 
         BorderStyleSolid ->
             case borderWidth of
@@ -375,7 +375,7 @@ usedBorderWidth borderWidth =
             10
 
         BorderWidthLength length ->
-            computedCSSLength length
+            CSSBasicTypes.computedCSSLength length
 
 
 borderWidthThick : CSSBorderWidth SpecifiedValue
@@ -393,7 +393,7 @@ borderWidthThin =
     BorderWidthThin
 
 
-borderWidthLength : CSSLength -> CSSBorderWidth SpecifiedValue
+borderWidthLength : CSSBasicTypes.CSSLength -> CSSBorderWidth SpecifiedValue
 borderWidthLength =
     BorderWidthLength
 
@@ -426,7 +426,7 @@ type CSSDeclaration
 
 
 type alias CSSRule =
-    { selectors : List CSSSelector
+    { selectors : List CSSSelectors.CSSSelector
     , declarations : List CSSDeclaration
     }
 
@@ -435,20 +435,20 @@ type alias CSSStyleSheet =
     List CSSRule
 
 
-matchingRules : ElementNode -> CSSStyleSheet -> List MatchedRule
+matchingRules : DOM.ElementNode -> CSSStyleSheet -> List MatchedRule
 matchingRules node stylesheet =
     List.filterMap (matchRule node) stylesheet
 
 
-matchRule : ElementNode -> CSSRule -> Maybe MatchedRule
+matchRule : DOM.ElementNode -> CSSRule -> Maybe MatchedRule
 matchRule node rule =
     rule.selectors
-        |> List.filter (matches node)
+        |> List.filter (CSSSelectors.matches node)
         |> List.head
         |> Maybe.map
             (\selector ->
                 MatchedRule
-                    (specifity selector)
+                    (CSSSelectors.specifity selector)
                     rule
             )
 

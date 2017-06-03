@@ -1,20 +1,38 @@
-module CSSParser exposing (..)
+module CSSParser exposing (parse)
 
-import CSSBasicTypes exposing (..)
-import CSSOM exposing (..)
-import CSSSelectors exposing (..)
+import CSSBasicTypes
+import CSSOM
+import CSSSelectors
 import Char
-import ParseInt exposing (..)
-import Parser exposing (..)
-import String
+import ParseInt
+import Parser
+    exposing
+        ( (|.)
+        , (|=)
+        , Parser
+        , andThen
+        , delayedCommit
+        , fail
+        , float
+        , ignore
+        , keep
+        , keyword
+        , map
+        , oneOf
+        , oneOrMore
+        , repeat
+        , succeed
+        , symbol
+        , zeroOrMore
+        )
 
 
-parse : Parser CSSStyleSheet
+parse : Parser CSSOM.CSSStyleSheet
 parse =
     parseCSSStyleSheet
 
 
-parseCSSStyleSheet : Parser CSSStyleSheet
+parseCSSStyleSheet : Parser CSSOM.CSSStyleSheet
 parseCSSStyleSheet =
     repeat oneOrMore
         (succeed identity
@@ -24,7 +42,7 @@ parseCSSStyleSheet =
         )
 
 
-parseRule : Parser CSSRule
+parseRule : Parser CSSOM.CSSRule
 parseRule =
     succeed (\s d -> { selectors = s, declarations = d })
         |= parseSelectors
@@ -32,7 +50,7 @@ parseRule =
         |= parseDeclarations
 
 
-parseColor : Parser CSSColor
+parseColor : Parser CSSBasicTypes.CSSColor
 parseColor =
     oneOf
         [ parseColorKeyword
@@ -40,12 +58,12 @@ parseColor =
         ]
 
 
-parseRGBAColor : Parser CSSColor
+parseRGBAColor : Parser CSSBasicTypes.CSSColor
 parseRGBAColor =
     let
         parseHex =
-            map (parseIntHex >> Result.withDefault 0)
-                (keep (Exactly 2) Char.isHexDigit)
+            map (ParseInt.parseIntHex >> Result.withDefault 0)
+                (keep (Parser.Exactly 2) Char.isHexDigit)
     in
     andThen
         (\maybeColor ->
@@ -56,7 +74,7 @@ parseRGBAColor =
                 Nothing ->
                     fail "bim"
         )
-        (succeed (\r g b -> cssColorFromRGBA { red = r, green = g, blue = b, alpha = 1.0 })
+        (succeed (\r g b -> CSSBasicTypes.cssColorFromRGBA { red = r, green = g, blue = b, alpha = 1.0 })
             |. symbol "#"
             |= parseHex
             |= parseHex
@@ -64,7 +82,7 @@ parseRGBAColor =
         )
 
 
-parseLength : Parser CSSLength
+parseLength : Parser CSSBasicTypes.CSSLength
 parseLength =
     andThen
         (\maybeLength ->
@@ -75,13 +93,13 @@ parseLength =
                 Nothing ->
                     fail "bim"
         )
-        (succeed cssPixelLength
+        (succeed CSSBasicTypes.cssPixelLength
             |= float
             |. keyword "px"
         )
 
 
-parseColorKeyword : Parser CSSColor
+parseColorKeyword : Parser CSSBasicTypes.CSSColor
 parseColorKeyword =
     andThen
         (\maybeColor ->
@@ -92,7 +110,7 @@ parseColorKeyword =
                 Nothing ->
                     fail "bim"
         )
-        (succeed cssColorFromColorName
+        (succeed CSSBasicTypes.cssColorFromColorName
             |= parseIdentifier
         )
 
@@ -102,7 +120,7 @@ type IdOrClass
     | Class String
 
 
-parseSimpleSelector : Parser CSSSelector
+parseSimpleSelector : Parser CSSSelectors.CSSSelector
 parseSimpleSelector =
     let
         tagSelector =
@@ -119,7 +137,7 @@ parseSimpleSelector =
                 |= parseIdentifier
 
         universalSelector =
-            map (always Universal) (symbol "*")
+            map (always CSSSelectors.Universal) (symbol "*")
 
         classOrIdSelectors =
             repeat zeroOrMore
@@ -146,7 +164,7 @@ parseSimpleSelector =
         , oneOf
             [ succeed
                 (\tag ( ids, classes ) ->
-                    Simple
+                    CSSSelectors.Simple
                         { tag = Just tag
                         , classes = classes
                         , ids = ids
@@ -156,7 +174,7 @@ parseSimpleSelector =
                 |= map separate classOrIdSelectors
             , succeed
                 (\( ids, classes ) ->
-                    Simple
+                    CSSSelectors.Simple
                         { tag = Nothing
                         , classes = classes
                         , ids = ids
@@ -167,7 +185,7 @@ parseSimpleSelector =
         ]
 
 
-parseSelectors : Parser (List CSSSelector)
+parseSelectors : Parser (List CSSSelectors.CSSSelector)
 parseSelectors =
     let
         selectorListHelp selectors =
@@ -188,37 +206,40 @@ parseSelectors =
         |= andThen (\s -> selectorListHelp [ s ]) parseSimpleSelector
 
 
-parseDeclaration : Parser CSSDeclaration
+parseDeclaration : Parser CSSOM.CSSDeclaration
 parseDeclaration =
     oneOf
         [ parseDisplay
-        , parseMargin "margin-left" MarginLeft
-        , parseMargin "margin-right" MarginRight
-        , parseMargin "margin-top" MarginTop
-        , parseMargin "margin-bottom" MarginBottom
-        , parsePadding "padding-left" PaddingLeft
-        , parsePadding "padding-right" PaddingRight
-        , parsePadding "padding-top" PaddingTop
-        , parsePadding "padding-bottom" PaddingBottom
-        , parseBorderWidth "border-left-width" BorderLeftWidth
-        , parseBorderWidth "border-right-width" BorderRightWidth
-        , parseBorderWidth "border-top-width" BorderTopWidth
-        , parseBorderWidth "border-bottom-width" BorderBottomWidth
+        , parseMargin "margin-left" CSSOM.MarginLeft
+        , parseMargin "margin-right" CSSOM.MarginRight
+        , parseMargin "margin-top" CSSOM.MarginTop
+        , parseMargin "margin-bottom" CSSOM.MarginBottom
+        , parsePadding "padding-left" CSSOM.PaddingLeft
+        , parsePadding "padding-right" CSSOM.PaddingRight
+        , parsePadding "padding-top" CSSOM.PaddingTop
+        , parsePadding "padding-bottom" CSSOM.PaddingBottom
+        , parseBorderWidth "border-left-width" CSSOM.BorderLeftWidth
+        , parseBorderWidth "border-right-width" CSSOM.BorderRightWidth
+        , parseBorderWidth "border-top-width" CSSOM.BorderTopWidth
+        , parseBorderWidth "border-bottom-width" CSSOM.BorderBottomWidth
         , parseHeight
         , parseWidth
         , parseBackgroundColor
-        , parseBorderColor "border-top-color" BorderTopColor
-        , parseBorderColor "border-bottom-color" BorderBottomColor
-        , parseBorderColor "border-left-color" BorderLeftColor
-        , parseBorderColor "border-right-color" BorderRightColor
-        , parseBorderStyle "border-top-style" BorderTopStyle
-        , parseBorderStyle "border-bottom-style" BorderBottomStyle
-        , parseBorderStyle "border-left-style" BorderLeftStyle
-        , parseBorderStyle "border-right-style" BorderRightStyle
+        , parseBorderColor "border-top-color" CSSOM.BorderTopColor
+        , parseBorderColor "border-bottom-color" CSSOM.BorderBottomColor
+        , parseBorderColor "border-left-color" CSSOM.BorderLeftColor
+        , parseBorderColor "border-right-color" CSSOM.BorderRightColor
+        , parseBorderStyle "border-top-style" CSSOM.BorderTopStyle
+        , parseBorderStyle "border-bottom-style" CSSOM.BorderBottomStyle
+        , parseBorderStyle "border-left-style" CSSOM.BorderLeftStyle
+        , parseBorderStyle "border-right-style" CSSOM.BorderRightStyle
         ]
 
 
-parseBorderStyle : String -> (CSSBorderStyle SpecifiedValue -> CSSDeclaration) -> Parser CSSDeclaration
+parseBorderStyle :
+    String
+    -> (CSSOM.CSSBorderStyle CSSOM.SpecifiedValue -> CSSOM.CSSDeclaration)
+    -> Parser CSSOM.CSSDeclaration
 parseBorderStyle borderStyleName borderStyleConstructor =
     succeed borderStyleConstructor
         |. keyword borderStyleName
@@ -226,29 +247,32 @@ parseBorderStyle borderStyleName borderStyleConstructor =
         |. symbol ":"
         |. spaces
         |= oneOf
-            [ map (always borderStyleNone) (keyword "none")
-            , map (always borderStyleSolid) (keyword "solid")
+            [ map (always CSSOM.borderStyleNone) (keyword "none")
+            , map (always CSSOM.borderStyleSolid) (keyword "solid")
             ]
         |. spaces
         |. symbol ";"
 
 
-parseBackgroundColor : Parser CSSDeclaration
+parseBackgroundColor : Parser CSSOM.CSSDeclaration
 parseBackgroundColor =
-    succeed BackgroundColor
+    succeed CSSOM.BackgroundColor
         |. keyword "background-color"
         |. spaces
         |. symbol ":"
         |. spaces
         |= oneOf
-            [ map backgroundColorColor parseColor
-            , map (always backgroundColorTransparent) (keyword "transparent")
+            [ map CSSOM.backgroundColorColor parseColor
+            , map (always CSSOM.backgroundColorTransparent) (keyword "transparent")
             ]
         |. spaces
         |. symbol ";"
 
 
-parseBorderColor : String -> (CSSBorderColor SpecifiedValue -> CSSDeclaration) -> Parser CSSDeclaration
+parseBorderColor :
+    String
+    -> (CSSOM.CSSBorderColor CSSOM.SpecifiedValue -> CSSOM.CSSDeclaration)
+    -> Parser CSSOM.CSSDeclaration
 parseBorderColor borderName borderConstructor =
     succeed borderConstructor
         |. keyword borderName
@@ -256,44 +280,47 @@ parseBorderColor borderName borderConstructor =
         |. symbol ":"
         |. spaces
         |= oneOf
-            [ map borderColorColor parseColor
-            , map (always borderColorTransparent) (keyword "transparent")
+            [ map CSSOM.borderColorColor parseColor
+            , map (always CSSOM.borderColorTransparent) (keyword "transparent")
             ]
         |. spaces
         |. symbol ";"
 
 
-parseHeight : Parser CSSDeclaration
+parseHeight : Parser CSSOM.CSSDeclaration
 parseHeight =
-    succeed Height
+    succeed CSSOM.Height
         |. keyword "height"
         |. spaces
         |. symbol ":"
         |. spaces
         |= oneOf
-            [ map heightLength parseLength
-            , map (always heightAuto) (keyword "auto")
+            [ map CSSOM.heightLength parseLength
+            , map (always CSSOM.heightAuto) (keyword "auto")
             ]
         |. spaces
         |. symbol ";"
 
 
-parseWidth : Parser CSSDeclaration
+parseWidth : Parser CSSOM.CSSDeclaration
 parseWidth =
-    succeed Width
+    succeed CSSOM.Width
         |. keyword "width"
         |. spaces
         |. symbol ":"
         |. spaces
         |= oneOf
-            [ map widthLength parseLength
-            , map (always widthAuto) (keyword "auto")
+            [ map CSSOM.widthLength parseLength
+            , map (always CSSOM.widthAuto) (keyword "auto")
             ]
         |. spaces
         |. symbol ";"
 
 
-parseMargin : String -> (CSSMargin SpecifiedValue -> CSSDeclaration) -> Parser CSSDeclaration
+parseMargin :
+    String
+    -> (CSSOM.CSSMargin CSSOM.SpecifiedValue -> CSSOM.CSSDeclaration)
+    -> Parser CSSOM.CSSDeclaration
 parseMargin marginName marginConstructor =
     succeed marginConstructor
         |. keyword marginName
@@ -301,26 +328,35 @@ parseMargin marginName marginConstructor =
         |. symbol ":"
         |. spaces
         |= oneOf
-            [ map marginLength parseLength
-            , map (always marginAuto) (keyword "auto")
+            [ map CSSOM.marginLength parseLength
+            , map (always CSSOM.marginAuto) (keyword "auto")
             ]
         |. spaces
         |. symbol ";"
 
 
-parsePadding : String -> (CSSPadding SpecifiedValue -> CSSDeclaration) -> Parser CSSDeclaration
+parsePadding :
+    String
+    -> (CSSOM.CSSPadding CSSOM.SpecifiedValue -> CSSOM.CSSDeclaration)
+    -> Parser CSSOM.CSSDeclaration
 parsePadding paddingName paddingConstructor =
     succeed paddingConstructor
         |. keyword paddingName
         |. spaces
         |. symbol ":"
         |. spaces
-        |= map padding parseLength
+        |= map CSSOM.padding parseLength
         |. spaces
         |. symbol ";"
 
 
-parseBorderWidth : String -> (CSSBorderWidth SpecifiedValue -> CSSDeclaration) -> Parser CSSDeclaration
+parseBorderWidth :
+    String
+    ->
+        (CSSOM.CSSBorderWidth CSSOM.SpecifiedValue
+         -> CSSOM.CSSDeclaration
+        )
+    -> Parser CSSOM.CSSDeclaration
 parseBorderWidth borderWidthName borderWidthConstructor =
     succeed borderWidthConstructor
         |. keyword borderWidthName
@@ -328,37 +364,37 @@ parseBorderWidth borderWidthName borderWidthConstructor =
         |. symbol ":"
         |. spaces
         |= oneOf
-            [ map borderWidthLength parseLength
-            , map (always borderWidthThin) (keyword "thin")
-            , map (always borderWidthMedium) (keyword "medium")
-            , map (always borderWidthThick) (keyword "thick")
+            [ map CSSOM.borderWidthLength parseLength
+            , map (always CSSOM.borderWidthThin) (keyword "thin")
+            , map (always CSSOM.borderWidthMedium) (keyword "medium")
+            , map (always CSSOM.borderWidthThick) (keyword "thick")
             ]
         |. spaces
         |. symbol ";"
 
 
-parseDisplay : Parser CSSDeclaration
+parseDisplay : Parser CSSOM.CSSDeclaration
 parseDisplay =
-    succeed Display
+    succeed CSSOM.Display
         |. keyword "display"
         |. spaces
         |. symbol ":"
         |. spaces
         |= oneOf
-            [ map (always Block)
+            [ map (always CSSOM.Block)
                 (keyword "block")
             , map
-                (always Inline)
+                (always CSSOM.Inline)
                 (keyword "inline")
             , map
-                (always None)
+                (always CSSOM.None)
                 (keyword "none")
             ]
         |. spaces
         |. symbol ";"
 
 
-parseDeclarations : Parser (List CSSDeclaration)
+parseDeclarations : Parser (List CSSOM.CSSDeclaration)
 parseDeclarations =
     succeed identity
         |. symbol "{"
