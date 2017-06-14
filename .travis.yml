@@ -41,7 +41,5 @@ install:
 
 script:
   - elm-format --validate src tests
-  - cd examples
   - elm-make --output=/dev/null --yes Main.elm
-  - cd ..
   - elm-test
