@@ -6,7 +6,9 @@ cache:
     - sysconfcpus
 
 env:
-    node
+  matrix:
+    - ELM_VERSION=0.18.0 TARGET_NODE_VERSION=node
+    - ELM_VERSION=0.18.0 TARGET_NODE_VERSION=4.0
 
 before_install:
   - echo -e "Host github.com\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config
@@ -22,6 +24,8 @@ before_install:
 
 
 install:
+  - nvm install $TARGET_NODE_VERSION
+  - nvm use $TARGET_NODE_VERSION
   - node --version
   - npm --version
   - npm install -g elm-use elm-test@0.18.3
