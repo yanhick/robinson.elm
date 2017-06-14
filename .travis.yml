@@ -36,6 +36,7 @@ install:
   - travis_retry elm-package install --yes
   - cd tests
   - npm install
+  - npm install -g elm-format@exp
   - travis_retry elm-package install --yes
   - cd ..
 
