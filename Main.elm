@@ -39,16 +39,18 @@ type Msg
 startCSS =
     """
 .bang {
-    height: 200px;
+    height: 500px;
     display: block;
     background-color: #333333;
 }
 .bam {
     width: auto;
-    height: 100px;
     display:block;
     background-color: #ff0000;
+    padding-bottom: 10px;
     padding-top: 10px;
+    padding-left: 10px;
+    padding-right: 10px;
     border-top-width: 10px;
     border-top-color: white;
     border-bottom-width: 10px;
@@ -76,7 +78,10 @@ startHTML =
     """
 <div class="bang">
     <div id="boum"></div>
-    <div class="bam"></div>
+    <div class="bam">
+    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis varius mi et lacus hendrerit, at fermentum nunc imperdiet. Nullam pulvinar et nibh at auctor.
+    ADD MORE TEXT HERE
+    </div>
 </div>
 """
 

@@ -1,4 +1,4 @@
-module Painting exposing (buildDisplayList)
+module Painting exposing (DisplayCommand(..), buildDisplayList)
 
 import BoxModel
 import CSSBasicTypes
