@@ -8,7 +8,6 @@ cache:
 env:
   matrix:
     - ELM_VERSION=0.18.0 TARGET_NODE_VERSION=node
-    - ELM_VERSION=0.18.0 TARGET_NODE_VERSION=4.0
 
 before_install:
   - echo -e "Host github.com\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config
