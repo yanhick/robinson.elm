@@ -206,6 +206,13 @@ parseSelectors =
         |= andThen (\s -> selectorListHelp [ s ]) parseSimpleSelector
 
 
+parseDeclarationShorthands : Parser (List CSSOM.CSSDeclaration)
+parseDeclarationShorthands =
+    oneOf
+        [ parseMarginShorthand
+        ]
+
+
 parseDeclaration : Parser CSSOM.CSSDeclaration
 parseDeclaration =
     oneOf
@@ -317,6 +324,51 @@ parseWidth =
         |. symbol ";"
 
 
+parseMarginShorthand : Parser (List CSSOM.CSSDeclaration)
+parseMarginShorthand =
+    andThen
+        (\maybeMargins ->
+            case maybeMargins of
+                Just margins ->
+                    succeed margins
+
+                Nothing ->
+                    fail "error in margin shorthand"
+        )
+        (succeed
+            (\margins ->
+                case margins of
+                    [ all ] ->
+                        Just [ CSSOM.MarginTop all, CSSOM.MarginRight all, CSSOM.MarginBottom all, CSSOM.MarginLeft all ]
+
+                    [ vertical, horizontal ] ->
+                        Just [ CSSOM.MarginTop vertical, CSSOM.MarginRight horizontal, CSSOM.MarginBottom vertical, CSSOM.MarginLeft horizontal ]
+
+                    [ top, horizontal, bottom ] ->
+                        Just [ CSSOM.MarginTop top, CSSOM.MarginRight horizontal, CSSOM.MarginBottom bottom, CSSOM.MarginLeft horizontal ]
+
+                    [ top, right, bottom, left ] ->
+                        Just [ CSSOM.MarginTop top, CSSOM.MarginRight right, CSSOM.MarginBottom bottom, CSSOM.MarginLeft left ]
+
+                    _ ->
+                        Nothing
+            )
+            |. keyword "margin"
+            |. spaces
+            |. symbol ":"
+            |. spaces
+            |= repeat oneOrMore
+                (map CSSOM.marginLength
+                    (succeed identity
+                        |. spaces
+                        |= parseLength
+                    )
+                )
+            |. spaces
+            |. symbol ";"
+        )
+
+
 parseMargin :
     String
     -> (CSSOM.CSSMargin CSSOM.SpecifiedValue -> CSSOM.CSSDeclaration)
@@ -396,13 +448,13 @@ parseDisplay =
 
 parseDeclarations : Parser (List CSSOM.CSSDeclaration)
 parseDeclarations =
-    succeed identity
+    succeed List.concat
         |. symbol "{"
         |. spaces
         |= repeat zeroOrMore
             (succeed identity
                 |. spaces
-                |= parseDeclaration
+                |= oneOf [ map List.singleton parseDeclaration, parseDeclarationShorthands ]
                 |. spaces
             )
         |. symbol "}"

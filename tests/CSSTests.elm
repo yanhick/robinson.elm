@@ -250,6 +250,108 @@ cssParser =
 
                         _ ->
                             False
+        , test "parse margin all shorthands" <|
+            \() ->
+                Expect.true "margin all shorthand" <|
+                    case Parser.run CSSParser.parse "div {margin:10px;}" of
+                        Ok [ { selectors, declarations } ] ->
+                            case declarations of
+                                [ CSSOM.MarginTop marginTop, CSSOM.MarginRight marginRight, CSSOM.MarginBottom marginBottom, CSSOM.MarginLeft marginLeft ] ->
+                                    let
+                                        is10px margin =
+                                            (Maybe.withDefault 0 <| CSSOM.usedMargin <| CSSOM.computedMargin margin) == 10
+                                    in
+                                    is10px marginLeft && is10px marginRight && is10px marginTop && is10px marginBottom
+
+                                _ ->
+                                    False
+
+                        _ ->
+                            False
+        , test "parse margin top and bottom shorthands" <|
+            \() ->
+                Expect.true "margin top and bottom shorthand" <|
+                    case Parser.run CSSParser.parse "div {margin:20px 10px;}" of
+                        Ok [ { selectors, declarations } ] ->
+                            case declarations of
+                                [ CSSOM.MarginTop marginTop, CSSOM.MarginRight marginRight, CSSOM.MarginBottom marginBottom, CSSOM.MarginLeft marginLeft ] ->
+                                    let
+                                        is10px margin =
+                                            (Maybe.withDefault 0 <| CSSOM.usedMargin <| CSSOM.computedMargin margin) == 10
+
+                                        is20px margin =
+                                            (Maybe.withDefault 0 <| CSSOM.usedMargin <| CSSOM.computedMargin margin) == 20
+                                    in
+                                    is10px
+                                        marginLeft
+                                        && is10px marginRight
+                                        && is20px marginTop
+                                        && is20px marginBottom
+
+                                _ ->
+                                    False
+
+                        _ ->
+                            False
+        , test "parse margin top, left/right and bottom shorthands" <|
+            \() ->
+                Expect.true "margin top left/right and bottom shorthand" <|
+                    case Parser.run CSSParser.parse "div {margin:20px 30px 10px;}" of
+                        Ok [ { selectors, declarations } ] ->
+                            case declarations of
+                                [ CSSOM.MarginTop marginTop, CSSOM.MarginRight marginRight, CSSOM.MarginBottom marginBottom, CSSOM.MarginLeft marginLeft ] ->
+                                    let
+                                        is10px margin =
+                                            (Maybe.withDefault 0 <| CSSOM.usedMargin <| CSSOM.computedMargin margin) == 10
+
+                                        is20px margin =
+                                            (Maybe.withDefault 0 <| CSSOM.usedMargin <| CSSOM.computedMargin margin) == 20
+
+                                        is30px margin =
+                                            (Maybe.withDefault 0 <| CSSOM.usedMargin <| CSSOM.computedMargin margin) == 30
+                                    in
+                                    is30px
+                                        marginLeft
+                                        && is30px marginRight
+                                        && is20px marginTop
+                                        && is10px marginBottom
+
+                                _ ->
+                                    False
+
+                        _ ->
+                            False
+        , test "parse margin top, left, right and bottom shorthands" <|
+            \() ->
+                Expect.true "margin top left right and bottom shorthand" <|
+                    case Parser.run CSSParser.parse "div {margin:20px 30px 10px 40px;}" of
+                        Ok [ { selectors, declarations } ] ->
+                            case declarations of
+                                [ CSSOM.MarginTop marginTop, CSSOM.MarginRight marginRight, CSSOM.MarginBottom marginBottom, CSSOM.MarginLeft marginLeft ] ->
+                                    let
+                                        is10px margin =
+                                            (Maybe.withDefault 0 <| CSSOM.usedMargin <| CSSOM.computedMargin margin) == 10
+
+                                        is20px margin =
+                                            (Maybe.withDefault 0 <| CSSOM.usedMargin <| CSSOM.computedMargin margin) == 20
+
+                                        is30px margin =
+                                            (Maybe.withDefault 0 <| CSSOM.usedMargin <| CSSOM.computedMargin margin) == 30
+
+                                        is40px margin =
+                                            (Maybe.withDefault 0 <| CSSOM.usedMargin <| CSSOM.computedMargin margin) == 40
+                                    in
+                                    is40px
+                                        marginLeft
+                                        && is30px marginRight
+                                        && is20px marginTop
+                                        && is10px marginBottom
+
+                                _ ->
+                                    False
+
+                        _ ->
+                            False
         ]
 
 
