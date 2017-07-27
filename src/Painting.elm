@@ -15,15 +15,16 @@ type DisplayCommand
 
 buildDisplayList : Layout.LayoutRoot -> List DisplayCommand
 buildDisplayList (Layout.LayoutRoot { boxModel, styles } children) =
-    let
-        backgroundColor =
-            Maybe.withDefault
-                { red = 0, green = 0, blue = 0, alpha = 0 }
-            <|
-                Just <|
-                    CSSOM.usedBackgroundColor styles.backgroundColor
-    in
-    renderBackground boxModel backgroundColor
+    renderBlockBox boxModel styles children
+
+
+renderBlockBox :
+    BoxModel.BoxModel
+    -> Style.Styles
+    -> List Layout.LayoutBox
+    -> List DisplayCommand
+renderBlockBox boxModel styles children =
+    renderBackground boxModel (CSSOM.usedBackgroundColor styles.backgroundColor)
         :: renderBorders styles boxModel
         ++ List.concatMap renderLayoutBox children
 
@@ -32,28 +33,10 @@ renderLayoutBox : Layout.LayoutBox -> List DisplayCommand
 renderLayoutBox layoutBox =
     case layoutBox of
         Layout.BlockBox { boxModel, styles } children ->
-            let
-                backgroundColor =
-                    Maybe.withDefault
-                        { red = 0, green = 0, blue = 0, alpha = 0 }
-                    <|
-                        Just <|
-                            CSSOM.usedBackgroundColor styles.backgroundColor
-            in
-            renderBackground boxModel backgroundColor
-                :: renderBorders styles boxModel
-                ++ List.concatMap renderLayoutBox children
+            renderBlockBox boxModel styles children
 
         Layout.BlockBoxInlineContext { boxModel, styles } lineRoots ->
-            let
-                backgroundColor =
-                    Maybe.withDefault
-                        { red = 0, green = 0, blue = 0, alpha = 0 }
-                    <|
-                        Just <|
-                            CSSOM.usedBackgroundColor styles.backgroundColor
-            in
-            renderBackground boxModel backgroundColor
+            renderBackground boxModel (CSSOM.usedBackgroundColor styles.backgroundColor)
                 :: renderBorders styles
                     boxModel
                 ++ List.concatMap
