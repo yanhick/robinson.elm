@@ -13,40 +13,71 @@ type DisplayCommand
     | Text BoxModel.Rect String
 
 
+type alias Offset =
+    { x : Float, y : Float }
+
+
+getOffset : Style.Styles -> Offset
+getOffset styles =
+    CSSOM.usedOffsets styles.position
+        { top = styles.top
+        , bottom = styles.bottom
+        , left = styles.left
+        , right = styles.right
+        }
+
+
+addOffsets : Offset -> Offset -> Offset
+addOffsets a b =
+    { x = a.x + b.x
+    , y = a.y + b.y
+    }
+
+
 buildDisplayList : Layout.LayoutRoot -> List DisplayCommand
 buildDisplayList (Layout.LayoutRoot { boxModel, styles } children) =
-    renderBlockBox boxModel styles children
+    renderBlockBox boxModel styles (getOffset styles) children
 
 
 renderBlockBox :
     BoxModel.BoxModel
     -> Style.Styles
+    -> Offset
     -> List Layout.LayoutBox
     -> List DisplayCommand
-renderBlockBox boxModel styles children =
-    renderBackground boxModel (CSSOM.usedBackgroundColor styles.backgroundColor)
-        :: renderBorders styles boxModel
-        ++ List.concatMap renderLayoutBox children
+renderBlockBox boxModel styles offset children =
+    let
+        combinedOffset =
+            addOffsets offset (getOffset styles)
+    in
+    renderBackground boxModel (CSSOM.usedBackgroundColor styles.backgroundColor) combinedOffset
+        :: renderBorders offset styles boxModel
+        ++ List.concatMap (renderLayoutBox combinedOffset) children
 
 
-renderLayoutBox : Layout.LayoutBox -> List DisplayCommand
-renderLayoutBox layoutBox =
+renderLayoutBox : Offset -> Layout.LayoutBox -> List DisplayCommand
+renderLayoutBox offset layoutBox =
     case layoutBox of
         Layout.BlockBox { boxModel, styles } children ->
-            renderBlockBox boxModel styles children
+            renderBlockBox boxModel styles offset children
 
         Layout.BlockBoxInlineContext { boxModel, styles } lineRoots ->
-            renderBackground boxModel (CSSOM.usedBackgroundColor styles.backgroundColor)
-                :: renderBorders styles
+            let
+                combinedOffset =
+                    addOffsets offset (getOffset styles)
+            in
+            renderBackground boxModel (CSSOM.usedBackgroundColor styles.backgroundColor) combinedOffset
+                :: renderBorders combinedOffset
+                    styles
                     boxModel
                 ++ List.concatMap
-                    renderLineRoot
+                    (renderLineRoot combinedOffset)
                     lineRoots
 
 
-renderLineRoot : Line.StackedLayoutLineBoxRoot -> List DisplayCommand
-renderLineRoot (Line.StackedLayoutLineBoxRoot linePosition (Line.LayoutLineBoxRoot _ layoutBox)) =
-    renderLineBox linePosition layoutBox
+renderLineRoot : Offset -> Line.StackedLayoutLineBoxRoot -> List DisplayCommand
+renderLineRoot offset (Line.StackedLayoutLineBoxRoot linePosition (Line.LayoutLineBoxRoot _ layoutBox)) =
+    renderLineBox { x = linePosition.x + offset.x, y = linePosition.y + offset.y } layoutBox
 
 
 renderLineBox : { x : Float, y : Float } -> Line.LayoutLineBoxTree -> List DisplayCommand
@@ -66,13 +97,23 @@ renderLineBox linePosition layoutBox =
                 :: List.concatMap (renderLineBox linePosition) children
 
 
-renderBackground : BoxModel.BoxModel -> CSSBasicTypes.RGBAColor -> DisplayCommand
-renderBackground boxModel color =
-    SolidColor (BoxModel.borderBox boxModel) color
+renderBackground : BoxModel.BoxModel -> CSSBasicTypes.RGBAColor -> Offset -> DisplayCommand
+renderBackground boxModel color offset =
+    let
+        borderBox =
+            BoxModel.borderBox boxModel
+    in
+    SolidColor
+        { x = borderBox.x + offset.x
+        , y = borderBox.y + offset.y
+        , width = borderBox.width
+        , height = borderBox.height
+        }
+        color
 
 
-renderBorders : Style.Styles -> BoxModel.BoxModel -> List DisplayCommand
-renderBorders styles boxModel =
+renderBorders : Offset -> Style.Styles -> BoxModel.BoxModel -> List DisplayCommand
+renderBorders offset styles boxModel =
     let
         topColor =
             CSSOM.usedBorderColor styles.borderTopColor
@@ -93,29 +134,29 @@ renderBorders styles boxModel =
             BoxModel.border boxModel
     in
     [ SolidColor
-        { x = borderBox.x
-        , y = borderBox.y
+        { x = borderBox.x + offset.x
+        , y = borderBox.y + offset.y
         , width = borderBox.width
         , height = border.top
         }
         topColor
     , SolidColor
-        { x = borderBox.x + borderBox.width - border.right
-        , y = borderBox.y
+        { x = borderBox.x + borderBox.width - border.right + offset.x
+        , y = borderBox.y + offset.y
         , width = border.right
         , height = borderBox.height
         }
         rightColor
     , SolidColor
-        { x = borderBox.x
-        , y = borderBox.y + borderBox.height - border.bottom
+        { x = borderBox.x + offset.x
+        , y = borderBox.y + borderBox.height - border.bottom + offset.y
         , width = borderBox.width
         , height = border.bottom
         }
         bottomColor
     , SolidColor
-        { x = borderBox.x
-        , y = borderBox.y
+        { x = borderBox.x + offset.x
+        , y = borderBox.y + offset.y
         , width = border.left
         , height = borderBox.height
         }

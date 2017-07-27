@@ -64,6 +64,9 @@ startCSS =
     border-left-style: solid;
     border-right-style: solid;
     margin-top: 10px;
+    position: relative;
+    top: 20px;
+    left: 30px;
 }
 #boum{
     width: 50px;

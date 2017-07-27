@@ -54,6 +54,7 @@ module CSSOM
         , usedBorderWidth
         , usedHeight
         , usedMargin
+        , usedOffsets
         , usedPadding
         , usedWidth
         , widthAuto
@@ -112,6 +113,52 @@ marginLength =
 offsetAuto : CSSOffset SpecifiedValue
 offsetAuto =
     OffsetAuto
+
+
+usedOffsets :
+    CSSPosition
+    ->
+        { top : CSSOffset SpecifiedValue
+        , bottom : CSSOffset SpecifiedValue
+        , left : CSSOffset SpecifiedValue
+        , right : CSSOffset SpecifiedValue
+        }
+    -> { x : Float, y : Float }
+usedOffsets position { top, bottom, left, right } =
+    case position of
+        Relative ->
+            { x = usedHorizontalOffset { left = left, right = right }, y = usedVerticalOffset { top = top, bottom = bottom } }
+
+        _ ->
+            { x = 0, y = 0 }
+
+
+usedVerticalOffset { top, bottom } =
+    case top of
+        OffsetLength _ ->
+            usedOffset top
+
+        _ ->
+            usedOffset bottom * -1
+
+
+usedHorizontalOffset { left, right } =
+    case left of
+        OffsetLength _ ->
+            usedOffset left
+
+        _ ->
+            usedOffset right * -1
+
+
+usedOffset : CSSOffset SpecifiedValue -> Float
+usedOffset offset =
+    case offset of
+        OffsetLength length ->
+            CSSBasicTypes.computedCSSLength length
+
+        OffsetAuto ->
+            0
 
 
 marginAuto : CSSMargin SpecifiedValue
