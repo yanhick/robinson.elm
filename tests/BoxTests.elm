@@ -199,7 +199,7 @@ styledBlockNode children =
     Style.StyledElement
         { styles =
             { styles
-                | display = CSSOM.Block
+                | display = CSSOM.displayBlock
             }
         , node = element
         , children = children
@@ -210,7 +210,7 @@ styledInlineNode children =
     Style.StyledElement
         { styles =
             { styles
-                | display = CSSOM.Inline
+                | display = CSSOM.displayInline
             }
         , node = element
         , children = children
@@ -221,7 +221,7 @@ styledRootNode children =
     Style.StyledRoot
         { styles =
             { styles
-                | display = CSSOM.Inline
+                | display = CSSOM.displayInline
             }
         , node = element
         , children = children
@@ -231,7 +231,7 @@ styledRootNode children =
 blockRoot child =
     Box.BoxRoot
         { styles
-            | display = CSSOM.Block
+            | display = CSSOM.displayBlock
         }
         [ child ]
 
@@ -239,7 +239,7 @@ blockRoot child =
 blockLayoutBox children =
     Box.BlockContainerBlockContext
         { styles
-            | display = CSSOM.Block
+            | display = CSSOM.displayBlock
         }
         children
 
@@ -248,7 +248,7 @@ blockLayoutBoxInlineContext children =
     Box.BlockContainerInlineContext
         (Box.InlineBoxRoot
             { styles
-                | display = CSSOM.Block
+                | display = CSSOM.displayBlock
             }
             children
         )
@@ -257,7 +257,7 @@ blockLayoutBoxInlineContext children =
 inlineLevelLayoutBox children =
     Box.InlineContainer
         { styles
-            | display = CSSOM.Inline
+            | display = CSSOM.displayInline
         }
         children
 
@@ -265,7 +265,7 @@ inlineLevelLayoutBox children =
 inlineLayoutBox children =
     Box.InlineContainer
         { styles
-            | display = CSSOM.Inline
+            | display = CSSOM.displayInline
         }
         children
 
@@ -311,7 +311,7 @@ anonymizedTreeOrCrash styledNode =
         (Style.StyledRoot
             { styles =
                 { styles
-                    | display = CSSOM.Block
+                    | display = CSSOM.displayBlock
                 }
             , node = element
             , children = [ styledNode ]

@@ -32,7 +32,7 @@ styledTree =
                                 && (case styles of
                                         { display } ->
                                             display
-                                                == CSSOM.Block
+                                                == CSSOM.displayBlock
                                                 && (case node of
                                                         { attributes } ->
                                                             attributes == Dict.fromList [ ( "class", "my-class" ) ]
@@ -60,7 +60,7 @@ styledTree =
                                 && (case styles of
                                         { display } ->
                                             display
-                                                == CSSOM.Block
+                                                == CSSOM.displayBlock
                                                 && (case node of
                                                         { attributes } ->
                                                             attributes

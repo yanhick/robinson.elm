@@ -40,16 +40,14 @@ type FlattenedBox
 
 boxTree : StyledRoot -> BoxRoot
 boxTree (StyledRoot { node, styles, children }) =
-    case styles.display of
-        CSSOM.None ->
-            BoxRoot styles []
-
-        _ ->
-            children
-                |> List.filterMap intermediateBoxTree
-                |> List.filterMap flattenBoxTree
-                |> List.filterMap (boxTreeFinalStep styles)
-                |> BoxRoot styles
+    if CSSOM.isNoneDisplay (CSSOM.computedDisplay styles.display styles.position) then
+        BoxRoot styles []
+    else
+        children
+            |> List.filterMap intermediateBoxTree
+            |> List.filterMap flattenBoxTree
+            |> List.filterMap (boxTreeFinalStep styles)
+            |> BoxRoot styles
 
 
 intermediateBoxTree : StyledNode -> Maybe IntermediateBox
@@ -60,35 +58,36 @@ intermediateBoxTree node =
     in
     case node of
         StyledElement { styles, children } ->
-            case styles.display of
-                CSSOM.Block ->
-                    Just <|
-                        IntermediateBlockContainer
-                            styles
-                            (fixAnonymousChildrenForBlockContainer <|
-                                intermediateBoxChildren children
-                            )
+            let
+                computedDisplay =
+                    CSSOM.computedDisplay styles.display styles.position
+            in
+            if CSSOM.isBlockDisplay computedDisplay then
+                Just <|
+                    IntermediateBlockContainer
+                        styles
+                        (fixAnonymousChildrenForBlockContainer <|
+                            intermediateBoxChildren children
+                        )
+            else if CSSOM.isInlineDisplay computedDisplay then
+                Just <|
+                    let
+                        laidoutChildren =
+                            intermediateBoxChildren children
 
-                CSSOM.Inline ->
-                    Just <|
-                        let
-                            laidoutChildren =
-                                intermediateBoxChildren children
+                        anonymousInlineBox =
+                            fixAnonymousChildrenForInlineContainer
+                                styles
+                                laidoutChildren
+                    in
+                    case anonymousInlineBox of
+                        Nothing ->
+                            IntermediateInlineContainer styles laidoutChildren
 
-                            anonymousInlineBox =
-                                fixAnonymousChildrenForInlineContainer
-                                    styles
-                                    laidoutChildren
-                        in
-                        case anonymousInlineBox of
-                            Nothing ->
-                                IntermediateInlineContainer styles laidoutChildren
-
-                            Just wrappedChildren ->
-                                IntermediateAnonymousInlineRoot wrappedChildren
-
-                CSSOM.None ->
-                    Nothing
+                        Just wrappedChildren ->
+                            IntermediateAnonymousInlineRoot wrappedChildren
+            else
+                Nothing
 
         StyledText text ->
             Just <| IntermediateInlineText text

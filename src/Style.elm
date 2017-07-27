@@ -32,7 +32,7 @@ type StyledNode
 
 initialStyles : Styles
 initialStyles =
-    { display = CSSOM.Inline
+    { display = CSSOM.defaultDisplay
     , position = CSSOM.Static
     , top = CSSOM.defaultOffset
     , left = CSSOM.defaultOffset
@@ -65,7 +65,7 @@ initialStyles =
 
 
 type alias Styles =
-    { display : CSSOM.CSSDisplay
+    { display : CSSOM.CSSDisplay CSSOM.SpecifiedValue
     , position : CSSOM.CSSPosition
     , top : CSSOM.CSSOffset CSSOM.SpecifiedValue
     , left : CSSOM.CSSOffset CSSOM.SpecifiedValue

@@ -73,7 +73,7 @@ layoutBlockChildren =
                     getBlockBox children height =
                         Box.BlockContainerBlockContext
                             { styles
-                                | display = CSSOM.Block
+                                | display = CSSOM.displayBlock
                                 , height = height
                             }
                             children
@@ -100,7 +100,7 @@ startLayout =
                     getStyledElement children height =
                         { styles =
                             { styles
-                                | display = CSSOM.Block
+                                | display = CSSOM.displayBlock
                                 , height = height
                             }
                         , node = element
@@ -147,7 +147,7 @@ startLayout =
                     getStyledElement children height =
                         { styles =
                             { styles
-                                | display = CSSOM.Block
+                                | display = CSSOM.displayBlock
                                 , height = height
                                 , paddingTop = CSSOM.padding <| testCSSLength 20
                                 , paddingBottom = CSSOM.padding <| testCSSLength 20
@@ -196,7 +196,7 @@ startLayout =
                     getStyledElement children height =
                         { styles =
                             { styles
-                                | display = CSSOM.Block
+                                | display = CSSOM.displayBlock
                                 , height = height
                                 , borderTopWidth = CSSOM.borderWidthLength <| testCSSLength 20
                                 , borderBottomWidth = CSSOM.borderWidthLength <| testCSSLength 20
@@ -247,7 +247,7 @@ startLayout =
                     getStyledElement children height =
                         { styles =
                             { styles
-                                | display = CSSOM.Block
+                                | display = CSSOM.displayBlock
                                 , height = height
                                 , marginTop = CSSOM.marginLength <| testCSSLength 20
                                 , marginBottom = CSSOM.marginLength <| testCSSLength 20

@@ -192,8 +192,8 @@ cssParser =
                     case Parser.run CSSParser.parse "div {display:block;}" of
                         Ok [ { selectors, declarations } ] ->
                             case declarations of
-                                [ CSSOM.Display CSSOM.Block ] ->
-                                    True
+                                [ CSSOM.Display value ] ->
+                                    value == CSSOM.displayBlock
 
                                 _ ->
                                     False
@@ -360,6 +360,7 @@ passingTestCases =
     [ ( "declaration without properties", "div{}" )
     , ( "parse static position", "div { position: static; }" )
     , ( "parse relative position", "div { position: relative; }" )
+    , ( "parse absolute position", "div { position: absolute; }" )
     , ( "parse top offset length", "div { top: 10px; }" )
     , ( "parse top offset auto", "div { top: auto; }" )
     , ( "parse left offset length", "div { left: 10px; }" )

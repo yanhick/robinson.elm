@@ -130,7 +130,7 @@ blockHeightTests =
                 let
                     newStyles =
                         { styles
-                            | display = CSSOM.Block
+                            | display = CSSOM.displayBlock
                             , height = CSSOM.heightLength <| testCSSLength 50
                         }
 
@@ -171,7 +171,7 @@ blockWidthTests =
                         content <|
                             blockWidth
                                 { styles
-                                    | display = CSSOM.Block
+                                    | display = CSSOM.displayBlock
                                     , width = CSSOM.widthLength <| testCSSLength 50
                                 }
                                 BoxModel.default
@@ -192,7 +192,7 @@ blockWidthTests =
                         BoxModel.content <|
                             blockWidth
                                 { styles
-                                    | display = CSSOM.Block
+                                    | display = CSSOM.displayBlock
                                 }
                                 BoxModel.default
                                 containingDimensions
@@ -211,7 +211,7 @@ blockWidthTests =
                     boxModel =
                         blockWidth
                             { styles
-                                | display = CSSOM.Block
+                                | display = CSSOM.displayBlock
                                 , width = CSSOM.widthLength <| testCSSLength 100
                                 , marginLeft = CSSOM.marginAuto
                                 , marginRight = CSSOM.marginAuto
@@ -246,7 +246,7 @@ blockWidthTests =
                     boxModel =
                         blockWidth
                             { styles
-                                | display = CSSOM.Block
+                                | display = CSSOM.displayBlock
                                 , width = CSSOM.widthLength <| testCSSLength 100
                                 , marginLeft = CSSOM.marginLength <| testCSSLength 50
                                 , marginRight = CSSOM.marginAuto
@@ -281,7 +281,7 @@ blockWidthTests =
                     boxModel =
                         blockWidth
                             { styles
-                                | display = CSSOM.Block
+                                | display = CSSOM.displayBlock
                                 , width = CSSOM.widthLength <| testCSSLength 100
                                 , marginRight = CSSOM.marginLength <| testCSSLength 50
                                 , marginLeft = CSSOM.marginAuto
@@ -316,7 +316,7 @@ blockWidthTests =
                     boxModel =
                         blockWidth
                             { styles
-                                | display = CSSOM.Block
+                                | display = CSSOM.displayBlock
                                 , width = CSSOM.widthAuto
                                 , marginRight = CSSOM.marginAuto
                                 , marginLeft = CSSOM.marginAuto
@@ -351,7 +351,7 @@ blockWidthTests =
                     boxModel =
                         blockWidth
                             { styles
-                                | display = CSSOM.Block
+                                | display = CSSOM.displayBlock
                                 , width = CSSOM.widthAuto
                                 , marginRight = CSSOM.marginLength <| testCSSLength 100
                                 , marginLeft = CSSOM.marginLength <| testCSSLength 200

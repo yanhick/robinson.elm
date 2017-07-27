@@ -5,7 +5,7 @@ module CSSOM
         , CSSBorderStyle
         , CSSBorderWidth
         , CSSDeclaration(..)
-        , CSSDisplay(..)
+        , CSSDisplay
         , CSSHeight
         , CSSMargin
         , CSSOffset
@@ -26,6 +26,7 @@ module CSSOM
         , borderWidthThick
         , borderWidthThin
         , computedBorderWidth
+        , computedDisplay
         , computedHeight
         , computedMargin
         , computedPadding
@@ -34,15 +35,22 @@ module CSSOM
         , defaultBorderColor
         , defaultBorderStyle
         , defaultBorderWidth
+        , defaultDisplay
         , defaultHeight
         , defaultMargin
         , defaultOffset
         , defaultPadding
         , defaultWidth
+        , displayBlock
+        , displayInline
+        , displayNone
         , heightAuto
         , heightLength
         , isAutoMargin
         , isAutoWidth
+        , isBlockDisplay
+        , isInlineDisplay
+        , isNoneDisplay
         , marginAuto
         , marginLength
         , matchingRules
@@ -74,15 +82,69 @@ type ComputedValue
     = ComputedValue
 
 
-type CSSDisplay
+type CSSDisplay valueType
     = Block
     | Inline
     | None
 
 
+defaultDisplay : CSSDisplay SpecifiedValue
+defaultDisplay =
+    Inline
+
+
+displayBlock : CSSDisplay SpecifiedValue
+displayBlock =
+    Block
+
+
+displayInline : CSSDisplay SpecifiedValue
+displayInline =
+    Inline
+
+
+displayNone : CSSDisplay SpecifiedValue
+displayNone =
+    None
+
+
+isNoneDisplay : CSSDisplay ComputedValue -> Bool
+isNoneDisplay display =
+    display == None
+
+
+isBlockDisplay : CSSDisplay ComputedValue -> Bool
+isBlockDisplay display =
+    display == Block
+
+
+isInlineDisplay : CSSDisplay ComputedValue -> Bool
+isInlineDisplay display =
+    display == Inline
+
+
+computedDisplay : CSSDisplay SpecifiedValue -> CSSPosition -> CSSDisplay ComputedValue
+computedDisplay display position =
+    case position of
+        Absolute ->
+            Block
+
+        _ ->
+            case display of
+                Block ->
+                    Block
+
+                Inline ->
+                    Inline
+
+                None ->
+                    None
+
+
 type CSSPosition
     = Static
     | Relative
+    | Absolute
 
 
 type CSSMargin valueType
@@ -476,7 +538,7 @@ borderWidthLength =
 
 
 type CSSDeclaration
-    = Display CSSDisplay
+    = Display (CSSDisplay SpecifiedValue)
     | Position CSSPosition
     | Top (CSSOffset SpecifiedValue)
     | Bottom (CSSOffset SpecifiedValue)

@@ -79,3 +79,27 @@ usedOffsets =
                     )
                     { x = 10, y = 0 }
         ]
+
+
+computedDisplay : Test
+computedDisplay =
+    describe "get computed display value"
+        [ test "get the specified value if position is static" <|
+            \() ->
+                Expect.true "get inline display"
+                    (CSSOM.isInlineDisplay
+                        (CSSOM.computedDisplay CSSOM.displayInline CSSOM.Static)
+                    )
+        , test "get the specified value if position is relative" <|
+            \() ->
+                Expect.true "get inline display"
+                    (CSSOM.isInlineDisplay
+                        (CSSOM.computedDisplay CSSOM.displayInline CSSOM.Relative)
+                    )
+        , test "get block if position is absolute" <|
+            \() ->
+                Expect.true "get block display"
+                    (CSSOM.isBlockDisplay
+                        (CSSOM.computedDisplay CSSOM.displayInline CSSOM.Absolute)
+                    )
+        ]

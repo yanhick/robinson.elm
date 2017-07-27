@@ -456,13 +456,13 @@ parseDisplay =
         |. symbol ":"
         |. spaces
         |= oneOf
-            [ map (always CSSOM.Block)
+            [ map (always CSSOM.displayBlock)
                 (keyword "block")
             , map
-                (always CSSOM.Inline)
+                (always CSSOM.displayInline)
                 (keyword "inline")
             , map
-                (always CSSOM.None)
+                (always CSSOM.displayNone)
                 (keyword "none")
             ]
         |. spaces
@@ -479,6 +479,7 @@ parsePosition =
         |= oneOf
             [ map (always CSSOM.Relative) (keyword "relative")
             , map (always CSSOM.Static) (keyword "static")
+            , map (always CSSOM.Absolute) (keyword "absolute")
             ]
         |. spaces
         |. symbol ";"
