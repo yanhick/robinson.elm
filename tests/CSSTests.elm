@@ -358,6 +358,8 @@ cssParser =
 passingTestCases : List ( String, String )
 passingTestCases =
     [ ( "declaration without properties", "div{}" )
+    , ( "parse static position", "div { position: static; }" )
+    , ( "parse relative position", "div { position: relative; }" )
     ]
 
 
@@ -369,8 +371,8 @@ passingTests =
                 Ok _ ->
                     True
 
-                _ ->
-                    False
+                Err err ->
+                    Debug.crash " css parsing failure"
     in
     describe "those should pass"
         (List.map

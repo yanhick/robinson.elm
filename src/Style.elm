@@ -33,6 +33,7 @@ type StyledNode
 initialStyles : Styles
 initialStyles =
     { display = CSSOM.Inline
+    , position = CSSOM.Static
     , marginLeft = CSSOM.defaultMargin
     , marginRight = CSSOM.defaultMargin
     , marginTop = CSSOM.defaultMargin
@@ -61,6 +62,7 @@ initialStyles =
 
 type alias Styles =
     { display : CSSOM.CSSDisplay
+    , position : CSSOM.CSSPosition
     , height : CSSOM.CSSHeight CSSOM.SpecifiedValue
     , width : CSSOM.CSSWidth CSSOM.SpecifiedValue
     , backgroundColor : CSSOM.CSSBackgroundColor CSSOM.SpecifiedValue
@@ -246,6 +248,11 @@ specifiedValues node stylesheet =
                     CSSOM.BorderBottomStyle value ->
                         { styles
                             | borderBottomStyle = value
+                        }
+
+                    CSSOM.Position value ->
+                        { styles
+                            | position = value
                         }
             )
             initialStyles

@@ -217,6 +217,7 @@ parseDeclaration : Parser CSSOM.CSSDeclaration
 parseDeclaration =
     oneOf
         [ parseDisplay
+        , parsePosition
         , parseMargin "margin-left" CSSOM.MarginLeft
         , parseMargin "margin-right" CSSOM.MarginRight
         , parseMargin "margin-top" CSSOM.MarginTop
@@ -441,6 +442,21 @@ parseDisplay =
             , map
                 (always CSSOM.None)
                 (keyword "none")
+            ]
+        |. spaces
+        |. symbol ";"
+
+
+parsePosition : Parser CSSOM.CSSDeclaration
+parsePosition =
+    succeed CSSOM.Position
+        |. keyword "position"
+        |. spaces
+        |. symbol ":"
+        |. spaces
+        |= oneOf
+            [ map (always CSSOM.Relative) (keyword "relative")
+            , map (always CSSOM.Static) (keyword "static")
             ]
         |. spaces
         |. symbol ";"

@@ -9,6 +9,7 @@ module CSSOM
         , CSSHeight
         , CSSMargin
         , CSSPadding
+        , CSSPosition(..)
         , CSSRule
         , CSSStyleSheet
         , CSSWidth
@@ -72,6 +73,11 @@ type CSSDisplay
     = Block
     | Inline
     | None
+
+
+type CSSPosition
+    = Static
+    | Relative
 
 
 type CSSMargin valueType
@@ -400,6 +406,7 @@ borderWidthLength =
 
 type CSSDeclaration
     = Display CSSDisplay
+    | Position CSSPosition
     | MarginLeft (CSSMargin SpecifiedValue)
     | MarginRight (CSSMargin SpecifiedValue)
     | MarginTop (CSSMargin SpecifiedValue)
