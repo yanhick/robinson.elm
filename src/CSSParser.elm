@@ -218,6 +218,10 @@ parseDeclaration =
     oneOf
         [ parseDisplay
         , parsePosition
+        , parseOffset "top" CSSOM.Top
+        , parseOffset "left" CSSOM.Left
+        , parseOffset "bottom" CSSOM.Bottom
+        , parseOffset "right" CSSOM.Right
         , parseMargin "margin-left" CSSOM.MarginLeft
         , parseMargin "margin-right" CSSOM.MarginRight
         , parseMargin "margin-top" CSSOM.MarginTop
@@ -421,6 +425,24 @@ parseBorderWidth borderWidthName borderWidthConstructor =
             , map (always CSSOM.borderWidthThin) (keyword "thin")
             , map (always CSSOM.borderWidthMedium) (keyword "medium")
             , map (always CSSOM.borderWidthThick) (keyword "thick")
+            ]
+        |. spaces
+        |. symbol ";"
+
+
+parseOffset :
+    String
+    -> (CSSOM.CSSOffset CSSOM.SpecifiedValue -> CSSOM.CSSDeclaration)
+    -> Parser CSSOM.CSSDeclaration
+parseOffset offsetName offsetConstructor =
+    succeed offsetConstructor
+        |. keyword offsetName
+        |. spaces
+        |. symbol ":"
+        |. spaces
+        |= oneOf
+            [ map CSSOM.offsetLength parseLength
+            , map (always CSSOM.offsetAuto) (keyword "auto")
             ]
         |. spaces
         |. symbol ";"

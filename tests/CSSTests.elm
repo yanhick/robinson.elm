@@ -360,6 +360,14 @@ passingTestCases =
     [ ( "declaration without properties", "div{}" )
     , ( "parse static position", "div { position: static; }" )
     , ( "parse relative position", "div { position: relative; }" )
+    , ( "parse top offset length", "div { top: 10px; }" )
+    , ( "parse top offset auto", "div { top: auto; }" )
+    , ( "parse left offset length", "div { left: 10px; }" )
+    , ( "parse left offset auto", "div { left: auto; }" )
+    , ( "parse bottom offset length", "div { bottom: 10px; }" )
+    , ( "parse bottom offset auto", "div { bottom: auto; }" )
+    , ( "parse right offset length", "div { right: 10px; }" )
+    , ( "parse right offset auto", "div { right: auto; }" )
     ]
 
 

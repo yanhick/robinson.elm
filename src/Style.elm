@@ -34,6 +34,10 @@ initialStyles : Styles
 initialStyles =
     { display = CSSOM.Inline
     , position = CSSOM.Static
+    , top = CSSOM.defaultOffset
+    , left = CSSOM.defaultOffset
+    , bottom = CSSOM.defaultOffset
+    , right = CSSOM.defaultOffset
     , marginLeft = CSSOM.defaultMargin
     , marginRight = CSSOM.defaultMargin
     , marginTop = CSSOM.defaultMargin
@@ -63,6 +67,10 @@ initialStyles =
 type alias Styles =
     { display : CSSOM.CSSDisplay
     , position : CSSOM.CSSPosition
+    , top : CSSOM.CSSOffset CSSOM.SpecifiedValue
+    , left : CSSOM.CSSOffset CSSOM.SpecifiedValue
+    , bottom : CSSOM.CSSOffset CSSOM.SpecifiedValue
+    , right : CSSOM.CSSOffset CSSOM.SpecifiedValue
     , height : CSSOM.CSSHeight CSSOM.SpecifiedValue
     , width : CSSOM.CSSWidth CSSOM.SpecifiedValue
     , backgroundColor : CSSOM.CSSBackgroundColor CSSOM.SpecifiedValue
@@ -253,6 +261,26 @@ specifiedValues node stylesheet =
                     CSSOM.Position value ->
                         { styles
                             | position = value
+                        }
+
+                    CSSOM.Top value ->
+                        { styles
+                            | top = value
+                        }
+
+                    CSSOM.Left value ->
+                        { styles
+                            | left = value
+                        }
+
+                    CSSOM.Bottom value ->
+                        { styles
+                            | bottom = value
+                        }
+
+                    CSSOM.Right value ->
+                        { styles
+                            | right = value
                         }
             )
             initialStyles

@@ -8,6 +8,7 @@ module CSSOM
         , CSSDisplay(..)
         , CSSHeight
         , CSSMargin
+        , CSSOffset
         , CSSPadding
         , CSSPosition(..)
         , CSSRule
@@ -35,6 +36,7 @@ module CSSOM
         , defaultBorderWidth
         , defaultHeight
         , defaultMargin
+        , defaultOffset
         , defaultPadding
         , defaultWidth
         , heightAuto
@@ -44,6 +46,8 @@ module CSSOM
         , marginAuto
         , marginLength
         , matchingRules
+        , offsetAuto
+        , offsetLength
         , padding
         , usedBackgroundColor
         , usedBorderColor
@@ -85,9 +89,29 @@ type CSSMargin valueType
     | MarginLength CSSBasicTypes.CSSLength
 
 
+type CSSOffset valueType
+    = OffsetAuto
+    | OffsetLength CSSBasicTypes.CSSLength
+
+
+defaultOffset : CSSOffset SpecifiedValue
+defaultOffset =
+    OffsetAuto
+
+
+offsetLength : CSSBasicTypes.CSSLength -> CSSOffset SpecifiedValue
+offsetLength =
+    OffsetLength
+
+
 marginLength : CSSBasicTypes.CSSLength -> CSSMargin SpecifiedValue
 marginLength =
     MarginLength
+
+
+offsetAuto : CSSOffset SpecifiedValue
+offsetAuto =
+    OffsetAuto
 
 
 marginAuto : CSSMargin SpecifiedValue
@@ -407,6 +431,10 @@ borderWidthLength =
 type CSSDeclaration
     = Display CSSDisplay
     | Position CSSPosition
+    | Top (CSSOffset SpecifiedValue)
+    | Bottom (CSSOffset SpecifiedValue)
+    | Left (CSSOffset SpecifiedValue)
+    | Right (CSSOffset SpecifiedValue)
     | MarginLeft (CSSMargin SpecifiedValue)
     | MarginRight (CSSMargin SpecifiedValue)
     | MarginTop (CSSMargin SpecifiedValue)
